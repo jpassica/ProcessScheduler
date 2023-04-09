@@ -30,3 +30,5 @@
 *.exe
 *.out
 *.app
+/.vs/ProcessScheduler/v17
+/x64/Debug
