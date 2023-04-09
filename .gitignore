@@ -30,5 +30,7 @@
 *.exe
 *.out
 *.app
+/.vs
 /.vs/ProcessScheduler/v17
 /x64/Debug
+/.gitignore
