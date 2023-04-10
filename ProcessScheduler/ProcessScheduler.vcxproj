@@ -129,6 +129,12 @@
   <ItemGroup>
     <ClCompile Include="ProcessScheduler.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="KeyNode.h" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="PriQqueue.h" />
+    <ClInclude Include="Queue.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

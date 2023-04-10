@@ -22,4 +22,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Queue.h">
+      <Filter>Data structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>Data structures</Filter>
+    </ClInclude>
+    <ClInclude Include="PriQqueue.h">
+      <Filter>Data structures</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyNode.h">
+      <Filter>Data structures</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
