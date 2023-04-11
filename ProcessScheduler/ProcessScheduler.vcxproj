@@ -135,6 +135,7 @@
     <ClInclude Include="PriorityQueue.h" />
     <ClInclude Include="PriQqueue.h" />
     <ClInclude Include="Process.h" />
+    <ClInclude Include="Processor.h" />
     <ClInclude Include="Queue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
