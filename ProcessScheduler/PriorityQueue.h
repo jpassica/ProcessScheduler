@@ -1,6 +1,8 @@
 #pragma once
 #define MAXSIZE 100000
 #include"KeyNode.h"
+#include<iostream>
+using namespace std;
 template <class T>
 class PriorityQueue 
 {
