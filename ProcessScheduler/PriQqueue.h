@@ -3,6 +3,7 @@
 template <class T>
 class PriQqueue 
 {
+	//Queue Implementation
 private:
 	KeyNode<T>* Front;
 	KeyNode<T>* Back;

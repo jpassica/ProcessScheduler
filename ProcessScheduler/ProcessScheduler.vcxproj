@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClInclude Include="KeyNode.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="PriorityQueue.h" />
     <ClInclude Include="PriQqueue.h" />
     <ClInclude Include="Queue.h" />
   </ItemGroup>
