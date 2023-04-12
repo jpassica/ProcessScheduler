@@ -4,8 +4,11 @@ enum ProcessorState {IDLE, BUSY};
 
 class Processor
 {
-	const int ID;
+	int ID;
 	ProcessorState CrntState;
+	double pLoad, pUtil;
+	int busyTime, idleTime;
+	int finishTime;
 
 public:
 	Processor();

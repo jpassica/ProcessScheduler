@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Processor.cpp" />
     <ClCompile Include="ProcessScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
