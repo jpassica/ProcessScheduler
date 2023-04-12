@@ -131,13 +131,13 @@
     <ClCompile Include="ProcessScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="KeyNode.h" />
-    <ClInclude Include="Node.h" />
-    <ClInclude Include="PriorityQueue.h" />
-    <ClInclude Include="PriQqueue.h" />
+    <ClInclude Include="DS Classes\KeyNode.h" />
+    <ClInclude Include="DS Classes\Node.h" />
+    <ClInclude Include="DS Classes\PriorityQueue.h" />
+    <ClInclude Include="DS Classes\PriQqueue.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="Processor.h" />
-    <ClInclude Include="Queue.h" />
+    <ClInclude Include="DS Classes\Queue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

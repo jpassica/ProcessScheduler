@@ -21,22 +21,31 @@
     <ClCompile Include="ProcessScheduler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Processor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Queue.h">
+    <ClInclude Include="DS Classes\Queue.h">
       <Filter>Data structures</Filter>
     </ClInclude>
-    <ClInclude Include="Node.h">
+    <ClInclude Include="DS Classes\Node.h">
       <Filter>Data structures</Filter>
     </ClInclude>
-    <ClInclude Include="PriQqueue.h">
+    <ClInclude Include="DS Classes\PriQqueue.h">
       <Filter>Data structures</Filter>
     </ClInclude>
-    <ClInclude Include="KeyNode.h">
+    <ClInclude Include="DS Classes\KeyNode.h">
       <Filter>Data structures</Filter>
     </ClInclude>
-    <ClInclude Include="PriorityQueue.h">
+    <ClInclude Include="DS Classes\PriorityQueue.h">
       <Filter>Data structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Process.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Processor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

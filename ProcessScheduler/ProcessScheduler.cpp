@@ -1,5 +1,5 @@
-#include"PriorityQueue.h"
-#include"Queue.h"
+#include "DS Classes/PriorityQueue.h"
+#include"DS Classes/Queue.h"
 #include <iostream>
 using namespace std;
 
