@@ -1,5 +1,5 @@
 #include "Processor.h"
 
-Processor::Processor() : CrntState(IDLE)
+Processor::Processor(int ID) : CrntState(IDLE), ID(ID)
 {
 }

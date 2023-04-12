@@ -11,6 +11,6 @@ class Processor
 	int finishTime;
 
 public:
-	Processor();
+	Processor(int ID);					//ctor receives ID from the scheduler
 	virtual void ScheduleAlgo() = 0;
 };
