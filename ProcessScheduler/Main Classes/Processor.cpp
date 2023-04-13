@@ -27,7 +27,7 @@ bool Processor::DecrementRunningProcess()
 	return true;
 }
 
-void Processor::IncrementBusyAndIdleTime()
+void Processor::IncrementBusyOrIdleTime()
 {
 	if (CrntState == IDLE)
 		idleTime++;
