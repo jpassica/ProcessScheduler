@@ -39,7 +39,7 @@
     <ClCompile Include="Main Classes\SJF_Processor.cpp">
       <Filter>Main Classes</Filter>
     </ClCompile>
-    <ClCompile Include="Defs.cpp">
+    <ClCompile Include="Defs.h">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
