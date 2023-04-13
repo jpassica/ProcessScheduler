@@ -2,4 +2,20 @@
 
 Processor::Processor(int ID) : CrntState(IDLE), ID(ID)
 {
+	//initializing all processor data members
+	busyTime = 0;
+	idleTime = 0;
+	finishTime = 0;
+	/*pLoad = 0;
+	pUtil = 0;*/
+}
+
+double Processor::CalcProcessorLoad(int TotalTRT)		//calculates and returns pLoad %
+{
+	return ((double)busyTime / TotalTRT) * 100;
+}
+
+double Processor::CalcProcessorUtil() const				//calculates and returns pUtil %
+{
+	return ((double)busyTime / (busyTime + idleTime)) * 100;
 }

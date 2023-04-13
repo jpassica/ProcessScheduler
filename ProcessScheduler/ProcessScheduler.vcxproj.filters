@@ -21,7 +21,19 @@
     <ClCompile Include="ProcessScheduler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Processor.cpp">
+    <ClCompile Include="Main Classes\Processor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\FCFS_Processor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\SJF_Processor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\RR_Processor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\Process.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,10 +53,19 @@
     <ClInclude Include="DS Classes\PriorityQueue.h">
       <Filter>Data structures</Filter>
     </ClInclude>
-    <ClInclude Include="Process.h">
+    <ClInclude Include="Main Classes\Process.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Processor.h">
+    <ClInclude Include="Main Classes\Processor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\FCFS_Processor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\SJF_Processor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\RR_Processor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

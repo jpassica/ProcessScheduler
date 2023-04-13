@@ -1,6 +1,7 @@
 #include "DS Classes/PriorityQueue.h"
 #include"DS Classes/Queue.h"
 #include <iostream>
+#include "Main Classes/Processor.h"
 using namespace std;
 
 int main()

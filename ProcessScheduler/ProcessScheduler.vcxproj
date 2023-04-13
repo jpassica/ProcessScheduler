@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Processor.cpp" />
+    <ClCompile Include="Main Classes\Processor.cpp" />
     <ClCompile Include="ProcessScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -135,8 +135,8 @@
     <ClInclude Include="DS Classes\Node.h" />
     <ClInclude Include="DS Classes\PriorityQueue.h" />
     <ClInclude Include="DS Classes\PriQqueue.h" />
-    <ClInclude Include="Process.h" />
-    <ClInclude Include="Processor.h" />
+    <ClInclude Include="Main Classes\Process.h" />
+    <ClInclude Include="Main Classes\Processor.h" />
     <ClInclude Include="DS Classes\Queue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
