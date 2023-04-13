@@ -1,5 +1,7 @@
 #include"PriorityQueue.h"
 #include"Queue.h"
+#include"scheduler.h"
+#include "UI.h"
 #include <iostream>
 using namespace std;
 

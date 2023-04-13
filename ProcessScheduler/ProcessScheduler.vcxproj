@@ -128,7 +128,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Processor.cpp" />
-    <ClCompile Include="ProcessScheduler.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="scheduler.cpp" />
+    <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KeyNode.h" />
@@ -138,6 +140,8 @@
     <ClInclude Include="Process.h" />
     <ClInclude Include="Processor.h" />
     <ClInclude Include="Queue.h" />
+    <ClInclude Include="scheduler.h" />
+    <ClInclude Include="UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

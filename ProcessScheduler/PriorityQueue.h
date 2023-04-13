@@ -10,7 +10,7 @@ class PriorityQueue
 private:
 	KeyNode<T>* arr[MAXSIZE];
 	int size;
-	
+
 	bool shiftUpward(int ind)
 	{
 		//checking range
@@ -81,6 +81,10 @@ public:
 	{
 		for (int i = 0; i < size; i++)
 			cout << "( " << arr[i]->getItem() << " , " << arr[i]->getKey() << " )";
+	}
+	int getcount()
+	{
+		return size;
 	}
 	~PriorityQueue(){}
 

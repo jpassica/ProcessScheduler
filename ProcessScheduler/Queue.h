@@ -8,11 +8,12 @@ class Queue
 {
 private:
 	Node<T>* back; //Normal Queue implemented by the idea of circular queue
-
+	int count;
 public:
 	Queue()
 	{
 		back = nullptr;
+		count = 0;
 	}
 	bool isEmpty()
 	{
@@ -33,6 +34,7 @@ public:
 		else
 			N->setNext(N);
 		back = N;
+		count++;
 	}
 	bool Dequeue()
 	{
@@ -45,6 +47,7 @@ public:
 			back = nullptr;
 		delete Temp;
 		return true;
+		count--;
 	}
 	T Queue_front()
 	{
@@ -63,6 +66,10 @@ public:
 		}
 		cout << back->getItem();
 		cout << endl;
+	}
+	int getCount()
+	{
+		return count;
 	}
 	~Queue()
 	{
