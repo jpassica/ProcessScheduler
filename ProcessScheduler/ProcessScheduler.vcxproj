@@ -127,17 +127,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Defs.h" />
+    <ClCompile Include="Main Classes\FCFS_Processor.cpp" />
+    <ClCompile Include="Main Classes\Process.cpp" />
     <ClCompile Include="Main Classes\Processor.cpp" />
     <ClCompile Include="ProcessScheduler.cpp" />
+    <ClCompile Include="Main Classes\SJF_Processor.cpp" />
+    <ClCompile Include="Main Classes\RR_Processor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DS Classes\KeyNode.h" />
     <ClInclude Include="DS Classes\Node.h" />
     <ClInclude Include="DS Classes\PriorityQueue.h" />
     <ClInclude Include="DS Classes\PriQqueue.h" />
+    <ClInclude Include="Main Classes\FCFS_Processor.h" />
     <ClInclude Include="Main Classes\Process.h" />
     <ClInclude Include="Main Classes\Processor.h" />
     <ClInclude Include="DS Classes\Queue.h" />
+    <ClInclude Include="Main Classes\SJF_Processor.h" />
+    <ClInclude Include="Main Classes\RR_Processor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,7 +7,7 @@ template <class T>
 class Queue
 {
 private:
-	Node<T>* back; //Normal Queue implemented by the idea of circular queue
+	Node<T>* back;		//Normal Queue implemented by the idea of circular queue
 
 public:
 	Queue()
@@ -43,6 +43,7 @@ public:
 		back->setNext(Temp->getNext());
 		if (back == Temp)
 			back = nullptr;
+
 		delete Temp;
 		return true;
 	}

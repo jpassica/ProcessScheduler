@@ -9,16 +9,16 @@ class Processor
 private:
 	int ID;
 	ProcessorState CrntState;
-	//double pLoad, pUtil;							//not really using those eh?
 	int busyTime, idleTime;
 	int finishTime;
 	
 protected:
-	Process* RUN;
+	Process* RunPtr;								//Ptr to the executing process
+	//Scheduler* pScheduler;
 
 public:
 	Processor(int ID);								//ctor receives ID from the scheduler
 	virtual void ScheduleAlgo() = 0;
-	double CalcProcessorLoad(int TotalTRT);			//calculates Processor Load and re
-	double CalcProcessorUtil() const;
+	double CalcPLoad(int TotalTRT);					//calculates Processor Load and re
+	double CalcPUtil() const;
 };

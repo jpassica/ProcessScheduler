@@ -1,8 +1,13 @@
 #include "Process.h"
 
-
 //Process Constructor
-Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT) {}
+Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT), CrntState(NEW) {}
+
+void Process::operator=(const Process& CopyFrom)
+{
+	*this = CopyFrom;
+}
+
 
 //Initialization for (IO_R,IO_D) 2_d array
 void Process::InitialIO(int n) {
@@ -22,6 +27,11 @@ void Process::SetResponseTime(int FCPU) {
 	ResponseTime = FCPU - ArrivalTime;
 }
 
+int Process::GetCPUTime() const
+{
+	return CPUTime;
+}
+
 // Set the termination time as TT is the time when the process go to TRM list after processing 
 void Process::SetTerminationTime(int TT) {
 	TerminationTime = TT;
@@ -32,6 +42,11 @@ void Process::SetTerminationTime(int TT) {
 //Getter for Process ID
 int Process::GetPID() const {
 	return PID;
+}
+
+void Process::ChangeProcessState(ProcessState NewState)
+{
+	CrntState = NewState;
 }
 
 //Destructor for deallocating the dynamic array we used

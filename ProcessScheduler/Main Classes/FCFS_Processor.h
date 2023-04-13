@@ -4,7 +4,7 @@
 
 class FCFS_Processor : public Processor
 {
-	Queue<Process> RDY;
+	Queue<Process> ReadyQ;
 
 public:
 	FCFS_Processor(int ID);
