@@ -2,6 +2,7 @@
 #include"DS Classes/Queue.h"
 #include <iostream>
 #include "Main Classes/Processor.h"
+#include "Main Classes/FCFS_Processor.h"
 using namespace std;
 
 int main()
@@ -26,5 +27,8 @@ int main()
 	Q.Dequeue();
 	Q.Print();
 	cout << endl;
+
+	FCFS_Processor p1(1);
+	
 }
 

@@ -26,4 +26,6 @@ void SJF_Processor::ScheduleAlgo()
 	{
 		cerr << "Error! Wait until the process finishes executing.\n";
 	}
+	if (RunPtr)
+		CrntState = BUSY;
 }

@@ -49,6 +49,11 @@ void Process::ChangeProcessState(ProcessState NewState)
 	CrntState = NewState;
 }
 
+void Process::DecrementCPUTime()
+{
+	CPUTime--;
+}
+
 //Destructor for deallocating the dynamic array we used
 Process::~Process() {
 	delete[] IOPairs[0];

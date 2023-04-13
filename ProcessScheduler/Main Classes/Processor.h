@@ -8,17 +8,34 @@ class Processor
 {
 private:
 	int ID;
-	ProcessorState CrntState;
 	int busyTime, idleTime;
 	int finishTime;
 	
 protected:
-	Process* RunPtr;								//Ptr to the executing process
+	//Ptr to the running process
+	Process* RunPtr;								
 	//Scheduler* pScheduler;
+	ProcessorState CrntState;
 
 public:
-	Processor(int ID);								//ctor receives ID from the scheduler
+	//ctor receives ID from the scheduler
+	Processor(int ID);
+
+	//
 	virtual void ScheduleAlgo() = 0;
-	double CalcPLoad(int TotalTRT);					//calculates Processor Load and re
-	double CalcPUtil() const;
+
+	//calculates and returns pLoad %
+	double CalcPLoad(int TotalTRT);			
+
+	//calculates and returns pUtil %
+	double CalcPUtil() const;			
+
+	//To be used for simulation each time step
+	bool DecrementRunningProcess();		
+
+	//This function should be called each time step, to track the time accurately
+	void IncrementBusyAndIdleTime();
+
+	//changes current state from idle to busy and vice versa
+	void FlipProcessorState();
 };

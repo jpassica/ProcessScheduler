@@ -10,6 +10,5 @@ class RR_Processor : public Processor
 public:
 	RR_Processor(int ID, int TimeSlice);
 	virtual void ScheduleAlgo() override;
-
 };
 

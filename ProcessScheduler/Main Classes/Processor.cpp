@@ -17,3 +17,28 @@ double Processor::CalcPUtil() const				//calculates and returns pUtil %
 {
 	return ((double)busyTime / (busyTime + idleTime)) * 100;
 }
+
+bool Processor::DecrementRunningProcess()
+{
+	if (!RunPtr)
+		return false;
+	
+	RunPtr->DecrementCPUTime();
+	return true;
+}
+
+void Processor::IncrementBusyAndIdleTime()
+{
+	if (CrntState == IDLE)
+		idleTime++;
+	else
+		busyTime++;
+}
+
+void Processor::FlipProcessorState()
+{
+	if (CrntState == IDLE)
+		CrntState = BUSY;
+	else
+		CrntState = IDLE;
+}

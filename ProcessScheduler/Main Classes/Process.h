@@ -24,5 +24,6 @@ public:
 	int GetCPUTime() const;
 	int GetPID() const;
 	void ChangeProcessState(ProcessState NewState);
+	void DecrementCPUTime();
 	~Process();
 };
