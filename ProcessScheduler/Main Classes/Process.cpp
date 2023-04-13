@@ -23,10 +23,10 @@ void Process::SetResponseTime(int FCPU) {
 }
 
 // Set the termination time as TT is the time when the process go to TRM list after processing 
-void Process::SetTermenationTime(int TT) {
-	TermenationTime = TT;
-	TurnaroundTime = TermenationTime - ArrivalTime;
-	WaitingTime = TurnaroundTime - CPUTime;
+void Process::SetTerminationTime(int TT) {
+	TerminationTime = TT;
+	TurnAroundTime = TerminationTime - ArrivalTime;
+	WaitingTime = TurnAroundTime - CPUTime;
 }
 
 //Getter for Process ID

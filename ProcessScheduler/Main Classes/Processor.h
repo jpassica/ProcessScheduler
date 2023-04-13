@@ -1,7 +1,8 @@
 #pragma once
 #include "Process.h"
+//#include 
 
-enum ProcessorState {IDLE, BUSY};
+enum ProcessorState { IDLE, BUSY };
 
 class Processor
 {

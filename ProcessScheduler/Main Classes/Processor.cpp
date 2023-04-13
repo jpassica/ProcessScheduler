@@ -6,8 +6,6 @@ Processor::Processor(int ID) : CrntState(IDLE), ID(ID)
 	busyTime = 0;
 	idleTime = 0;
 	finishTime = 0;
-	/*pLoad = 0;
-	pUtil = 0;*/
 }
 
 double Processor::CalcProcessorLoad(int TotalTRT)		//calculates and returns pLoad %

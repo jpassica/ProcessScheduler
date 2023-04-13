@@ -39,6 +39,9 @@
     <ClCompile Include="Main Classes\SJF_Processor.cpp">
       <Filter>Main Classes</Filter>
     </ClCompile>
+    <ClCompile Include="Defs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DS Classes\Queue.h">
