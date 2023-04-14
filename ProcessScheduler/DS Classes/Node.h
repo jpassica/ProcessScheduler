@@ -2,7 +2,7 @@
 #define _NODE
 
 //First let's declare a single node in the list
-template<typename T>
+template<class T>
 class Node
 {
 private:

@@ -137,9 +137,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DS Classes\KeyNode.h" />
+    <ClInclude Include="DS Classes\List.h" />
     <ClInclude Include="DS Classes\Node.h" />
     <ClInclude Include="DS Classes\PriorityQueue.h" />
-    <ClInclude Include="DS Classes\PriQqueue.h" />
+    <ClInclude Include="DS Classes\PriQueue.h" />
     <ClInclude Include="Main Classes\FCFS_Processor.h" />
     <ClInclude Include="Main Classes\Process.h" />
     <ClInclude Include="Main Classes\Processor.h" />

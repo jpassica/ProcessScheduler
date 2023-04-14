@@ -1,7 +1,19 @@
 #include "Process.h"
 
 //Process Constructor
-Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT), CrntState(NEW) {}
+Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT), CrntState(NEW) 
+{
+	//initializing all data members
+	TerminationTime = 0;
+	TurnAroundTime = 0;
+	WaitingTime = 0;
+	ResponseTime = 0;
+}
+
+Process::Process() : PID (0)
+{
+
+}
 
 void Process::operator=(const Process& CopyFrom)
 {

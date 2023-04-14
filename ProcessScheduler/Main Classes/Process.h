@@ -16,6 +16,7 @@ class Process {
 
 public:
 	Process(int pid, int AT, int CT);
+	Process();						//adding this to fix an error
 	void operator= (const Process & CopyFrom);
 	void InitialIO(int n);
 	void SetIO(int i, int IO_D, int IO_R);

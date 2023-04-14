@@ -1,14 +1,14 @@
 #pragma once
 #include"KeyNode.h"
 template <class T>
-class PriQqueue 
+class PriQueue 
 {
 	//Queue Implementation
 private:
 	KeyNode<T>* Front;
 	KeyNode<T>* Back;
 public:
-	PriQqueue()
+	PriQueue()
 	{
 		Front = nullptr;
 		Back = nullptr;
@@ -78,7 +78,7 @@ public:
 			ptr = ptr->getNext();
 		}
 	}
-	~PriQqueue()
+	~PriQueue()
 	{
 		KeyNode<T>* ptr = Front ;
 		T temp;

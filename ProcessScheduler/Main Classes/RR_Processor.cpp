@@ -10,7 +10,7 @@ void RR_Processor::ScheduleAlgo()
 
 	if (RunPtr)							//in case there is a process already executing
 	{
-		if (!RunPtr->GetCPUTime())		//in case the running process is not done executing
+		if (RunPtr->GetCPUTime())		//in case the running process is not done executing
 		{ //The process should go back to RDY, and another one comes in its place
 
 			ReadyQ.Enqueue(*RunPtr);
@@ -21,10 +21,16 @@ void RR_Processor::ScheduleAlgo()
 		}
 	}
 
-	//these 2 lines will be executed in every case
-	*RunPtr = ReadyQ.Queue_front();
-	RunPtr->ChangeProcessState(RUN);
-	ReadyQ.Dequeue();
+	if (!ReadyQ.isEmpty())
+	{
+		*RunPtr = ReadyQ.Queue_front();
+		RunPtr->ChangeProcessState(RUN);
+		ReadyQ.Dequeue();
+	}
+	else
+	{
+		RunPtr = nullptr;
+	}
 
 	if (RunPtr)				//if there is a process currently running
 		CrntState = BUSY;
