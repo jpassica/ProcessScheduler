@@ -4,7 +4,7 @@
 
 class FCFS_Processor : public Processor
 {
-	List<Process> ReadyList;
+	List<Process*> ReadyList;
 
 public:
 	FCFS_Processor(int ID);

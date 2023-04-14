@@ -10,17 +10,6 @@ Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT
 	ResponseTime = 0;
 }
 
-Process::Process() : PID (0)
-{
-
-}
-
-void Process::operator=(const Process& CopyFrom)
-{
-	*this = CopyFrom; return;
-}
-
-
 //Initialization for (IO_R,IO_D) 2_d array
 void Process::InitialIO(int n) {
 	for (int i = 0; i < 2; i++)

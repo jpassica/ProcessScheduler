@@ -5,7 +5,7 @@
 class RR_Processor : public Processor
 {
 	int TimeSlice;
-	Queue<Process> ReadyQ;
+	Queue<Process*> ReadyQ;
 
 public:
 	RR_Processor(int ID, int TimeSlice);

@@ -14,7 +14,7 @@ void SJF_Processor::ScheduleAlgo()
 
 	//2: point to new process and dequeue
 	int key(0);
-	bool CanPeek = ReadyPriQ.QueueFront(*RunPtr, key);
+	bool CanPeek = ReadyPriQ.QueueFront(RunPtr, key);
 
 	if (!CanPeek)
 	{   //ReadyPriQ is empty, no need to dequeue

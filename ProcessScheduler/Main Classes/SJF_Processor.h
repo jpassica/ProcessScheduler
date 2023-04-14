@@ -4,7 +4,7 @@
 
 class SJF_Processor : public Processor
 {
-	PriorityQueue<Process> ReadyPriQ;
+	PriorityQueue<Process*> ReadyPriQ;
 
 public:
 	SJF_Processor(int ID);
