@@ -8,6 +8,11 @@ class FCFS_Processor : public Processor
 
 public:
 	FCFS_Processor(int ID);
+
+	//
 	virtual void ScheduleAlgo() override;
+
+	//calculates and returns finish time according to CT of processes
+	virtual int CalcFinishTime() override;
 };
 

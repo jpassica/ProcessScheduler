@@ -30,7 +30,7 @@ public:
 	List() : headPtr(nullptr), itemCount(0)	{}
 
 	//copy ctor
-	List(const List<T>& aList)	{}
+	//List(const List<T>& aList)	{}
 
 	bool isEmpty() const
 	{

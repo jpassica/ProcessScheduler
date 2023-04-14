@@ -30,3 +30,16 @@ void FCFS_Processor::ScheduleAlgo()
 	else
 		CrntState = IDLE;
 }
+
+int FCFS_Processor::CalcFinishTime()
+{
+	for (size_t i = 1; i <= ReadyList.getLength(); i++)
+	{
+		finishTime += ReadyList.getEntry(i).GetCPUTime();
+	}
+	
+	if (RunPtr)
+		finishTime += RunPtr->GetCPUTime();
+
+	return finishTime;
+}

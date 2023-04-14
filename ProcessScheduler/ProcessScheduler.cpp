@@ -8,7 +8,7 @@ using namespace std;
 
 int main()
 {
-	PriorityQueue<int>Q;
+	/*PriorityQueue<int>Q;
 	Q.Enqueue(5, 3);
 	Q.Enqueue(2, 3);
 	Q.Enqueue(4, 10);
@@ -27,11 +27,12 @@ int main()
 
 	Q.Dequeue();
 	Q.Print();
-	cout << endl;
+	cout << endl;*/
 
 	FCFS_Processor p1(1);
+	
 
-	List<int> L1;
+	/*List<int> L1;
 
 	L1.insert(1, 2);
 	L1.insert(2, 4);
@@ -46,7 +47,7 @@ int main()
 
 	L1.clear(); L1.Print();
 
-	cout << L1.getLength() << endl;
+	cout << L1.getLength() << endl;*/
 	
 }
 

@@ -17,7 +17,7 @@ Process::Process() : PID (0)
 
 void Process::operator=(const Process& CopyFrom)
 {
-	*this = CopyFrom;
+	*this = CopyFrom; return;
 }
 
 
@@ -54,6 +54,26 @@ void Process::SetTerminationTime(int TT) {
 //Getter for Process ID
 int Process::GetPID() const {
 	return PID;
+}
+
+int Process::GetTurnAroundTime() const
+{
+	return TurnAroundTime;
+}
+
+int Process::GetResponseTime() const
+{
+	return ResponseTime;
+}
+
+int Process::GetWaitingTime() const
+{
+	return WaitingTime;
+}
+
+ProcessState Process::GetProcessState()
+{
+	return CrntState;
 }
 
 void Process::ChangeProcessState(ProcessState NewState)

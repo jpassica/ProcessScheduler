@@ -32,3 +32,8 @@ void SJF_Processor::ScheduleAlgo()
 	else
 		CrntState = IDLE;
 }
+
+int SJF_Processor::CalcFinishTime()
+{
+	return 0;
+}

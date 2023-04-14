@@ -37,3 +37,8 @@ void RR_Processor::ScheduleAlgo()
 	else
 		CrntState = IDLE;
 }
+
+int RR_Processor::CalcFinishTime()
+{
+	return 0;
+}

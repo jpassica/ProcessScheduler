@@ -22,8 +22,14 @@ public:
 	void SetIO(int i, int IO_D, int IO_R);
 	void SetTerminationTime(int n);
 	void SetResponseTime(int n);
+
 	int GetCPUTime() const;
 	int GetPID() const;
+	int GetTurnAroundTime() const;
+	int GetResponseTime() const;
+	int GetWaitingTime() const;
+	ProcessState GetProcessState();
+
 	void ChangeProcessState(ProcessState NewState);
 	void DecrementCPUTime();
 	~Process();

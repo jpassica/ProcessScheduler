@@ -9,13 +9,13 @@ class Processor
 private:
 	int ID;
 	int busyTime, idleTime;
-	int finishTime;
 	
 protected:
 	//Ptr to the running process
 	Process* RunPtr;								
 	//Scheduler* pScheduler;
 	ProcessorState CrntState;
+	int finishTime;
 
 public:
 	//ctor receives ID from the scheduler
@@ -24,16 +24,21 @@ public:
 	//each processor has its own version of this function
 	virtual void ScheduleAlgo() = 0;
 
+	//calculates and returns finish time according to CT of processes
+	virtual int CalcFinishTime() = 0;
+
 	//calculates and returns pLoad %
-	double CalcPLoad(int TotalTRT);			
+	double CalcPLoad(int TotalTRT) const;			
 
 	//calculates and returns pUtil %
 	double CalcPUtil() const;			
 
-	//To be used for simulation each time step
+	//This function decrements the CT of the running process
+	//it should be called each time step
 	bool DecrementRunningProcess();		
 
-	//This function should be called each time step, to track the time accurately
+	//This function keeps track of busyTime and idleTime
+	//it should be called each time step
 	void IncrementBusyOrIdleTime();
 
 	//changes current state from idle to busy and vice versa

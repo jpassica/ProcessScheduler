@@ -8,7 +8,7 @@ Processor::Processor(int ID) : CrntState(IDLE), ID(ID), RunPtr(nullptr)
 	finishTime = 0;
 }
 
-double Processor::CalcPLoad(int TotalTRT)		//calculates and returns pLoad %
+double Processor::CalcPLoad(int TotalTRT) const	//calculates and returns pLoad %
 {
 	return ((double)busyTime / TotalTRT) * 100;
 }
