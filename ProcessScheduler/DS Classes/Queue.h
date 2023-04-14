@@ -45,6 +45,7 @@ public:
 		back->setNext(Temp->getNext());
 		if (back == Temp)
 			back = nullptr;
+
 		delete Temp;
 		return true;
 		count--;

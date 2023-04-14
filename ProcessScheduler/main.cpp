@@ -3,6 +3,7 @@
 #include"scheduler.h"
 #include "UI.h"
 #include <iostream>
+#include "Main Classes/Processor.h"
 using namespace std;
 
 int main()

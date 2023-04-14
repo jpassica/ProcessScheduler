@@ -13,8 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Data structures">
+    <Filter Include="DS Classes">
       <UniqueIdentifier>{b8988a18-4ee3-4028-9a48-4278b9f697f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main Classes">
+      <UniqueIdentifier>{c139e607-7124-4ce8-ae9b-9cea19775f29}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,22 +33,55 @@
     <ClCompile Include="scheduler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Main Classes\FCFS_Processor.cpp">
+      <Filter>Main Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\Process.cpp">
+      <Filter>Main Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\Processor.cpp">
+      <Filter>Main Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\RR_Processor.cpp">
+      <Filter>Main Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\SJF_Processor.cpp">
+      <Filter>Main Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Defs.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Queue.h">
-      <Filter>Data structures</Filter>
+    <ClInclude Include="DS Classes\Queue.h">
+      <Filter>DS Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Node.h">
-      <Filter>Data structures</Filter>
+    <ClInclude Include="DS Classes\Node.h">
+      <Filter>DS Classes</Filter>
     </ClInclude>
-    <ClInclude Include="PriQqueue.h">
-      <Filter>Data structures</Filter>
+    <ClInclude Include="DS Classes\PriQqueue.h">
+      <Filter>DS Classes</Filter>
     </ClInclude>
-    <ClInclude Include="KeyNode.h">
-      <Filter>Data structures</Filter>
+    <ClInclude Include="DS Classes\KeyNode.h">
+      <Filter>DS Classes</Filter>
     </ClInclude>
-    <ClInclude Include="PriorityQueue.h">
-      <Filter>Data structures</Filter>
+    <ClInclude Include="DS Classes\PriorityQueue.h">
+      <Filter>DS Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\Process.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\Processor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\FCFS_Processor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\SJF_Processor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\RR_Processor.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Process.h">
       <Filter>Header Files</Filter>
