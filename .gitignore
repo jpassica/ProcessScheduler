@@ -34,3 +34,13 @@
 /.vs/ProcessScheduler/v17
 /x64/Debug
 /.gitignore
+/ProcessScheduler/x64/Debug/vc143.idb
+/ProcessScheduler/x64/Debug/vc143.pdb
+/ProcessScheduler/x64/Debug/ProcessScheduler.ilk
+/ProcessScheduler/x64/Debug/ProcessScheduler.log
+/ProcessScheduler/x64/Debug/ProcessScheduler.tlog/link.write.1.tlog
+/ProcessScheduler/x64/Debug/ProcessScheduler.tlog/link.read.1.tlog
+/ProcessScheduler/x64/Debug/ProcessScheduler.tlog/link.command.1.tlog
+/ProcessScheduler/x64/Debug/ProcessScheduler.tlog/CL.write.1.tlog
+/ProcessScheduler/x64/Debug/ProcessScheduler.tlog/CL.command.1.tlog
+/ProcessScheduler/x64/Debug/ProcessScheduler.tlog/CL.read.1.tlog

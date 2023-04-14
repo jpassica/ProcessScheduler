@@ -6,13 +6,14 @@ Process::Process():PID(NULL)
 }
 
 //Process Constructor
-Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT), CrntState(NEW) {}
-
-void Process::operator=(const Process& CopyFrom)
+Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT), CrntState(NEW) 
 {
-	*this = CopyFrom;
+	//initializing all data members
+	TerminationTime = 0;
+	TurnAroundTime = 0;
+	WaitingTime = 0;
+	ResponseTime = 0;
 }
-
 
 //Initialization for (IO_R,IO_D) 2_d array
 void Process::InitialIO(int n) {
@@ -49,9 +50,34 @@ int Process::GetPID() const {
 	return PID;
 }
 
+int Process::GetTurnAroundTime() const
+{
+	return TurnAroundTime;
+}
+
+int Process::GetResponseTime() const
+{
+	return ResponseTime;
+}
+
+int Process::GetWaitingTime() const
+{
+	return WaitingTime;
+}
+
+ProcessState Process::GetProcessState()
+{
+	return CrntState;
+}
+
 void Process::ChangeProcessState(ProcessState NewState)
 {
 	CrntState = NewState;
+}
+
+void Process::DecrementCPUTime()
+{
+	CPUTime--;
 }
 
 //Destructor for deallocating the dynamic array we used

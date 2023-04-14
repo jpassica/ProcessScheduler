@@ -59,7 +59,7 @@
     <ClInclude Include="DS Classes\Node.h">
       <Filter>DS Classes</Filter>
     </ClInclude>
-    <ClInclude Include="DS Classes\PriQqueue.h">
+    <ClInclude Include="DS Classes\PriQueue.h">
       <Filter>DS Classes</Filter>
     </ClInclude>
     <ClInclude Include="DS Classes\KeyNode.h">
@@ -81,6 +81,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Main Classes\RR_Processor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DS Classes\List.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Process.h">

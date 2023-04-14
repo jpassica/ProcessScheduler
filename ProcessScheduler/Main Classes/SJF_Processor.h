@@ -4,11 +4,16 @@
 
 class SJF_Processor : public Processor
 {
-	PriorityQueue<Process> ReadyPriQ;
+	PriorityQueue<Process*> ReadyPriQ;
 
 public:
 	SJF_Processor(int ID);
+
+	//
 	virtual void ScheduleAlgo() override;
+
+	//calculates and returns finish time according to CT of processes
+	virtual int CalcFinishTime() override;
 	const PriorityQueue<Process>& getRDY();
 };
 

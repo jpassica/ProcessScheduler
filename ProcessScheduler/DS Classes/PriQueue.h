@@ -3,14 +3,14 @@
 #include<iostream>
 using namespace std;
 template <class T>
-class PriQqueue 
+class PriQueue 
 {
 	//Queue Implementation
 private:
 	KeyNode<T>* Front;
 	KeyNode<T>* Back;
 public:
-	PriQqueue()  //default constructor
+	PriQueue()
 	{
 		Front = nullptr;
 		Back = nullptr;
@@ -81,7 +81,7 @@ public:
 			ptr = ptr->getNext();
 		}
 	}
-	~PriQqueue()
+	~PriQueue()
 	{
 		KeyNode<T>* ptr = Front ;
 		T temp;
