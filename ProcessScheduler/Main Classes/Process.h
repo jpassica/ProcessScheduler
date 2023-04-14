@@ -1,5 +1,6 @@
 #pragma once
-
+#include<iostream>
+using namespace std;
 enum ProcessState { NEW, RDY, RUN, BLK, TRM, ORPH };
 
 class Process {
@@ -15,8 +16,10 @@ class Process {
 	ProcessState CrntState;
 
 public:
+	Process();
 	Process(int pid, int AT, int CT);
-	void operator= (const Process & CopyFrom);
+	void operator= (const Process & CopyFrom);	
+	friend ostream& operator<<(ostream&, const Process&);
 	void InitialIO(int n);
 	void SetIO(int i, int IO_D, int IO_R);
 	void SetTerminationTime(int n);

@@ -1,5 +1,10 @@
 #include "Process.h"
 
+
+Process::Process():PID(NULL)
+{
+}
+
 //Process Constructor
 Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT), CrntState(NEW) {}
 
@@ -54,4 +59,10 @@ Process::~Process() {
 	delete[] IOPairs[0];
 	delete[] IOPairs[1];
 	delete[] IOPairs;
+}
+
+ostream& operator<<(ostream& out, const Process& P)
+{
+	out << P.PID;
+	return out;
 }

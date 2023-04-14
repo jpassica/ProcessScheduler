@@ -1,21 +1,23 @@
 #pragma once
-#include"PriorityQueue.h"
-#include"Queue.h"
+#include"../DS Classes/PriorityQueue.h"
+#include"../DS Classes/Queue.h"
 #include"Process.h"
 #include"Processor.h"
 #include"UI.h"
+#include"FCFS_Processor.h"
+#include"RR_Processor.h"
+#include"SJF_Processor.h"
 #define MAXSIZE 10000
 using namespace std;
 
+class UI;
 class scheduler
 {
 private:
 	int Timestep;
 
 	//processors lists(dynamic allocation)
-	Processor* FCFS_List;
-	Processor* SJF_List;
-	Processor* RR_List;
+	Processor** Processors_List;
 
 	//Processors counter
 	int FCFSCount;
@@ -25,10 +27,10 @@ private:
 
 
 	//Processes states
-	Queue<Process*> NEW;
-	Queue<Process*> BLK;
-	Queue<Process*> TRM;
-	Process* RUN;	  //only one process can run in the same time
+	Queue<Process> NEW;
+	Queue<Process> BLK;
+	Queue<Process> TRM;
+	Process** RUN;	  
 
 	//input values
 	int RTF;  
@@ -44,18 +46,16 @@ private:
 
 	int SIGKILL[MAXSIZE][2]; //pairs for kill-time & PID respectively
 
-	void setProcessors(int, int, int);  //used locally when input is loaded from the file
+	void setProcessors(int, int, int , int);  //used locally when input is loaded from the file
 public:
 	scheduler();
 	
 	//getters (used in UI class)
 	int getTimeStep();
-	Processor* getFCFS_List();
-	Processor* getSJF_List();
-	Processor* getRR_List();
-	Queue<Process*> getBLK();
-	Queue<Process*> getTRM();
-	Process* getRUN();
+	Processor** getProcessors_List();
+	const Queue<Process>& getBLK();
+	const Queue<Process>& getTRM();
+	Process** getRUN();
 	int getFCFSCount();
 	int getSJFCount();
 	int getRRCount();

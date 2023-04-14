@@ -127,34 +127,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Processor.cpp" />
+    <ClCompile Include="Main Classes\scheduler.cpp" />
+    <ClCompile Include="Main Classes\UI.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="scheduler.cpp" />
-    <ClCompile Include="UI.cpp" />
     <ClCompile Include="Defs.h" />
     <ClCompile Include="Main Classes\FCFS_Processor.cpp" />
     <ClCompile Include="Main Classes\Process.cpp" />
     <ClCompile Include="Main Classes\Processor.cpp" />
-    <ClCompile Include="ProcessScheduler.cpp" />
     <ClCompile Include="Main Classes\SJF_Processor.cpp" />
     <ClCompile Include="Main Classes\RR_Processor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="KeyNode.h" />
-    <ClInclude Include="Node.h" />
-    <ClInclude Include="PriorityQueue.h" />
-    <ClInclude Include="PriQqueue.h" />
-    <ClInclude Include="Process.h" />
-    <ClInclude Include="Processor.h" />
-    <ClInclude Include="Queue.h" />
-    <ClInclude Include="scheduler.h" />
-    <ClInclude Include="UI.h" />
-
+    <ClInclude Include="DS Classes\KeyNode.h" />
+    <ClInclude Include="DS Classes\Node.h" />
+    <ClInclude Include="DS Classes\PriorityQueue.h" />
+    <ClInclude Include="DS Classes\PriQqueue.h" />
+    <ClInclude Include="DS Classes\Queue.h" />
     <ClInclude Include="Main Classes\FCFS_Processor.h" />
     <ClInclude Include="Main Classes\Process.h" />
     <ClInclude Include="Main Classes\Processor.h" />
     <ClInclude Include="Main Classes\SJF_Processor.h" />
     <ClInclude Include="Main Classes\RR_Processor.h" />
+    <ClInclude Include="Main Classes\scheduler.h" />
+    <ClInclude Include="Main Classes\UI.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

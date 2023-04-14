@@ -27,3 +27,8 @@ void SJF_Processor::ScheduleAlgo()
 		cerr << "Error! Wait until the process finishes executing.\n";
 	}
 }
+
+const PriorityQueue<Process>& SJF_Processor::getRDY()
+{
+	return ReadyPriQ;
+}

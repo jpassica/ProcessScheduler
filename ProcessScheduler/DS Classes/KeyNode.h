@@ -8,7 +8,7 @@ private:
     KeyNode<T>* next;
     int key;
 
-public:
+public: 
     KeyNode() 
     {
         next = nullptr;

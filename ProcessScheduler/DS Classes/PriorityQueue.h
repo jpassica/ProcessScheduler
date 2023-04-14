@@ -49,6 +49,21 @@ public:
 		for (int i = 0; i < MAXSIZE; i++)
 			arr[i] = nullptr;
 	}
+
+	PriorityQueue(const PriorityQueue<T>& Q) :PriorityQueue() //copy constructor
+	{
+		if (Q.size)
+		{
+			size = Q.size;
+			for (int i = 0; i < size; i++)
+			{
+				KeyNode<T>* N = new KeyNode<T>();
+				N->setItem(Q.arr[i]->getItem());
+				N->setKey(Q.arr[i]->getKey());
+				arr[i] = N;
+			}
+		}
+	}
 	void Enqueue(T data , int key)
 	{
 		KeyNode<T>* N=new KeyNode<T>();
@@ -80,7 +95,7 @@ public:
 	void Print()
 	{
 		for (int i = 0; i < size; i++)
-			cout << "( " << arr[i]->getItem() << " , " << arr[i]->getKey() << " )";
+			cout << "( " << arr[i]->getItem()<< " , " << arr[i]->getKey() << " )";
 	}
 	int getcount()
 	{
@@ -89,3 +104,5 @@ public:
 	~PriorityQueue(){}
 
 };
+
+

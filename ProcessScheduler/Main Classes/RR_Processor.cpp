@@ -21,3 +21,8 @@ void RR_Processor::ScheduleAlgo()
 	}
 
 }
+
+Queue<Process> RR_Processor::getRDY()
+{
+	return ReadyQ;
+}

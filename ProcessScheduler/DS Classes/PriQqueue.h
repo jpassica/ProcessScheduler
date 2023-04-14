@@ -10,11 +10,12 @@ private:
 	KeyNode<T>* Front;
 	KeyNode<T>* Back;
 public:
-	PriQqueue()
+	PriQqueue()  //default constructor
 	{
 		Front = nullptr;
 		Back = nullptr;
-	}
+	} 
+
 	bool isEmpty()
 	{
 		return (!Front?true:false);

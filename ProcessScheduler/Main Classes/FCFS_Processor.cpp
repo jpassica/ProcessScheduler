@@ -29,3 +29,8 @@ void FCFS_Processor::ScheduleAlgo()
 	}
 		
 }
+
+Queue<Process> FCFS_Processor::getRDY()
+{
+	return ReadyQ;
+}

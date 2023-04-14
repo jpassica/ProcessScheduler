@@ -17,3 +17,14 @@ double Processor::CalcPUtil() const				//calculates and returns pUtil %
 {
 	return ((double)busyTime / (busyTime + idleTime)) * 100;
 }
+
+int Processor::getID()
+{
+	return ID;
+}
+
+ostream& operator<<(ostream& out, const Processor& P)
+{
+	out << P.ID;
+	return out;
+}

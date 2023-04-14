@@ -1,7 +1,7 @@
-#include"PriorityQueue.h"
-#include"Queue.h"
-#include"scheduler.h"
-#include "UI.h"
+#include"DS Classes/PriorityQueue.h"
+#include"DS Classes/Queue.h"
+#include"Main Classes/scheduler.h"
+#include "Main Classes/UI.h"
 #include <iostream>
 #include "Main Classes/Processor.h"
 using namespace std;
@@ -28,5 +28,7 @@ int main()
 	Q.Dequeue();
 	Q.Print();
 	cout << endl;
+	scheduler S;
+	S.getBLK();
 }
 

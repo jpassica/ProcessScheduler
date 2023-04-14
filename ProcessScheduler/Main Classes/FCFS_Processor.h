@@ -9,5 +9,6 @@ class FCFS_Processor : public Processor
 public:
 	FCFS_Processor(int ID);
 	virtual void ScheduleAlgo() override;
+	Queue<Process> getRDY();
 };
 

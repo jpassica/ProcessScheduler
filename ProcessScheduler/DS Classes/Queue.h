@@ -15,6 +15,37 @@ public:
 		back = nullptr;
 		count = 0;
 	}
+	Queue(const Queue<T>& Q)
+	{
+		if (!Q.back)
+		{
+			back = nullptr;
+			count = 0;
+		}
+		else
+		{
+			count = Q.count;
+			Node<T>* ptr = Q.back;
+
+			Node<T>* N = new Node<T>();
+			N->setItem(ptr->getItem());
+			back = N;
+			ptr = ptr->getNext();
+
+			Node<T>* prv = back;
+			while (ptr != Q.back)
+			{
+				N = new Node<T>();
+				N->setItem(ptr->getItem());
+				prv->setNext(N);
+
+				prv = prv->getNext();
+				ptr = ptr->getNext();
+			}
+			prv->setNext(nullptr);
+		}
+			
+	}
 	bool isEmpty()
 	{
 		if (back)

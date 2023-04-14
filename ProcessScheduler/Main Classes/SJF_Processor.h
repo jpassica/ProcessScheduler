@@ -9,5 +9,6 @@ class SJF_Processor : public Processor
 public:
 	SJF_Processor(int ID);
 	virtual void ScheduleAlgo() override;
+	const PriorityQueue<Process>& getRDY();
 };
 
