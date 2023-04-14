@@ -1,11 +1,11 @@
 #pragma once
-#include"../DS Classes/PriorityQueue.h"
-#include"../DS Classes/Queue.h"
-#include"scheduler.h"
-#include"Processor.h"
-#include"Process.h"
-#include<iostream>
-#include<string>
+#include "../DS Classes/PriorityQueue.h"
+#include "../DS Classes/Queue.h"
+#include "scheduler.h"
+#include "Processor.h"
+#include "Process.h"
+#include <iostream>
+#include <string>
 
 using namespace std;
 class scheduler;

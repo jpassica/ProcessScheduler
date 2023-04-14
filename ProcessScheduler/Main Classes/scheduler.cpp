@@ -53,12 +53,12 @@ Processor** scheduler::getProcessors_List()
 	return Processors_List;
 }
 
-const Queue<Process>& scheduler::getBLK()
+const Queue<Process*>& scheduler::getBLK()
 {
 	return BLK;
 }
 
-const Queue<Process>& scheduler::getTRM()
+const Queue<Process*>& scheduler::getTRM()
 {
 	return TRM;
 }

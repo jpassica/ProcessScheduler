@@ -15,6 +15,6 @@ public:
 
 	//calculates and returns finish time according to CT of processes
 	virtual int CalcFinishTime() override;
-	Queue<Process> getRDY();
+	Queue<Process*> getRDY();
 };
 

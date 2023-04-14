@@ -27,9 +27,9 @@ private:
 
 
 	//Processes states
-	Queue<Process> NEW;
-	Queue<Process> BLK;
-	Queue<Process> TRM;
+	Queue<Process*> NEW;
+	Queue<Process*> BLK;
+	Queue<Process*> TRM;
 	Process** RUN;	  
 
 	//input values
@@ -53,8 +53,8 @@ public:
 	//getters (used in UI class)
 	int getTimeStep();
 	Processor** getProcessors_List();
-	const Queue<Process>& getBLK();
-	const Queue<Process>& getTRM();
+	const Queue<Process*>& getBLK();
+	const Queue<Process*>& getTRM();
 	Process** getRUN();
 	int getFCFSCount();
 	int getSJFCount();

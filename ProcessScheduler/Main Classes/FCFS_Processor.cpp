@@ -44,7 +44,7 @@ int FCFS_Processor::CalcFinishTime()
 	return finishTime;
 }
 
-Queue<Process> FCFS_Processor::getRDY()
+List<Process*> FCFS_Processor::getRDY()
 {
-	return ReadyQ;
+	return ReadyList;
 }

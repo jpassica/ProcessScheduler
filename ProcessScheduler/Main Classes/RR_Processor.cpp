@@ -43,7 +43,7 @@ int RR_Processor::CalcFinishTime()
 	return 0;
 }
 
-Queue<Process> RR_Processor::getRDY()
+Queue<Process*> RR_Processor::getRDY()
 {
 	return ReadyQ;
 }

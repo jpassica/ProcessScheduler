@@ -10,7 +10,7 @@ string UI::ReadLine()
 {
 	string s;
 	getline(cin, s);
-	return  s;
+	return s;
 }
 
 void UI::WriteLine(string s)
@@ -32,19 +32,19 @@ void UI::TimeStepOut()
 		SJF_Processor* ptr3 = dynamic_cast<SJF_Processor*>(pSch->getProcessors_List()[i]);
 		if (ptr1)
 		{
-			Queue<Process> RDY = ptr1->getRDY();
+			List<Process*> RDY = ptr1->getRDY();
 			cout << "Processor " << ProcessorID << "[FCFS]" << ": " << RDY.getCount() << " : ";
 			RDY.Print();
 		}
 		else if (ptr2)
 		{
-			Queue<Process> RDY = ptr1->getRDY();
+			List<Process*> RDY = ptr1->getRDY();
 			cout << "Processor " << ProcessorID << "[RR]" << ": " << RDY.getCount() << " : ";
 			RDY.Print();
 		}
 		else if(ptr3)
 		{
-			PriorityQueue<Process> RDY=ptr3->getRDY();
+			PriorityQueue<Process*> RDY = ptr3->getRDY();
 			cout << "Processor " << ProcessorID << "[SJF]" << ": " << RDY.getcount() << " : ";
 			RDY.Print();
 		}
@@ -52,7 +52,7 @@ void UI::TimeStepOut()
 
 	}
 	cout << "--------------------   BLK Processes --------------------------------" << endl;
-	Queue<Process> BLK = pSch->getBLK();
+	Queue<Process*> BLK = pSch->getBLK();
 	cout << BLK.getCount() << ": ";
 	BLK.Print();
 	//To be continued

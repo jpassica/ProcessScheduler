@@ -124,6 +124,11 @@ public:
 		} 
 	}
 
+	int getCount() const
+	{
+		return itemCount;
+	}
+
 	void clear()
 	{
 		int baseCount(itemCount);			//I'm using this to avoid using a changing value (itemCount)		

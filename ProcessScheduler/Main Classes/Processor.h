@@ -46,7 +46,6 @@ public:
 
 	//changes current state from idle to busy and vice versa
 	void FlipProcessorState();
-	double CalcPLoad(int TotalTRT);					//calculates Processor Load and re
-	double CalcPUtil() const;
+
 	int getID();
 };
