@@ -92,5 +92,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Sample Input File.txt" />
+    <Text Include="testcase.txt" />
   </ItemGroup>
 </Project>

@@ -1,10 +1,9 @@
 #pragma once
+#include <iostream>
 #include "Process.h"
-#include<iostream>
 using namespace std;
-//#include 
 
-enum ProcessorState { IDLE, BUSY };
+class scheduler;
 
 class Processor
 {
@@ -15,7 +14,7 @@ private:
 protected:
 	//Ptr to the running process
 	Process* RunPtr;								
-	//Scheduler* pScheduler;
+	scheduler* pScheduler;
 	ProcessorState CrntState;
 	int finishTime;
 

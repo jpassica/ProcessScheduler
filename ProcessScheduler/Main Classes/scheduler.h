@@ -1,16 +1,15 @@
 #pragma once
-#include"../DS Classes/PriorityQueue.h"
-#include"../DS Classes/Queue.h"
-#include"Process.h"
-#include"Processor.h"
-#include"UI.h"
-#include"FCFS_Processor.h"
-#include"RR_Processor.h"
-#include"SJF_Processor.h"
+#include "../DS Classes/PriorityQueue.h"
+#include "../DS Classes/Queue.h"
+#include "Process.h"
+#include "Processor.h"
+#include "UI.h"
+#include "FCFS_Processor.h"
+#include "RR_Processor.h"
+#include "SJF_Processor.h"
 #define MAXSIZE 10000
 using namespace std;
 
-class UI;
 class scheduler
 {
 private:
@@ -47,7 +46,9 @@ private:
 	int Forkcount;  //no. of forking 
 	int KillCount;  //no. of kills
 
-	int SIGKILL[MAXSIZE][2]; //pairs for kill-time & PID respectively
+	//int SIGKILL[MAXSIZE][2]; //pairs for kill-time & PID respectively
+	Queue<KillSignal*> KillSignalQ;
+
 
 	void setProcessors(int, int, int , int);  //used locally when input is loaded from the file
 
@@ -65,7 +66,7 @@ public:
 	int getRRCount();
 	int getProcessorsCount();
 
-	void ReadInputFile();
+	bool ReadInputFile();
 
 	//process operations
 	void migrate();

@@ -89,72 +89,105 @@ int scheduler::getProcessorsCount()
 	return ProcessorsCount;
 }
 
-void scheduler::ReadInputFile()
+bool scheduler::ReadInputFile()
 {
+	//creating input stream object and opening file
 	fstream IP_File_Stream;
-	string filename("IP_File");
+	string filename("Sample Input File.txt");
 	IP_File_Stream.open(filename);
 
-	if (IP_File_Stream)
-	{   //read from file
+	if (!IP_File_Stream.is_open())			//if file open is not successful, abort
+		return false;
 
-		//reading the main parameters
-		IP_File_Stream >> FCFSCount >> SJFCount >> RRCount;
-		IP_File_Stream >> RRtimeSlice;
-		IP_File_Stream >> RTF >> MaxW >> STL >> ForkProb;
-		IP_File_Stream >> ProcessesCount;
+	if (!IP_File_Stream.good())		//if file is not good or corrupted, abort
+		return false;
 
-		//variables to be read for each process and sent to ctor
-		int AT(0), PID(0), CT(0), IO_N(0), IO_R(0), IO_D(0);
+	//now we can safely read from file
 
-		//pointer to be used for creating and allocating all the processes
-		Process* newProcess(nullptr);
+	//reading the main parameters
+	IP_File_Stream >> FCFSCount >> SJFCount >> RRCount;
+	IP_File_Stream >> RRtimeSlice;
+	IP_File_Stream >> RTF >> MaxW >> STL >> ForkProb;
+	IP_File_Stream >> ProcessesCount;
 
-		//used for reading the string of IO pairs
-		string IO_st, IO_R_st, IO_D_st;
+	//variables to be read for each process and sent to ctor
+	int AT(0), PID(0), CT(0), IO_N(0), IO_R(0), IO_D(0);
 
-		int StIndex(0);
+	//pointer to be used for creating and allocating all the processes
+	Process* newProcess(nullptr);
 
-		for (size_t i(0); i < ProcessesCount; i++)
-		{
-			IP_File_Stream >> AT >> PID >> CT >> IO_N;
+	//used for reading the string of IO pairs
+	string IO_st, IO_R_st, IO_D_st;
+
+	//reading data of all processes
+	for (size_t i(0); i < ProcessesCount; i++)
+	{
+		IP_File_Stream >> AT >> PID >> CT >> IO_N;
+
+		//read string only if there are IO requests
+		if (IO_N)
 			IP_File_Stream >> IO_st;
 
-			newProcess = new Process(PID, AT, CT);
-			newProcess->InitialIO(IO_N);
+		newProcess = new Process(PID, AT, CT);
+		newProcess->InitialIO(IO_N);
 
-			for (size_t j = 0; j < IO_N; j++)
+		//iterator for reading the IO string
+		int StIndex(1);
+
+		for (size_t j = 0; j < IO_N; j++)
+		{
+			//start from 1st digit
+
+			while (IO_st[StIndex] != ',')
 			{
-				//start from 1st digit
-
-				while (IO_st[StIndex] != ',')
-				{
-					IO_R_st += IO_st[StIndex]; i++;
-				}
-
-				i++;			//skip comma between numbers
-
-				while (IO_st[StIndex] != ')')
-				{
-					IO_D_st += IO_st[StIndex]; i++;
-				}
-
-				i += 3;			//skip closing bracket, intermediary comma, and opening bracket  "),("
-
-				IO_R = stoi(IO_R_st);
-				IO_D = stoi(IO_D_st);
-
-				IO_R_st.clear();
-				IO_D_st.clear();
-
-				newProcess->SetIO(j, IO_R, IO_D);
+				IO_R_st += IO_st[StIndex]; StIndex++;
 			}
+
+			StIndex++;			//skip comma between numbers
+
+			while (IO_st[StIndex] != ')')
+			{
+				IO_D_st += IO_st[StIndex]; StIndex++;
+			}
+
+			StIndex += 3;			//skip closing bracket, intermediary comma, and opening bracket  "),("
+
+			IO_R = stoi(IO_R_st);
+			IO_D = stoi(IO_D_st);
+
+			IO_R_st.clear();
+			IO_D_st.clear();
+
+			newProcess->SetIO(j, IO_R, IO_D);
 		}
+
+		//enqueue process in New List once all its data has been read
+		this->NEW.Enqueue(newProcess);
 	}
-	else
+
+	//reading SIGKILLs
+
+	//skipping the phrase 'SIGKILL TIMES'
+	string SIGKILL_st, TIMES_st;
+	IP_File_Stream >> SIGKILL_st >> TIMES_st;
+
+	//making sure the file's format is as expected
+	if (SIGKILL_st != "SIGKILL" || TIMES_st != "TIMES")
+		return false;
+
+	//reading each kill signal's data until there is no more data
+	int time(0), ID(0);
+	while (!IP_File_Stream.eof())
 	{
-		cerr << "Error. Couldn't open file!\n";
+		IP_File_Stream >> time >> PID;
+
+		KillSignal* newKillSignal = new KillSignal(time, PID);
+
+		KillSignalQ.Enqueue(newKillSignal);
 	}
+	
+	//after successfully reading all data
+	return true;
 }
 
 scheduler::~scheduler()

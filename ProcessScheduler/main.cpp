@@ -54,5 +54,8 @@ int main()
 	cout << endl;
 	scheduler S;
 	S.getBLK();
+
+	cout << S.ReadInputFile();
+
 }
 
