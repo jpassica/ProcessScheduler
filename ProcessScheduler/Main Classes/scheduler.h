@@ -66,7 +66,8 @@ public:
 	int getRRCount();
 	int getProcessorsCount();
 
-	bool ReadInputFile();
+	//the main function for reading from files
+	bool ReadInputFile(string filename);
 
 	//process operations
 	void migrate();

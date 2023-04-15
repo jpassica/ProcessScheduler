@@ -55,7 +55,7 @@ int main()
 	scheduler S;
 	S.getBLK();
 
-	cout << S.ReadInputFile();
+	cout << S.ReadInputFile("Sample Input File.txt");
 
 }
 

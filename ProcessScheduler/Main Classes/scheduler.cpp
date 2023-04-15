@@ -89,11 +89,10 @@ int scheduler::getProcessorsCount()
 	return ProcessorsCount;
 }
 
-bool scheduler::ReadInputFile()
+bool scheduler::ReadInputFile(string filename)
 {
 	//creating input stream object and opening file
 	fstream IP_File_Stream;
-	string filename("Sample Input File.txt");
 	IP_File_Stream.open(filename);
 
 	if (!IP_File_Stream.is_open())			//if file open is not successful, abort
