@@ -1,10 +1,5 @@
 #include "Process.h"
 
-
-Process::Process():PID(NULL)
-{
-}
-
 //Process Constructor
 Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT), CrntState(NEW) 
 {
@@ -24,10 +19,17 @@ void Process::InitialIO(int n) {
 }
 
 //Set the values of IO_R, IO_D for the process
-void Process::SetIO(int i, int IO_D, int IO_R) {
-	IOPairs[0][i] = IO_D;
-	IOPairs[1][i] = IO_R;
+void Process::SetIO(int i, int IO_R, int IO_D) {
+	IOPairs[0][i] = IO_R;
+	IOPairs[1][i] = IO_D;
 }
+
+void Process::SetIO(int IO_N, int IO_R, int IO_D, int j)
+{
+
+}
+
+
 //Set the response time as FCPU is the time when the process is ready to be processed at first time
 void Process::SetResponseTime(int FCPU) {
 	ResponseTime = FCPU - ArrivalTime;

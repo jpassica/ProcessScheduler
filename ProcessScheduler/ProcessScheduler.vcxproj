@@ -152,6 +152,9 @@
     <ClInclude Include="Main Classes\scheduler.h" />
     <ClInclude Include="Main Classes\UI.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Sample Input File.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

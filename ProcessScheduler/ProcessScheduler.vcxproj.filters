@@ -21,18 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Processor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scheduler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Main Classes\FCFS_Processor.cpp">
       <Filter>Main Classes</Filter>
     </ClCompile>
@@ -50,6 +38,15 @@
     </ClCompile>
     <ClCompile Include="Defs.h">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\scheduler.cpp">
+      <Filter>Main Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main Classes\UI.cpp">
+      <Filter>Main Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,20 +80,17 @@
     <ClInclude Include="Main Classes\RR_Processor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Main Classes\scheduler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\UI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="DS Classes\List.h">
-      <Filter>Header Files</Filter>
+      <Filter>DS Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Process.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Processor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scheduler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Sample Input File.txt" />
   </ItemGroup>
 </Project>

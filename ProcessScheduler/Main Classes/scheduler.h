@@ -19,24 +19,27 @@ private:
 	//processors lists(dynamic allocation)
 	Processor** Processors_List;
 
-	//Processors counter
+	//Processor counters
 	int FCFSCount;
 	int SJFCount;
 	int RRCount;
 	int ProcessorsCount;
 
 
-	//Processes states
+	//Process lists
 	Queue<Process*> NEW;
 	Queue<Process*> BLK;
 	Queue<Process*> TRM;
 	Process** RUN;	  
+	int ProcessesCount;
 
 	//input values
 	int RTF;  
 	int MaxW; 
 	int STL;
-
+	int ForkProb;
+	int RRtimeSlice;
+	
 	//statistics variables
 	int RTFCount;  //no. of processors migrated by RTF
 	int MaxWCount;  //no. of processors migrated by MaxW
@@ -47,6 +50,7 @@ private:
 	int SIGKILL[MAXSIZE][2]; //pairs for kill-time & PID respectively
 
 	void setProcessors(int, int, int , int);  //used locally when input is loaded from the file
+
 public:
 	scheduler();
 	
@@ -60,6 +64,8 @@ public:
 	int getSJFCount();
 	int getRRCount();
 	int getProcessorsCount();
+
+	void ReadInputFile();
 
 	//process operations
 	void migrate();

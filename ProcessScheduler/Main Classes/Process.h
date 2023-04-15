@@ -16,12 +16,11 @@ class Process {
 	ProcessState CrntState;
 
 public:
-	Process();
 	Process(int pid, int AT, int CT);
-	void operator= (const Process & CopyFrom);	
 	friend ostream& operator<<(ostream&, const Process&);
 	void InitialIO(int n);
 	void SetIO(int i, int IO_D, int IO_R);
+	void SetIO(int IO_N, int IO_R, int IO_D, int j);
 	void SetTerminationTime(int n);
 	void SetResponseTime(int n);
 
