@@ -5,7 +5,7 @@
 using namespace std;
 
 class Process {
-
+private:
 	const int PID;
 	int ArrivalTime;
 	int ResponseTime;
@@ -17,7 +17,9 @@ class Process {
 	//int** IOPairs = new int* [2];
 	Queue<IO_Pairs*> IO_PairsQ;
 	ProcessState CrntState;
-
+	int ProcessedTime;
+	Process* child;
+	bool Moved;
 public:
 	//Non-default ctor
 	Process(int pid, int AT, int CT, int IO_N);
@@ -26,9 +28,11 @@ public:
 	friend ostream& operator<<(ostream&, const Process&);
 
 	//Setter functions
+	void Setchild(Process*);
 	void SetTerminationTime(int n);
 	void SetResponseTime(int n);
-
+	void SetMoved(bool);
+	void SetProcessedTime(int);
 	//Takes data and creates IO request and adds it to queue
 	void AddIORequest(int IO_R, int IO_D);
 
@@ -39,7 +43,10 @@ public:
 	int GetResponseTime() const;
 	int GetWaitingTime() const;
 	ProcessState GetProcessState() const;
-
+	Process* GetChild() const;
+	bool isMoved() const;
+	int GetProcessedTime() const;
+	
 	void ChangeProcessState(ProcessState NewState);
 
 	//Decrements the CT of the process as it is executing

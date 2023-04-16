@@ -15,6 +15,6 @@ public:
 	//calculates and returns finish time according to CT of processes
 	virtual int CalcFinishTime() override;
 
-	const PriorityQueue<Process*>& getRDY();
+	PriorityQueue<Process*>& getRDY();
 };
 

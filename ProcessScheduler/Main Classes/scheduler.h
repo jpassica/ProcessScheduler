@@ -29,7 +29,7 @@ private:
 	Queue<Process*> NEW_List;
 	Queue<Process*> BLK_List;
 	Queue<Process*> TRM_List;
-	Process** RUN_List;	  
+	Process** RUN_List;	    
 	int ProcessesCount;
 
 	//input values
@@ -55,32 +55,33 @@ public:
 	scheduler();
 	
 	//getters (used in UI class)
-	int getTimeStep();
-	Processor** getProcessors_List();
-	const Queue<Process*>& getBLK();
-	const Queue<Process*>& getTRM();
-	Process** getRUN();
-	int getFCFSCount();
-	int getSJFCount();
-	int getRRCount();
-	int getProcessorsCount();
+	int getTimeStep() const ;
+	Processor** getProcessors_List() const;
+	const Queue<Process*>& getBLK()  const;
+	const Queue<Process*>& getTRM()  const;
+	Process** getRUN() const;
+	int getFCFSCount() const;
+	int getSJFCount() const;
+	int getRRCount() const;
+	int getProcessorsCount() const; 
 
 	//the main function for reading from files
 	bool ReadInputFile(string filename);
 
 	//process operations
-	void migrate();
-	void steal();
-	void Kill();
-	void Fork();
+	void migrate(Process*);
+	void steal(Process*);
+	void Kill(Process*);
+	void Fork(Process*);
 	
 	//process moving
-	void FromRUNToBLK();
-	void FromBLKToRDY();
-	void ToTRM();
+	void FromRUNToBLK(Process*);
+	void FromBLKToRDY(Processor*);
+	void ToTRM(Process*);
+	void ToRDY(Process*);  //To be implemented in phase 2
 
-	//Loading Function
-	void LoadData();
+	//simulation function
+	void Simulate();
 	~scheduler();
 
 };

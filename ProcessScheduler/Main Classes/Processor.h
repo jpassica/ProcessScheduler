@@ -49,4 +49,7 @@ public:
 
 	//returns processor ID
 	int getID();
+
+	//returns run ptr
+	Process* getRunPtr();
 };

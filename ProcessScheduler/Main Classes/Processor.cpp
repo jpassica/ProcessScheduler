@@ -48,6 +48,11 @@ int Processor::getID()
 	return ID;
 }
 
+Process* Processor::getRunPtr()
+{
+	return RunPtr;
+}
+
 ostream& operator<<(ostream& out, const Processor& P)
 {
 	out << P.ID;

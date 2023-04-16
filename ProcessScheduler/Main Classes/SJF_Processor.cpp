@@ -38,7 +38,7 @@ int SJF_Processor::CalcFinishTime()
 	return 0;
 }
 
-const PriorityQueue<Process*>& SJF_Processor::getRDY()
+PriorityQueue<Process*>& SJF_Processor::getRDY()
 {
 	return ReadyPriQ;
 }

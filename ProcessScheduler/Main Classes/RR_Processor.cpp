@@ -23,9 +23,10 @@ void RR_Processor::ScheduleAlgo()
 
 	if (!ReadyQ.isEmpty())
 	{
+		Process* temp;
 		RunPtr = ReadyQ.Queue_front();
 		RunPtr->ChangeProcessState(RUN);
-		ReadyQ.Dequeue();
+		ReadyQ.Dequeue(temp);
 	}
 	else
 	{

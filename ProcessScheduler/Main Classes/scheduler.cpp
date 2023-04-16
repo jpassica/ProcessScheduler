@@ -11,6 +11,7 @@ scheduler::scheduler()
 	SJFCount = 0;
 	RRCount = 0;
 	ProcessorsCount = 0;
+	ProcessesCount = 0;
 
 	RUN_List = nullptr;
 
@@ -44,47 +45,47 @@ void scheduler::setProcessors(int NF, int NS, int NR , int RRtimeSlice)
 	}
 }
 
-int scheduler::getTimeStep()
+int scheduler::getTimeStep() const
 {
 	return Timestep;
 }
 
-Processor** scheduler::getProcessors_List()
+Processor** scheduler::getProcessors_List() const
 {
 	return Processors_List;
 }
 
-const Queue<Process*>& scheduler::getBLK()
+const Queue<Process*>& scheduler::getBLK() const
 {
 	return BLK_List;
 }
 
-const Queue<Process*>& scheduler::getTRM()
+const Queue<Process*>& scheduler::getTRM() const
 {
 	return TRM_List;
 }
 
-Process** scheduler::getRUN()
+Process** scheduler::getRUN() const
 {
 	return RUN_List;
 }	
 
-int scheduler::getFCFSCount()
+int scheduler::getFCFSCount() const
 {
 	return 	FCFSCount;
 }
 
-int scheduler::getSJFCount()
+int scheduler::getSJFCount() const
 {
 	return SJFCount;
 }
 
-int scheduler::getRRCount()
+int scheduler::getRRCount() const
 {
 	return RRCount;
 }
 
-int scheduler::getProcessorsCount()
+int scheduler::getProcessorsCount() const
 {
 	return ProcessorsCount;
 }
@@ -189,6 +190,53 @@ bool scheduler::ReadInputFile(string filename)
 	
 	//after successfully reading all data
 	return true;
+}
+
+void scheduler::FromRUNToBLK(Process* Run)
+{
+	BLK_List.Enqueue(Run);
+	Run->ChangeProcessState(BLK);
+	Run = nullptr;
+}
+
+void scheduler::FromBLKToRDY(Processor* p)
+{
+
+	Process* s;
+	BLK_List.Dequeue(s);
+	
+	FCFS_Processor* ptr1 = dynamic_cast<FCFS_Processor*>(p);
+	RR_Processor* ptr2 = dynamic_cast<RR_Processor*>(p);
+	SJF_Processor* ptr3 = dynamic_cast<SJF_Processor*>(p);
+	if (ptr1)
+		ptr1->getRDY().insert(ptr1->getRDY().getCount() + 1, s);
+	else if (ptr2)
+		ptr2->getRDY().Enqueue(s);
+	else if (ptr3)
+		ptr3->getRDY().Enqueue(s, s->GetCPUTime());
+	s->ChangeProcessState(RDY);
+}
+
+void scheduler::ToTRM(Process* ptr)
+{
+	/* commented untill kill function is implemented
+	* 
+	if (ptr->GetChild())
+		Kill(ptr->GetChild());
+	*/
+	TRM_List.Enqueue(ptr);
+	ptr->ChangeProcessState(TRM);
+}
+
+void scheduler::Simulate()
+{
+	string s;
+	ReadInputFile(s);
+
+	while (TRM_List.getCount() != ProcessesCount)
+	{
+
+	}
 }
 
 scheduler::~scheduler()  {}

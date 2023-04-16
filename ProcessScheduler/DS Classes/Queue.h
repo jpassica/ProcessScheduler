@@ -67,12 +67,13 @@ public:
 		back = N;
 		count++;
 	}
-	bool Dequeue()
+	bool Dequeue(T& data)
 	{
 		if (isEmpty())
 			return false;
 		Node<T>* Temp;
 		Temp = back->getNext();
+		data = Temp->getItem();
 		back->setNext(Temp->getNext());
 		if (back == Temp)
 			back = nullptr;
@@ -105,8 +106,9 @@ public:
 	}
 	~Queue()
 	{
+		T temp;
 		while (back)
-			Dequeue();
+			Dequeue(temp);
 	}	
 };
 

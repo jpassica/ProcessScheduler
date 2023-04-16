@@ -9,6 +9,8 @@ Process::Process(int pid, int AT, int CT, int IO_N)
 	TurnAroundTime = 0;
 	WaitingTime = 0;
 	ResponseTime = 0;
+	child = nullptr;
+	Moved = false;
 }
 
 ostream& operator<<(ostream& out, const Process& P) 
@@ -20,6 +22,16 @@ ostream& operator<<(ostream& out, const Process& P)
 //Set the response time as FCPU is the time when the process is ready to be processed at first time
 void Process::SetResponseTime(int FCPU) {
 	ResponseTime = FCPU - ArrivalTime;
+}
+
+void Process::SetMoved(bool f)
+{
+	Moved = f;
+}
+
+void Process::SetProcessedTime(int t)
+{
+	ProcessedTime = t;
 }
 
 void Process::AddIORequest(int IO_R, int IO_D)
@@ -66,6 +78,21 @@ ProcessState Process::GetProcessState() const
 	return CrntState;
 }
 
+Process* Process::GetChild() const
+{
+	return child;
+}
+
+bool Process::isMoved() const
+{
+	return Moved;
+}
+
+int Process::GetProcessedTime() const
+{
+	return ProcessedTime;
+}
+
 void Process::ChangeProcessState(ProcessState NewState)
 {
 	CrntState = NewState;
@@ -81,4 +108,9 @@ Process::~Process() {
 	/*delete[] IOPairs[0];
 	delete[] IOPairs[1];
 	delete[] IOPairs;*/
+}
+
+void Process::Setchild(Process* c)
+{
+	child = c;
 }

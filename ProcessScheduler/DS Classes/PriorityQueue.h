@@ -50,9 +50,15 @@ public:
 			arr[i] = nullptr;
 	}
 
-	PriorityQueue(const PriorityQueue<T>& Q) :PriorityQueue() //copy constructor
+	PriorityQueue(const PriorityQueue<T>& Q)  //copy constructor
 	{
-		if (Q.size)
+		if (!Q.size)
+		{
+			size = 0;
+			for (int i = 0; i < MAXSIZE; i++)
+				arr[i] = nullptr;
+		}
+		else
 		{
 			size = Q.size;
 			for (int i = 0; i < size; i++)

@@ -20,5 +20,4 @@ public:
 	string ReadLine();
 	void WriteLine(string);
 	void TimeStepOut();
-	void EndOut();
 };	
