@@ -7,5 +7,5 @@
 5   3   134  0
 5   4   81   1   (25,5)
 7   5   27   0
-SIGKILL TIMES
+SIGKILL Times
 2   2

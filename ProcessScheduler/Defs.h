@@ -14,3 +14,14 @@ struct KillSignal {
 		PID = ID;
 	}
 };
+
+struct IO_Pairs {
+	int IO_R;
+	int IO_D;
+
+	IO_Pairs(int IO_R, int IO_D) 
+	{
+		IO_R = IO_R;
+		IO_D = IO_D;
+	}
+};

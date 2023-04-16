@@ -23,9 +23,11 @@ public:
 	Processor(int ID);
 
 	//each processor has its own version of this function
-	friend ostream& operator<<(ostream&, const Processor&);  //outputs Processor's ID
 	virtual void ScheduleAlgo() = 0;
 
+	//outputs Processor's ID
+	friend ostream& operator<<(ostream&, const Processor&);  
+	
 	//calculates and returns finish time according to CT of processes
 	virtual int CalcFinishTime() = 0;
 

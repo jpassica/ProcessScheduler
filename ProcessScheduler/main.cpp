@@ -30,8 +30,6 @@ int main()
 	Q.Dequeue();
 	Q.Print();
 	cout << endl;*/
-
-	FCFS_Processor p1(1);
 	
 
 	/*List<int> L1;
@@ -56,6 +54,5 @@ int main()
 	S.getBLK();
 
 	cout << S.ReadInputFile("Sample Input File.txt");
-
 }
 

@@ -37,7 +37,7 @@
 51  33  53   0  
 54  34  55   0
 60  35  20   0
-SIGKILL TIMES
+SIGKILL Times
 9   34
 21  12
 24  20

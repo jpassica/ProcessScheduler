@@ -127,10 +127,9 @@ bool scheduler::ReadInputFile(string filename)
 		if (IO_N)
 			IP_File_Stream >> IO_st;
 
-		newProcess = new Process(PID, AT, CT);
-		newProcess->InitialIO(IO_N);
+		newProcess = new Process(PID, AT, CT, IO_N);
 
-		//iterator for reading the IO string
+		//iterator for reading the IO requests string
 		int StIndex(1);
 
 		for (size_t j = 0; j < IO_N; j++)
@@ -142,7 +141,7 @@ bool scheduler::ReadInputFile(string filename)
 				IO_R_st += IO_st[StIndex]; StIndex++;
 			}
 
-			StIndex++;			//skip comma between numbers
+			StIndex++;				//skip comma between numbers
 
 			while (IO_st[StIndex] != ')')
 			{
@@ -157,7 +156,7 @@ bool scheduler::ReadInputFile(string filename)
 			IO_R_st.clear();
 			IO_D_st.clear();
 
-			newProcess->SetIO(j, IO_R, IO_D);
+			newProcess->AddIORequest(IO_R, IO_D);
 		}
 
 		//enqueue process in New List once all its data has been read
@@ -166,12 +165,12 @@ bool scheduler::ReadInputFile(string filename)
 
 	//reading SIGKILLs
 
-	//skipping the phrase 'SIGKILL TIMES'
+	//skipping the phrase 'SIGKILL Times'
 	string SIGKILL_st, TIMES_st;
 	IP_File_Stream >> SIGKILL_st >> TIMES_st;
 
 	//making sure the file's format is as expected
-	if (SIGKILL_st != "SIGKILL" || TIMES_st != "TIMES")
+	if (SIGKILL_st != "SIGKILL" || TIMES_st != "Times")
 		return false;
 
 	//reading each kill signal's data until there is no more data
@@ -189,7 +188,4 @@ bool scheduler::ReadInputFile(string filename)
 	return true;
 }
 
-scheduler::~scheduler()
-{
-	//for(int )
-}
+scheduler::~scheduler()  {}

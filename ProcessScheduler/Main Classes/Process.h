@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include "..\Defs.h"
+#include "..\DS Classes\Queue.h"
 using namespace std;
 
 class Process {
@@ -12,26 +13,36 @@ class Process {
 	int TerminationTime;
 	int TurnAroundTime;
 	int WaitingTime;
-	int** IOPairs = new int* [2];
+	int IO_N;
+	//int** IOPairs = new int* [2];
+	Queue<IO_Pairs*> IO_PairsQ;
 	ProcessState CrntState;
 
 public:
-	Process(int pid, int AT, int CT);
+	//Non-default ctor
+	Process(int pid, int AT, int CT, int IO_N);
+
+	//Overoaded insertion operator
 	friend ostream& operator<<(ostream&, const Process&);
-	void InitialIO(int n);
-	void SetIO(int i, int IO_D, int IO_R);
-	void SetIO(int IO_N, int IO_R, int IO_D, int j);
+
+	//Setter functions
 	void SetTerminationTime(int n);
 	void SetResponseTime(int n);
 
+	//Takes data and creates IO request and adds it to queue
+	void AddIORequest(int IO_R, int IO_D);
+
+	//Getter functions
 	int GetCPUTime() const;
 	int GetPID() const;
 	int GetTurnAroundTime() const;
 	int GetResponseTime() const;
 	int GetWaitingTime() const;
-	ProcessState GetProcessState();
+	ProcessState GetProcessState() const;
 
 	void ChangeProcessState(ProcessState NewState);
+
 	void DecrementCPUTime();
+
 	~Process();
 };

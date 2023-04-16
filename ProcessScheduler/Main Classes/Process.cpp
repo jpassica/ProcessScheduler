@@ -1,7 +1,8 @@
 #include "Process.h"
 
 //Process Constructor
-Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT), CrntState(NEW) 
+Process::Process(int pid, int AT, int CT, int IO_N) 
+	: PID(pid), ArrivalTime(AT), CPUTime(CT), IO_N(IO_N), CrntState(NEW)
 {
 	//initializing all data members
 	TerminationTime = 0;
@@ -10,29 +11,22 @@ Process::Process(int pid, int AT, int CT) :PID(pid), ArrivalTime(AT), CPUTime(CT
 	ResponseTime = 0;
 }
 
-//Initialization for (IO_R,IO_D) 2_d array
-void Process::InitialIO(int n) {
-	for (int i = 0; i < 2; i++)
-	{
-		IOPairs[i] = new int[n];
-	}
-}
-
-//Set the values of IO_R, IO_D for the process
-void Process::SetIO(int i, int IO_R, int IO_D) {
-	IOPairs[0][i] = IO_R;
-	IOPairs[1][i] = IO_D;
-}
-
-void Process::SetIO(int IO_N, int IO_R, int IO_D, int j)
+ostream& operator<<(ostream& out, const Process& P) 
 {
-
+	out << P.PID;
+	return out;
 }
-
 
 //Set the response time as FCPU is the time when the process is ready to be processed at first time
 void Process::SetResponseTime(int FCPU) {
 	ResponseTime = FCPU - ArrivalTime;
+}
+
+void Process::AddIORequest(int IO_R, int IO_D)
+{
+	IO_Pairs* newRequest = new IO_Pairs(IO_R, IO_D);
+
+	IO_PairsQ.Enqueue(newRequest);
 }
 
 int Process::GetCPUTime() const
@@ -67,7 +61,7 @@ int Process::GetWaitingTime() const
 	return WaitingTime;
 }
 
-ProcessState Process::GetProcessState()
+ProcessState Process::GetProcessState() const
 {
 	return CrntState;
 }
@@ -84,13 +78,7 @@ void Process::DecrementCPUTime()
 
 //Destructor for deallocating the dynamic array we used
 Process::~Process() {
-	delete[] IOPairs[0];
+	/*delete[] IOPairs[0];
 	delete[] IOPairs[1];
-	delete[] IOPairs;
-}
-
-ostream& operator<<(ostream& out, const Process& P)
-{
-	out << P.PID;
-	return out;
+	delete[] IOPairs;*/
 }
