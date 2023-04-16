@@ -9,12 +9,11 @@ class SJF_Processor : public Processor
 public:
 	SJF_Processor(int ID);
 
-	//
+	//Picks the next process to run according to 'shortest job first'
 	virtual void ScheduleAlgo() override;
 
 	//calculates and returns finish time according to CT of processes
 	virtual int CalcFinishTime() override;
-
 
 	const PriorityQueue<Process*>& getRDY();
 };

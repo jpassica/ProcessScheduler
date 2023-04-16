@@ -23,7 +23,7 @@ bool Processor::DecrementRunningProcess()
 	if (!RunPtr)
 		return false;
 	
-	RunPtr->DecrementCPUTime();
+	RunPtr->RunProcess();
 	return true;
 }
 

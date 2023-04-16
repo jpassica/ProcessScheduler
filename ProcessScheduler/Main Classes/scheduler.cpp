@@ -1,47 +1,47 @@
 #include "scheduler.h"
 #include <fstream>
 
-void scheduler::setProcessors(int NF, int NS, int NR , int RRtimeSlice)
-{
-	Processors_List = new Processor * [NF + NS + NR];
-	RUN = new Process* [NF + NS + NR];
-	for (int i = 0; i < NF; i++)
-	{
-		Processors_List[i] = new FCFS_Processor(i+1);
-		RUN[i] = nullptr;
-	}
-
-	for (int i = NF; i < NS; i++)
-	{
-		Processors_List[i] = new SJF_Processor(i+NF+1);
-		RUN[i] = nullptr;
-	}
-
-	for (int i = NS+NR; i < NR; i++)
-	{
-		Processors_List[i] = new RR_Processor(i+NF+NR+1 ,RRtimeSlice);
-		RUN[i] = nullptr;
-	}
-}
-
-scheduler::scheduler()	
+scheduler::scheduler()
 {
 	Timestep = 0;
 
 	Processors_List = nullptr;
 
-	FCFSCount=0;
-	SJFCount=0;
-	RRCount=0;
-	ProcessorsCount=0;
+	FCFSCount = 0;
+	SJFCount = 0;
+	RRCount = 0;
+	ProcessorsCount = 0;
 
-	RUN = nullptr;
+	RUN_List = nullptr;
 
 	RTFCount = 0;
 	MaxWCount = 0;
 	STLCount = 0;
 	Forkcount = 0;
 	KillCount = 0;
+}
+
+void scheduler::setProcessors(int NF, int NS, int NR , int RRtimeSlice)
+{
+	Processors_List = new Processor * [NF + NS + NR];
+	RUN_List = new Process* [NF + NS + NR];
+	for (int i = 0; i < NF; i++)
+	{
+		Processors_List[i] = new FCFS_Processor(i+1);
+		RUN_List[i] = nullptr;
+	}
+
+	for (int i = NF; i < NS; i++)
+	{
+		Processors_List[i] = new SJF_Processor(i+NF+1);
+		RUN_List[i] = nullptr;
+	}
+
+	for (int i = NS+NR; i < NR; i++)
+	{
+		Processors_List[i] = new RR_Processor(i+NF+NR+1 ,RRtimeSlice);
+		RUN_List[i] = nullptr;
+	}
 }
 
 int scheduler::getTimeStep()
@@ -56,17 +56,17 @@ Processor** scheduler::getProcessors_List()
 
 const Queue<Process*>& scheduler::getBLK()
 {
-	return BLK;
+	return BLK_List;
 }
 
 const Queue<Process*>& scheduler::getTRM()
 {
-	return TRM;
+	return TRM_List;
 }
 
 Process** scheduler::getRUN()
 {
-	return RUN;
+	return RUN_List;
 }	
 
 int scheduler::getFCFSCount()
@@ -108,6 +108,9 @@ bool scheduler::ReadInputFile(string filename)
 	IP_File_Stream >> RRtimeSlice;
 	IP_File_Stream >> RTF >> MaxW >> STL >> ForkProb;
 	IP_File_Stream >> ProcessesCount;
+
+	//creating the processors according to the read data
+	setProcessors(FCFSCount, SJFCount, RRCount, RRtimeSlice);
 
 	//variables to be read for each process and sent to ctor
 	int AT(0), PID(0), CT(0), IO_N(0), IO_R(0), IO_D(0);
@@ -160,7 +163,7 @@ bool scheduler::ReadInputFile(string filename)
 		}
 
 		//enqueue process in New List once all its data has been read
-		this->NEW.Enqueue(newProcess);
+		this->NEW_List.Enqueue(newProcess);
 	}
 
 	//reading SIGKILLs

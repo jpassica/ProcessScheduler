@@ -26,10 +26,10 @@ private:
 
 
 	//Process lists
-	Queue<Process*> NEW;
-	Queue<Process*> BLK;
-	Queue<Process*> TRM;
-	Process** RUN;	  
+	Queue<Process*> NEW_List;
+	Queue<Process*> BLK_List;
+	Queue<Process*> TRM_List;
+	Process** RUN_List;	  
 	int ProcessesCount;
 
 	//input values
@@ -48,7 +48,6 @@ private:
 
 	//int SIGKILL[MAXSIZE][2]; //pairs for kill-time & PID respectively
 	Queue<KillSignal*> KillSignalQ;
-
 
 	void setProcessors(int, int, int , int);  //used locally when input is loaded from the file
 

@@ -71,7 +71,7 @@ void Process::ChangeProcessState(ProcessState NewState)
 	CrntState = NewState;
 }
 
-void Process::DecrementCPUTime()
+void Process::RunProcess()
 {
 	CPUTime--;
 }

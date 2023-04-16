@@ -12,11 +12,10 @@ private:
 	int busyTime, idleTime;
 	
 protected:
-	//Ptr to the running process
-	Process* RunPtr;								
-	scheduler* pScheduler;
-	ProcessorState CrntState;
-	int finishTime;
+	Process* RunPtr;						//ptr to the running process
+	scheduler* pScheduler;					//ptr to Scheduler class
+	ProcessorState CrntState;				//current state idle vs. busy
+	int finishTime;							//estimated finish time of all processes for the processor
 
 public:
 	//ctor receives ID from the scheduler
@@ -48,5 +47,6 @@ public:
 	//changes current state from idle to busy and vice versa
 	void FlipProcessorState();
 
+	//returns processor ID
 	int getID();
 };

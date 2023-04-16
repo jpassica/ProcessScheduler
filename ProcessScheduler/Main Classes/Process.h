@@ -42,7 +42,8 @@ public:
 
 	void ChangeProcessState(ProcessState NewState);
 
-	void DecrementCPUTime();
+	//Decrements the CT of the process as it is executing
+	void RunProcess();
 
 	~Process();
 };
