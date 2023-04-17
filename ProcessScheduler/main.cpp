@@ -31,8 +31,8 @@ int main()
 	Q.Print();
 	cout << endl;*/
 	
-
-	/*List<int> L1;
+	/*
+	List<int> L1;
 
 	L1.insert(1, 2);
 	L1.insert(2, 4);
@@ -47,12 +47,13 @@ int main()
 
 	L1.clear(); L1.Print();
 
-	cout << L1.getLength() << endl;*/
+	cout << L1.getLength() << endl;
 	
 	cout << endl;
+	*/
 	scheduler S;
-	S.getBLK();
+	S.Simulate();
+	
 
-	cout << S.ReadInputFile("Sample Input File.txt");
 }
 

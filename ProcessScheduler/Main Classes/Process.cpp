@@ -9,13 +9,13 @@ Process::Process(int pid, int AT, int CT, int IO_N)
 	TurnAroundTime = 0;
 	WaitingTime = 0;
 	ResponseTime = 0;
+	LastUpdatetime = 0;
 	child = nullptr;
-	Moved = false;
 }
 
-ostream& operator<<(ostream& out, const Process& P) 
+ostream& operator<<(ostream& out, const Process* P) 
 {
-	out << P.PID;
+	out << P->PID;
 	return out;
 }
 
@@ -24,14 +24,14 @@ void Process::SetResponseTime(int FCPU) {
 	ResponseTime = FCPU - ArrivalTime;
 }
 
-void Process::SetMoved(bool f)
-{
-	Moved = f;
-}
-
 void Process::SetProcessedTime(int t)
 {
 	ProcessedTime = t;
+}
+
+void Process::SetLastUpdateTime(int t)
+{
+	LastUpdatetime = t;
 }
 
 void Process::AddIORequest(int IO_R, int IO_D)
@@ -68,6 +68,11 @@ int Process::GetResponseTime() const
 	return ResponseTime;
 }
 
+int Process::GetAT() const
+{
+	return ArrivalTime;
+}
+
 int Process::GetWaitingTime() const
 {
 	return WaitingTime;
@@ -83,14 +88,16 @@ Process* Process::GetChild() const
 	return child;
 }
 
-bool Process::isMoved() const
-{
-	return Moved;
-}
+
 
 int Process::GetProcessedTime() const
 {
 	return ProcessedTime;
+}
+
+int Process::GetLastUpdateTime() const
+{
+	return LastUpdatetime;
 }
 
 void Process::ChangeProcessState(ProcessState NewState)

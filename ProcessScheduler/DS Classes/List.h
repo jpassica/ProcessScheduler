@@ -19,10 +19,7 @@ class List					//Linked-based implementation of List ADT
 			return curPtr;
 		}
 		else
-		{
-			std::cerr << "Error! Empty list or invalid position.\n";
 			return nullptr;
-		}
 	}
 
 public:
@@ -34,7 +31,7 @@ public:
 
 	bool isEmpty() const
 	{
-		return headPtr;
+		return (headPtr==nullptr);
 	}
 
 	int getLength() const
@@ -124,6 +121,20 @@ public:
 		} 
 	}
 
+	int search(T data) //returns the position of the data , if not found -1 is returned
+	{
+		Node<T>* ptr = headPtr;
+		int pos= 1;
+		while (ptr)
+		{
+			if (ptr->getItem() == data)
+				return pos;
+			pos++;
+			ptr = ptr->getNext();
+		}
+		return -1;
+	}
+
 	int getCount() const
 	{
 		return itemCount;
@@ -143,13 +154,12 @@ public:
 	{
 		Node<T>* printPtr = headPtr;
 		size_t i(1);
-
+		
 		while (printPtr && (i < itemCount + 1))
 		{
-			std::cout << printPtr->getItem() << "---";
+			std::cout << printPtr->getItem()<<" ";
 			printPtr = printPtr->getNext();
 		}
-		std::cout << "NULL\n\n";
 	}
 
 	virtual ~List() {}

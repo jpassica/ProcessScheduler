@@ -7,7 +7,7 @@ class RR_Processor : public Processor
 	Queue<Process*> ReadyQ;
 
 public:
-	RR_Processor(int ID, int TimeSlice);
+	RR_Processor(int ID, int TimeSlice, scheduler*);
 
 	//Picks the next process to run according to whose turn  it is in the queue
 	virtual void ScheduleAlgo() override;
@@ -16,6 +16,6 @@ public:
 	virtual int CalcFinishTime() override;
 
 
-	Queue<Process*> getRDY();
+	Queue<Process*>& getRDY();
 };
 

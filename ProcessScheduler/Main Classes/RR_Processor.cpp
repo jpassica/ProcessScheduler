@@ -1,8 +1,7 @@
 #include "RR_Processor.h"
 
-RR_Processor::RR_Processor(int ID, int TimeSlice) : Processor(ID), TimeSlice(TimeSlice)
-{
-}
+RR_Processor::RR_Processor(int ID, int TimeSlice , scheduler* pShc) : Processor(ID , pShc), TimeSlice(TimeSlice)
+{}
 
 void RR_Processor::ScheduleAlgo() 
 {
@@ -44,7 +43,7 @@ int RR_Processor::CalcFinishTime()
 	return 0;
 }
 
-Queue<Process*> RR_Processor::getRDY()
+Queue<Process*>& RR_Processor::getRDY()
 {
 	return ReadyQ;
 }

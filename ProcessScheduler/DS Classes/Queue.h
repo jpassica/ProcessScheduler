@@ -38,11 +38,11 @@ public:
 				N = new Node<T>();
 				N->setItem(ptr->getItem());
 				prv->setNext(N);
-
 				prv = prv->getNext();
 				ptr = ptr->getNext();
+
 			}
-			prv->setNext(nullptr);
+			prv->setNext(back);
 		}
 			
 	}
@@ -97,8 +97,7 @@ public:
 			cout << ptr->getItem();
 			ptr = ptr->getNext();
 		}
-		cout << back->getItem();
-		cout << endl;
+		cout << back->getItem()<<" ";
 	}
 	int getCount()
 	{

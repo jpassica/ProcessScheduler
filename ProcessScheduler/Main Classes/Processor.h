@@ -19,7 +19,7 @@ protected:
 
 public:
 	//ctor receives ID from the scheduler
-	Processor(int ID);
+	Processor(int ID , scheduler*);
 
 	//each processor has its own version of this function
 	virtual void ScheduleAlgo() = 0;
@@ -49,7 +49,8 @@ public:
 
 	//returns processor ID
 	int getID();
-
+	void setRunptr(Process*);
+	ProcessorState getProcecssorState();
 	//returns run ptr
 	Process* getRunPtr();
 };

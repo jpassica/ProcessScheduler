@@ -13,7 +13,6 @@ scheduler::scheduler()
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
 
-	RUN_List = nullptr;
 
 	RTFCount = 0;
 	MaxWCount = 0;
@@ -22,26 +21,19 @@ scheduler::scheduler()
 	KillCount = 0;
 }
 
-void scheduler::setProcessors(int NF, int NS, int NR , int RRtimeSlice)
+void scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
 {
-	Processors_List = new Processor * [NF + NS + NR];
-	RUN_List = new Process* [NF + NS + NR];
-	for (int i = 0; i < NF; i++)
+	Processors_List = new Processor * [ProcessorsCount];
+	for (int i = 0; i < ProcessorsCount; i++)
 	{
-		Processors_List[i] = new FCFS_Processor(i+1);
-		RUN_List[i] = nullptr;
-	}
+		if (i < NF)
+			Processors_List[i] = new FCFS_Processor(i + 1, this);
 
-	for (int i = NF; i < NS; i++)
-	{
-		Processors_List[i] = new SJF_Processor(i+NF+1);
-		RUN_List[i] = nullptr;
-	}
+		else if (i >= NF && i < NF + NR)
+			Processors_List[i] = new SJF_Processor(i + 1, this);
 
-	for (int i = NS+NR; i < NR; i++)
-	{
-		Processors_List[i] = new RR_Processor(i+NF+NR+1 ,RRtimeSlice);
-		RUN_List[i] = nullptr;
+		else
+			Processors_List[i] = new RR_Processor(i + 1, RRtimeSlice, this);
 	}
 }
 
@@ -55,20 +47,15 @@ Processor** scheduler::getProcessors_List() const
 	return Processors_List;
 }
 
-const Queue<Process*>& scheduler::getBLK() const
+Queue<Process*>& scheduler::getBLK() 
 {
 	return BLK_List;
 }
 
-const Queue<Process*>& scheduler::getTRM() const
+Queue<Process*>& scheduler::getTRM() 
 {
 	return TRM_List;
 }
-
-Process** scheduler::getRUN() const
-{
-	return RUN_List;
-}	
 
 int scheduler::getFCFSCount() const
 {
@@ -90,6 +77,13 @@ int scheduler::getProcessorsCount() const
 	return ProcessorsCount;
 }
 
+bool scheduler::isRecentlyUpdated(const Process* p) const
+{
+	if (!p || p->GetLastUpdateTime() == Timestep)
+		return true;
+	return false;
+}
+
 bool scheduler::ReadInputFile(string filename)
 {
 	//creating input stream object and opening file
@@ -109,6 +103,9 @@ bool scheduler::ReadInputFile(string filename)
 	IP_File_Stream >> RRtimeSlice;
 	IP_File_Stream >> RTF >> MaxW >> STL >> ForkProb;
 	IP_File_Stream >> ProcessesCount;
+
+	//setting ProcessorsCount
+	ProcessorsCount = FCFSCount + SJFCount + RRCount;
 
 	//creating the processors according to the read data
 	setProcessors(FCFSCount, SJFCount, RRCount, RRtimeSlice);
@@ -187,56 +184,301 @@ bool scheduler::ReadInputFile(string filename)
 
 		KillSignalQ.Enqueue(newKillSignal);
 	}
-	
+
 	//after successfully reading all data
 	return true;
 }
 
-void scheduler::FromRUNToBLK(Process* Run)
+
+bool scheduler::FromRUNToBLK(Processor* pro)
 {
-	BLK_List.Enqueue(Run);
-	Run->ChangeProcessState(BLK);
-	Run = nullptr;
+	//checking if there is a processor in the RUN state or not
+	if (!pro->getProcecssorState() == IDLE)
+		return false;
+
+	//checking if this process is updated in the current timestep
+	if (isRecentlyUpdated(pro->getRunPtr()))
+		return false;
+
+	//moving & updating states
+	BLK_List.Enqueue(pro->getRunPtr());
+	pro->getRunPtr()->ChangeProcessState(BLK);
+	pro->getRunPtr()->SetLastUpdateTime(Timestep);
+	pro->setRunptr(nullptr);
+	pro->FlipProcessorState();
+	return true;
 }
 
-void scheduler::FromBLKToRDY(Processor* p)
+bool scheduler::FromBLKToRDY(Processor* p)
 {
+	//checking if BLK_List is Empty
+	if (BLK_List.isEmpty())
+		return false;
 
-	Process* s;
+	//checking process & processor availabilty
+	Process* s = nullptr;
+	s = BLK_List.Queue_front();
+	if (!p || !s)
+		return false;
+
+	//checking if this process is updated in the current timestep
+	if (isRecentlyUpdated(s))
+		return false;
+
+	//dynamic casting to use getRDY function
 	BLK_List.Dequeue(s);
-	
 	FCFS_Processor* ptr1 = dynamic_cast<FCFS_Processor*>(p);
 	RR_Processor* ptr2 = dynamic_cast<RR_Processor*>(p);
 	SJF_Processor* ptr3 = dynamic_cast<SJF_Processor*>(p);
+	//if p is FCFS
 	if (ptr1)
 		ptr1->getRDY().insert(ptr1->getRDY().getCount() + 1, s);
+
+	//if p is RR
 	else if (ptr2)
 		ptr2->getRDY().Enqueue(s);
+
+	//if p is SJF
 	else if (ptr3)
 		ptr3->getRDY().Enqueue(s, s->GetCPUTime());
+	else
+		return false;
+
+	//updating process state
 	s->ChangeProcessState(RDY);
+	return true;
 }
 
-void scheduler::ToTRM(Process* ptr)
+bool scheduler::ToTRM(Process* ptr)
 {
-	/* commented untill kill function is implemented
-	* 
+	//checking if process not equal nullptr
+	if (!ptr)
+		return false;
+
+	//checking if this process is updated in the current timestep
+	if (isRecentlyUpdated(ptr))
+		return false;
+
+	//checking Forking 
 	if (ptr->GetChild())
-		Kill(ptr->GetChild());
-	*/
+		ToTRM(ptr->GetChild());
+
+	//moving to TRM & changing states
+	ptr->SetLastUpdateTime(Timestep);
 	TRM_List.Enqueue(ptr);
 	ptr->ChangeProcessState(TRM);
+	return true;
+}
+
+bool scheduler::ToRDY(Process* f, Processor* pro)
+{
+	//checking process & processor
+	if (!pro || !f)
+		return false;
+
+	//checking if this process is updated in the current timestep
+	if (isRecentlyUpdated(f))
+		return false;
+
+	//dynamic casting to use getRDY function
+	FCFS_Processor* ptr1 = dynamic_cast<FCFS_Processor*>(pro);
+	RR_Processor* ptr2 = dynamic_cast<RR_Processor*>(pro);
+	SJF_Processor* ptr3 = dynamic_cast<SJF_Processor*>(pro);
+
+	//moving Process from NEW to RDY
+	if (ptr1)
+		ptr1->getRDY().insert(ptr1->getRDY().getCount() + 1, f);
+
+	else if (ptr2)
+		ptr2->getRDY().Enqueue(f);
+
+	else if (ptr3)
+		ptr3->getRDY().Enqueue(f, f->GetCPUTime());
+	else
+		return false;
+
+	//updating states
+	if (f->GetProcessState() == RUN)
+	{
+		pro->setRunptr(nullptr);
+		pro->FlipProcessorState();
+	}
+	f->ChangeProcessState(RDY);
+	f->SetLastUpdateTime(Timestep);
+	return true;
+}
+
+bool scheduler::ToRUN(Processor* pro)
+{
+	//processor checking
+	if (!pro)
+		return false;
+	if (pro->getProcecssorState() == BUSY)
+		return false;
+
+	//dynamic casting to use getRDY function
+	FCFS_Processor* ptr1 = dynamic_cast<FCFS_Processor*>(pro);
+	RR_Processor* ptr2 = dynamic_cast<RR_Processor*>(pro);
+	SJF_Processor* ptr3 = dynamic_cast<SJF_Processor*>(pro);
+
+	Process* pPtr = nullptr;
+	if (ptr1)
+	{
+		if (ptr1->getRDY().isEmpty())
+			return false;
+
+		pPtr = ptr1->getRDY().getEntry(1);
+
+		if (!pPtr || isRecentlyUpdated(pPtr))
+			return false;
+
+		ptr1->getRDY().remove(1);
+
+	}
+	else if (ptr2)
+	{
+		if (ptr2->getRDY().isEmpty())
+			return false;
+
+		pPtr = ptr2->getRDY().Queue_front();
+
+		if (!pPtr || isRecentlyUpdated(pPtr))
+			return false;
+		ptr2->getRDY().Dequeue(pPtr);
+
+	}
+
+	else if (ptr3)
+	{
+		if (!ptr3->getRDY().getcount())
+			return false;
+
+		ptr3->getRDY().QueueFront(pPtr);
+
+		if (isRecentlyUpdated(pPtr))
+			return false;
+
+		ptr3->getRDY().Dequeue(pPtr);
+
+	}
+	else
+		return false;
+
+	//updating process && processor
+	pro->setRunptr(pPtr);
+	pro->FlipProcessorState();
+	pPtr->SetLastUpdateTime(Timestep);
+	pPtr->ChangeProcessState(RUN);
+	return true;
+
 }
 
 void scheduler::Simulate()
 {
+	//initializations
+	UI out(this);
+	Process* pro = nullptr;
 	string s;
+	s = "testcase.txt";
+
+	//calling Load function
 	ReadInputFile(s);
 
-	while (TRM_List.getCount() != ProcessesCount)
+	int count = 0;							//acts as an index to detect which processor will be passed processes from the NEW_List
+	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in RM list
 	{
+		//Moving Arrived processes from NEW to RDY
+		pro = nullptr;
+		if (!NEW_List.isEmpty()) //checking New_List is not empty
+			pro = NEW_List.Queue_front();
+
+		while (pro && pro->GetAT() == Timestep)
+
+		{
+
+			NEW_List.Dequeue(pro);					 //removing from NEW
+			if (ToRDY(pro, Processors_List[count]));  //adding to RUN
+				count++;
+
+			if (count == ProcessorsCount)
+				count = 0;
+
+			if (!NEW_List.isEmpty())
+				pro = NEW_List.Queue_front();
+			else
+				pro = nullptr;
+		}
+
+
+		//Moving to RUN
+		for (int i = 0; i < ProcessorsCount; i++)
+		{
+			ToRUN(Processors_List[i]);
+		}
+
+		//Moving From RUN
+		for (int i = 0; i < ProcessorsCount; i++)
+		{
+			if (Processors_List[i]->getProcecssorState() == BUSY)
+			{
+
+				int random = rand() % 100;
+				if (random >= 1 && random <= 15)   //probability to terminate process
+				{
+					FromRUNToBLK(Processors_List[i]);
+				}
+				else if (random >= 20 && random <= 30)  //probality to move to RDY
+				{
+					ToRDY(Processors_List[i]->getRunPtr(), Processors_List[i]);
+				}
+				else if (random >= 50 && random <= 60) //probability to terminate
+				{
+					ToTRM(Processors_List[i]->getRunPtr());
+					Processors_List[i]->FlipProcessorState();
+					Processors_List[i]->setRunptr(nullptr);
+				}
+			}
+		}
+
+		//moving from BLK 
+		int random = rand() % 100;
+		if (random < 10 && !BLK_List.isEmpty())
+		{
+			pro = BLK_List.Queue_front();
+			if (count >= ProcessorsCount)
+				count = 0;
+			if (ToRDY(pro, Processors_List[count]))
+				BLK_List.Dequeue(pro);
+		}
+
+		//kill test
+		random = rand() % ProcessesCount;				//randoming process ID
+		bool found = false;							    //Detects if the process is found or not
+
+		for (int i = 0; i < ProcessorsCount && !found; i++)
+		{
+			FCFS_Processor* ptr = dynamic_cast<FCFS_Processor*>(Processors_List[i]);	//only FCFS processors 
+			if (ptr)
+			{
+				for (int j = 1; j <= ptr->getRDY().getCount() && !found; j++)
+				{
+
+					pro = ptr->getRDY().getEntry(j);
+					if (pro->GetPID() == random)		//chcking process matcing
+					{
+						ptr->getRDY().remove(j);		//removing from RDY_List
+						ToTRM(pro);						//Killing the process
+						found = true;
+					}
+				}
+			}
+		}
+
+		//incrementing & printing timestep
+		out.TimeStepOut();
+		Timestep++;
 
 	}
 }
 
-scheduler::~scheduler()  {}
+scheduler::~scheduler() {}

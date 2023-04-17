@@ -28,8 +28,7 @@ private:
 	//Process lists
 	Queue<Process*> NEW_List;
 	Queue<Process*> BLK_List;
-	Queue<Process*> TRM_List;
-	Process** RUN_List;	    
+	Queue<Process*> TRM_List;    
 	int ProcessesCount;
 
 	//input values
@@ -54,17 +53,16 @@ private:
 public:
 	scheduler();
 	
-	//getters (used in UI class)
+	//getters 
 	int getTimeStep() const ;
 	Processor** getProcessors_List() const;
-	const Queue<Process*>& getBLK()  const;
-	const Queue<Process*>& getTRM()  const;
-	Process** getRUN() const;
+	Queue<Process*>& getBLK()  ;
+	Queue<Process*>& getTRM()  ;
 	int getFCFSCount() const;
 	int getSJFCount() const;
 	int getRRCount() const;
 	int getProcessorsCount() const; 
-
+	bool isRecentlyUpdated(const Process*) const; //checks if the process is previously updated in the current timestep
 	//the main function for reading from files
 	bool ReadInputFile(string filename);
 
@@ -75,11 +73,11 @@ public:
 	void Fork(Process*);
 	
 	//process moving
-	void FromRUNToBLK(Process*);
-	void FromBLKToRDY(Processor*);
-	void ToTRM(Process*);
-	void ToRDY(Process*);  //To be implemented in phase 2
-
+	bool FromRUNToBLK(Processor*);
+	bool FromBLKToRDY(Processor*);
+	bool ToTRM(Process*);
+	bool ToRDY(Process* , Processor*);  //To be implemented in phase 2
+	bool ToRUN(Processor*); //returns false if the processor is busy
 	//simulation function
 	void Simulate();
 	~scheduler();

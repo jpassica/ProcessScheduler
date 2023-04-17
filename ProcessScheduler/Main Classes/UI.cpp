@@ -35,28 +35,25 @@ void UI::TimeStepOut()
 		SJF_Processor* ptr3 = dynamic_cast<SJF_Processor*>(pSch->getProcessors_List()[i]);
 		if (ptr1) //Processor is FCFC
 		{
-			List<Process*> RDY = ptr1->getRDY();
-			cout << "Processor " << ProcessorID << "[FCFS]" << ": " << RDY.getCount() << " : ";
-			RDY.Print();
+			cout << "Processor " << ProcessorID << "[FCFS]" << ": " << ptr1->getRDY().getCount() << " : ";
+			ptr1->getRDY().Print();
 		}
 		else if (ptr2) //Processor is RR
 		{
-			List<Process*> RDY = ptr1->getRDY();
-			cout << "Processor " << ProcessorID << "[RR]" << ": " << RDY.getCount() << " : ";
-			RDY.Print();
+			cout << "Processor " << ProcessorID << "[RR]" << ": " << ptr2->getRDY().getCount() << " : ";
+			ptr2->getRDY().Print();
 		}
 		else if(ptr3) //Processor is SJF
 		{
-			PriorityQueue<Process*> RDY = ptr3->getRDY();
-			cout << "Processor " << ProcessorID << "[SJF]" << ": " << RDY.getcount() << " : ";
-			RDY.Print();
+			cout << "Processor " << ProcessorID << "[SJF]" << ": " << ptr3->getRDY().getcount() << " : ";
+			ptr3->getRDY().Print();
 		}
 		cout << endl;
 
 	}
 	cout << "--------------------   BLK Processes --------------------------------" << endl;
 	Queue<Process*> BLK = pSch->getBLK();
-	cout << BLK.getCount() << ": ";
+	cout << BLK.getCount() << " BLK: ";
 	BLK.Print();
 	cout << endl;
 	cout << "--------------------   RUN Processes --------------------------------" << endl;
@@ -76,19 +73,19 @@ void UI::TimeStepOut()
 	//printing running processes by getting the RunPtr in each processor
 	for (int i = 0; i < pSch->getProcessorsCount(); i++)
 	{
-		if (i)
-			cout << ", ";
 		Processor* currProcessor = pSch->getProcessors_List()[i];
 		Process* running = currProcessor->getRunPtr();
 		if (running)
-			cout << running->GetPID() << "(P" << currProcessor->getID() << ")";
+			cout << running->GetPID() << "(P" << currProcessor->getID() << "),";
 	}
 	cout << endl;
 
 	cout << "--------------------   TRM Processes --------------------------------" << endl;
 	Queue<Process*> TRM = pSch->getTRM();
-	cout << TRM.getCount() << ": ";
+	cout << TRM.getCount() << " TRM: ";
 	TRM.Print();
 	cout << endl;
 
+	cout << "Press Any Key To Move To Next Step\n";
+	getchar();
 }

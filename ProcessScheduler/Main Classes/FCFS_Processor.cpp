@@ -1,6 +1,6 @@
 #include "FCFS_Processor.h"
 
-FCFS_Processor::FCFS_Processor(int ID) : Processor(ID)
+FCFS_Processor::FCFS_Processor(int ID , scheduler* pSch) : Processor(ID , pSch)
 {
 }
 
@@ -44,7 +44,7 @@ int FCFS_Processor::CalcFinishTime()
 	return finishTime;
 }
 
-List<Process*> FCFS_Processor::getRDY()
+List<Process*>& FCFS_Processor::getRDY()
 {
 	return ReadyList;
 }

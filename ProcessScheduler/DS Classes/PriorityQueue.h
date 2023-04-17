@@ -3,6 +3,9 @@
 #include"KeyNode.h"
 #include<iostream>
 using namespace std;
+
+class Process;
+
 template <class T>
 class PriorityQueue 
 {
@@ -79,30 +82,33 @@ public:
 		size++;
 		shiftUpward(size - 1);
 	}
-	bool Dequeue()
+	bool Dequeue(T& data)
 	{
 		if (!size)
 			return false;
 
+
+		data = arr[0]->getItem();
 		arr[0] = arr[size - 1];
 		size--;
 		MaxHeapify(0);
 		return true;
 	}
-	bool QueueFront(T& data , int & key)
+	bool QueueFront(T& data )
 	{
 		if (!size)
 			return false;
 
 		data = arr[0]->getItem();
-		key = arr[0]->getKey();
 		return true;
 	}
+
 	void Print()
 	{
 		for (int i = 0; i < size; i++)
-			cout << "( " << arr[i]->getItem()<< " , " << arr[i]->getKey() << " )";
+			cout << arr[i]->getItem();
 	}
+
 	int getcount()
 	{
 		return size;
@@ -110,5 +116,7 @@ public:
 	~PriorityQueue(){}
 
 };
+
+
 
 

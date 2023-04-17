@@ -1,8 +1,7 @@
 #include "SJF_Processor.h"
 
-SJF_Processor::SJF_Processor(int ID) : Processor(ID)
-{
-}
+SJF_Processor::SJF_Processor(int ID , scheduler* pSch) : Processor(ID , pSch)
+{}
 
 void SJF_Processor::ScheduleAlgo()
 { 
@@ -14,7 +13,7 @@ void SJF_Processor::ScheduleAlgo()
 
 	//2: point to new process and dequeue
 	int key(0);
-	bool CanPeek = ReadyPriQ.QueueFront(RunPtr, key);
+	bool CanPeek = ReadyPriQ.QueueFront(RunPtr);
 
 	if (!CanPeek)
 	{   //ReadyPriQ is empty, no need to dequeue
@@ -23,7 +22,8 @@ void SJF_Processor::ScheduleAlgo()
 	}
 	else
 	{   //now RunPtr to new running process
-		bool dq = ReadyPriQ.Dequeue();
+		Process* s;
+		bool dq = ReadyPriQ.Dequeue(s);
 		RunPtr->ChangeProcessState(RUN);
 	}
 

@@ -19,34 +19,34 @@ private:
 	ProcessState CrntState;
 	int ProcessedTime;
 	Process* child;
-	bool Moved;
+	int LastUpdatetime; //To check if this process was updated at the current timestep to update it only once
 public:
 	//Non-default ctor
 	Process(int pid, int AT, int CT, int IO_N);
 
 	//Overoaded insertion operator
-	friend ostream& operator<<(ostream&, const Process&);
+	friend ostream& operator<<(ostream&, const Process*);
 
 	//Setter functions
 	void Setchild(Process*);
 	void SetTerminationTime(int n);
 	void SetResponseTime(int n);
-	void SetMoved(bool);
 	void SetProcessedTime(int);
+	void SetLastUpdateTime(int);
 	//Takes data and creates IO request and adds it to queue
 	void AddIORequest(int IO_R, int IO_D);
 
 	//Getter functions
 	int GetCPUTime() const;
 	int GetPID() const;
+	int GetAT() const;
 	int GetTurnAroundTime() const;
 	int GetResponseTime() const;
 	int GetWaitingTime() const;
 	ProcessState GetProcessState() const;
 	Process* GetChild() const;
-	bool isMoved() const;
 	int GetProcessedTime() const;
-	
+	int GetLastUpdateTime()const;
 	void ChangeProcessState(ProcessState NewState);
 
 	//Decrements the CT of the process as it is executing

@@ -7,7 +7,7 @@ class FCFS_Processor : public Processor
 	List<Process*> ReadyList;
 
 public:
-	FCFS_Processor(int ID);
+	FCFS_Processor(int ID , scheduler*);
 
 	//Picks the next process to run according to 'first come first serve'
 	virtual void ScheduleAlgo() override;
@@ -16,6 +16,6 @@ public:
 	virtual int CalcFinishTime() override;
 
 
-	List<Process*> getRDY();
+	List<Process*>& getRDY();
 };
 

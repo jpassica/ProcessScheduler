@@ -33,6 +33,7 @@ public:
 
 	T getItem() const
 	{
+
 		return item;
 	} // end getItem
 
