@@ -45,7 +45,7 @@ void UI::TimeStepOut()
 		}
 		else if(ptr3) //Processor is SJF
 		{
-			cout << "Processor " << ProcessorID << "[SJF]" << ": " << ptr3->getRDY().getcount() << " : ";
+			cout << "Processor " << ProcessorID << "[SJF]" << ": " << ptr3->getRDY().getCount() << " : ";
 			ptr3->getRDY().Print();
 		}
 		cout << endl;

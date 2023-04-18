@@ -44,6 +44,42 @@ int FCFS_Processor::CalcFinishTime()
 	return finishTime;
 }
 
+void FCFS_Processor::AddToReadyQueue(Process* pReady)
+{
+	ReadyList.insert(ReadyList.getCount() + 1, pReady);
+}
+
+bool FCFS_Processor::isReadyQueueEmpty() const
+{
+	if (ReadyList.isEmpty())
+		return true;
+	else
+		return false;
+}
+
+bool FCFS_Processor::fromReadyToRun( int crntTimeStep)
+{
+	if (RunPtr || CrntState == BUSY)
+		return false;
+
+	if (isReadyQueueEmpty())
+		return false;
+
+	Process* newRunPtr = ReadyList.getEntry(1);
+
+	if (newRunPtr->isRecentlyUpdated(crntTimeStep))
+		return false;
+	
+	RunPtr = newRunPtr;
+	ReadyList.remove(1);
+
+	CrntState = BUSY;
+	RunPtr->SetLastUpdateTime(crntTimeStep);
+	RunPtr->ChangeProcessState(RUN);
+
+	return true;
+}
+
 List<Process*>& FCFS_Processor::getRDY()
 {
 	return ReadyList;

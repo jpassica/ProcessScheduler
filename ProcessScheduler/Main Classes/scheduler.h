@@ -62,7 +62,8 @@ public:
 	int getSJFCount() const;
 	int getRRCount() const;
 	int getProcessorsCount() const; 
-	bool isRecentlyUpdated(const Process*) const; //checks if the process is previously updated in the current timestep
+	bool isRecentlyUpdated(const Process*) const; 
+
 	//the main function for reading from files
 	bool ReadInputFile(string filename);
 
@@ -76,8 +77,9 @@ public:
 	bool FromRUNToBLK(Processor*);
 	bool FromBLKToRDY(Processor*);
 	bool ToTRM(Process*);
-	bool ToRDY(Process* , Processor*);  //To be implemented in phase 2
-	bool ToRUN(Processor*); //returns false if the processor is busy
+	bool ToRDY(Process* , Processor*);
+	//bool ToRUN(Processor*);					//returns false if the processor is busy
+
 	//simulation function
 	void Simulate();
 	//~scheduler();

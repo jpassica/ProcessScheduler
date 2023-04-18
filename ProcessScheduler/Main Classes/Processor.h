@@ -49,8 +49,20 @@ public:
 
 	//returns processor ID
 	int getID();
+
+	//sets runnning processo to a passed process
 	void setRunptr(Process*);
+
+	//returns crnt processor state
 	ProcessorState getProcessorState();
+
 	//returns run ptr
 	Process* getRunPtr();
+
+	//this function is overriden in each processor class
+	virtual void AddToReadyQueue(Process* pReady) = 0;
+
+	virtual bool isReadyQueueEmpty() const = 0;
+
+	virtual bool fromReadyToRun(int crntTimeStep) = 0;
 };

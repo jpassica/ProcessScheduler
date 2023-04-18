@@ -15,6 +15,12 @@ public:
 	//calculates and returns finish time according to CT of processes
 	virtual int CalcFinishTime() override;
 
+	//adds passed process to ReadyQ
+	virtual void AddToReadyQueue(Process* pReady) override;
+
+	virtual bool isReadyQueueEmpty() const override;
+
+	virtual bool fromReadyToRun(int crntTimeStep) override;
 
 	Queue<Process*>& getRDY();
 };
