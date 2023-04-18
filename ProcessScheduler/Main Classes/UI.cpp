@@ -71,12 +71,18 @@ void UI::TimeStepOut()
 	cout << runningCount << " RUN: ";
 	
 	//printing running processes by getting the RunPtr in each processor
+	bool found = false;		//used to detect first output to adjust format 
 	for (int i = 0; i < pSch->getProcessorsCount(); i++)
 	{
 		Processor* currProcessor = pSch->getProcessors_List()[i];
 		Process* running = currProcessor->getRunPtr();
 		if (running)
-			cout << running->GetPID() << "(P" << currProcessor->getID() << "),";
+		{
+			if (found)
+				cout << ", ";
+			cout << running->GetPID() << "(P" << currProcessor->getID() << ")";
+			found = true;
+		}
 	}
 	cout << endl;
 

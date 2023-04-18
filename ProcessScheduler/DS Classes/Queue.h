@@ -77,10 +77,9 @@ public:
 		back->setNext(Temp->getNext());
 		if (back == Temp)
 			back = nullptr;
-
+		count--;
 		delete Temp;
 		return true;
-		count--;
 	}
 	T Queue_front()
 	{
@@ -94,10 +93,10 @@ public:
 		Node<T>* ptr = back->getNext();
 		while (ptr != back)
 		{
-			cout << ptr->getItem();
+			cout << ptr->getItem()<<" ";
 			ptr = ptr->getNext();
 		}
-		cout << back->getItem()<<" ";
+		cout << back->getItem();
 	}
 	int getCount()
 	{

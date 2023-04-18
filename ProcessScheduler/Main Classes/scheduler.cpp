@@ -192,8 +192,8 @@ bool scheduler::ReadInputFile(string filename)
 
 bool scheduler::FromRUNToBLK(Processor* pro)
 {
-	//checking if there is a processor in the RUN state or not
-	if (!pro->getProcecssorState() == IDLE)
+	//checking if the processor is in the RUN state or not
+	if (pro->getProcecssorState() == IDLE)
 		return false;
 
 	//checking if this process is updated in the current timestep
@@ -201,11 +201,11 @@ bool scheduler::FromRUNToBLK(Processor* pro)
 		return false;
 
 	//moving & updating states
-	BLK_List.Enqueue(pro->getRunPtr());
-	pro->getRunPtr()->ChangeProcessState(BLK);
-	pro->getRunPtr()->SetLastUpdateTime(Timestep);
-	pro->setRunptr(nullptr);
-	pro->FlipProcessorState();
+	BLK_List.Enqueue(pro->getRunPtr());				//adding to BLK
+	pro->getRunPtr()->ChangeProcessState(BLK);		//changing Process state to BLK
+	pro->getRunPtr()->SetLastUpdateTime(Timestep);	//time Update
+	pro->setRunptr(nullptr);						//removing the process from Runptr
+	pro->FlipProcessorState();						//changing processor state
 	return true;
 }
 
@@ -344,6 +344,7 @@ bool scheduler::ToRUN(Processor* pro)
 
 		if (!pPtr || isRecentlyUpdated(pPtr))
 			return false;
+
 		ptr2->getRDY().Dequeue(pPtr);
 
 	}
@@ -393,7 +394,6 @@ void scheduler::Simulate()
 			pro = NEW_List.Queue_front();
 
 		while (pro && pro->GetAT() == Timestep)
-
 		{
 
 			NEW_List.Dequeue(pro);					 //removing from NEW
@@ -433,9 +433,11 @@ void scheduler::Simulate()
 				}
 				else if (random >= 50 && random <= 60) //probability to terminate
 				{
-					ToTRM(Processors_List[i]->getRunPtr());
-					Processors_List[i]->FlipProcessorState();
-					Processors_List[i]->setRunptr(nullptr);
+					if (ToTRM(Processors_List[i]->getRunPtr()))
+					{
+						Processors_List[i]->FlipProcessorState();
+						Processors_List[i]->setRunptr(nullptr);
+					}
 				}
 			}
 		}
