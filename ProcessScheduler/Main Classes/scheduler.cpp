@@ -192,8 +192,8 @@ bool scheduler::ReadInputFile(string filename)
 
 bool scheduler::FromRUNToBLK(Processor* pro)
 {
-	//checking if the processor is in the RUN state or not
-	if (pro->getProcecssorState() == IDLE)
+	//checking if there is a processor in the RUN state or not
+	if (!pro->getProcessorState() == IDLE)
 		return false;
 
 	//checking if this process is updated in the current timestep
@@ -313,7 +313,7 @@ bool scheduler::ToRUN(Processor* pro)
 	//processor checking
 	if (!pro)
 		return false;
-	if (pro->getProcecssorState() == BUSY)
+	if (pro->getProcessorState() == BUSY)
 		return false;
 
 	//dynamic casting to use getRDY function
@@ -383,6 +383,7 @@ void scheduler::Simulate()
 	s = "testcase.txt";
 
 	//calling Load function
+	//cout <<
 	ReadInputFile(s);
 
 	int count = 0;							//acts as an index to detect which processor will be passed processes from the NEW_List
@@ -419,7 +420,7 @@ void scheduler::Simulate()
 		//Moving From RUN
 		for (int i = 0; i < ProcessorsCount; i++)
 		{
-			if (Processors_List[i]->getProcecssorState() == BUSY)
+			if (Processors_List[i]->getProcessorState() == BUSY)
 			{
 
 				int random = rand() % 100;
@@ -483,4 +484,4 @@ void scheduler::Simulate()
 	}
 }
 
-scheduler::~scheduler() {}
+//scheduler::~scheduler() {}

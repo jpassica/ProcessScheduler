@@ -50,7 +50,7 @@ public:
 	//returns processor ID
 	int getID();
 	void setRunptr(Process*);
-	ProcessorState getProcecssorState();
+	ProcessorState getProcessorState();
 	//returns run ptr
 	Process* getRunPtr();
 };

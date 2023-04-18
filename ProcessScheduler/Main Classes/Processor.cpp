@@ -55,7 +55,7 @@ void Processor::setRunptr(Process* p)
 	RunPtr = p;
 }
 
-ProcessorState Processor::getProcecssorState()
+ProcessorState Processor::getProcessorState()
 {
 	return CrntState;
 }
