@@ -14,12 +14,12 @@ int SJF_Processor::CalcFinishTime()
 
 void SJF_Processor::AddToReadyQueue(Process* pReady)
 {
-	ReadyPriQ.Enqueue(pReady, pReady->GetCPUTime());
+	SJF_Ready.Enqueue(pReady, pReady->GetCPUTime());
 }
 
 bool SJF_Processor::isReadyQueueEmpty() const
 {
-	if (ReadyPriQ.isEmpty())
+	if (SJF_Ready.isEmpty())
 		return true;
 	else
 		return false;
@@ -35,12 +35,12 @@ bool SJF_Processor::fromReadyToRun(int crntTimeStep)
 
 	Process* newRunPtr(nullptr);
 
-	ReadyPriQ.QueueFront(newRunPtr);
+	SJF_Ready.QueueFront(newRunPtr);
 
 	if (newRunPtr->isRecentlyUpdated(crntTimeStep))
 		return false;
 
-	ReadyPriQ.Dequeue(RunPtr);
+	SJF_Ready.Dequeue(RunPtr);
 
 	CrntState = BUSY;
 	RunPtr->SetLastUpdateTime(crntTimeStep);
@@ -51,10 +51,10 @@ bool SJF_Processor::fromReadyToRun(int crntTimeStep)
 
 int SJF_Processor::GetRDYCount() const
 {
-	return ReadyPriQ.getCount();
+	return SJF_Ready.getCount();
 }
 
 void SJF_Processor::printRDY() const
 {
-	ReadyPriQ.Print();
+	SJF_Ready.Print();
 }

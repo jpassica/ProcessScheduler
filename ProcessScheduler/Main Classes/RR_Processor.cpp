@@ -14,12 +14,12 @@ int RR_Processor::CalcFinishTime()
 
 void RR_Processor::AddToReadyQueue(Process* pReady)
 {
-	ReadyQ.Enqueue(pReady);
+	RR_Ready.Enqueue(pReady);
 }
 
 bool RR_Processor::isReadyQueueEmpty() const
 {
-	if (ReadyQ.isEmpty())
+	if (RR_Ready.isEmpty())
 		return true;
 	else
 		return false;
@@ -33,12 +33,12 @@ bool RR_Processor::fromReadyToRun(int crntTimeStep)
 	if (isReadyQueueEmpty())
 		return false;
 
-	Process* newRunPtr = ReadyQ.Queue_front();
+	Process* newRunPtr = RR_Ready.Queue_front();
 
 	if (newRunPtr->isRecentlyUpdated(crntTimeStep))
 		return false;
 
-	ReadyQ.Dequeue(RunPtr);
+	RR_Ready.Dequeue(RunPtr);
 
 	CrntState = BUSY;
 	RunPtr->SetLastUpdateTime(crntTimeStep);
@@ -49,10 +49,10 @@ bool RR_Processor::fromReadyToRun(int crntTimeStep)
 
 int RR_Processor::GetRDYCount() const
 {
-	return ReadyQ.getCount();
+	return RR_Ready.getCount();
 }
 
 void RR_Processor::printRDY() const
 {
-	ReadyQ.Print();
+	RR_Ready.Print();
 }

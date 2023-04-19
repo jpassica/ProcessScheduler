@@ -4,7 +4,7 @@
 
 class SJF_Processor : public Processor
 {
-	PriorityQueue<Process*> ReadyPriQ;
+	PriorityQueue<Process*> SJF_Ready;
 
 public:
 	SJF_Processor(int ID , Scheduler*);
@@ -15,7 +15,7 @@ public:
 	//calculates and returns finish time according to CT of processes
 	virtual int CalcFinishTime() override;
 
-	//adds passed process to ReadyPriQ
+	//adds passed process to SJF_Ready
 	virtual void AddToReadyQueue(Process* pReady) override;
 
 	virtual bool isReadyQueueEmpty() const override;
