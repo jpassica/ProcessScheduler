@@ -13,7 +13,7 @@ using namespace std;
 class scheduler
 {
 private:
-	int Timestep;
+	int timeStep;
 
 	//processors lists(dynamic allocation)
 	Processor** Processors_List;
@@ -62,7 +62,6 @@ public:
 	int getSJFCount() const;
 	int getRRCount() const;
 	int getProcessorsCount() const; 
-	bool isRecentlyUpdated(const Process*) const; 
 
 	//the main function for reading from files
 	bool ReadInputFile(string filename);
@@ -78,11 +77,8 @@ public:
 	bool FromBLKToRDY(Processor*);
 	bool ToTRM(Process*);
 	bool ToRDY(Process* , Processor*);
-	//bool ToRUN(Processor*);					//returns false if the processor is busy
 
 	//simulation function
 	void Simulate(string fileName);
-	//~scheduler();
-
 };
 

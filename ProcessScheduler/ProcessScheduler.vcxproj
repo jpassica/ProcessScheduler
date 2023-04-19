@@ -153,8 +153,8 @@
     <ClInclude Include="Main Classes\UI.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="SampleInputFile.txt" />
-    <Text Include="SampleInputFile2.txt" />
+    <Text Include="SampleInput.txt" />
+    <Text Include="SampleInput2.txt" />
     <Text Include="testcase.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

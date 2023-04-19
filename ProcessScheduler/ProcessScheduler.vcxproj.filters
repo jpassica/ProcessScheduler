@@ -91,8 +91,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="SampleInputFile.txt" />
+    <Text Include="SampleInput.txt" />
     <Text Include="testcase.txt" />
-    <Text Include="SampleInputFile2.txt" />
+    <Text Include="SampleInput2.txt" />
   </ItemGroup>
 </Project>

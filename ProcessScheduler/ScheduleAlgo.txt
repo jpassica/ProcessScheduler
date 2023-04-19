@@ -1,0 +1,112 @@
+
+void RR_Processor::ScheduleAlgo() 
+{
+	//assuming this function is called by the simulator each (timeslice) timesteps
+
+	if (RunPtr)							//in case there is a process already executing
+	{
+		if (RunPtr->GetCPUTime())		//in case the running process is not done executing
+		{ //The process should go back to RDY, and another one comes in its place
+
+			ReadyQ.Enqueue(RunPtr);
+		}
+		else
+		{ //process is done executing, move to TRM list
+			//move
+		}
+	}
+
+	if (!ReadyQ.isEmpty())
+	{
+		Process* temp;
+		RunPtr = ReadyQ.Queue_front();
+		RunPtr->ChangeProcessState(RUN);
+		ReadyQ.Dequeue(temp);
+	}
+	else
+	{
+		RunPtr = nullptr;
+	}
+
+	if (RunPtr)				//if there is a process currently running
+		CrntState = BUSY;
+	else
+		CrntState = IDLE;
+}
+
+
+
+
+
+
+
+void FCFS_Processor::ScheduleAlgo()
+{
+	//assuming this function is only called when necessary, 
+	//when the running process is done executing
+
+	//1: move done process to TRM list
+	//move
+
+	//2: place next process (if exists) in RUN state
+	if (!ReadyList.isEmpty())						//if there is a process to run next
+	{
+		RunPtr = ReadyList.getEntry(1);
+		ReadyList.remove(1);
+		RunPtr->ChangeProcessState(RUN);
+	}
+	else										//there is no process to run
+	{
+		RunPtr = nullptr;
+	}
+
+
+	if (RunPtr)				//if there is a process currently running
+		CrntState = BUSY;
+	else
+		CrntState = IDLE;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void SJF_Processor::ScheduleAlgo()
+{ 
+	//assuming this function will be called only when needed,
+    //meaning it will only be called when the running process has finished executing
+
+	//1: move process to TRM list
+	//move
+
+	//2: point to new process and dequeue
+	int key(0);
+	bool CanPeek = ReadyPriQ.QueueFront(RunPtr);
+
+	if (!CanPeek)
+	{   //ReadyPriQ is empty, no need to dequeue
+		RunPtr = nullptr;
+		//processor is now idle, it has no process to execute
+	}
+	else
+	{   //now RunPtr to new running process
+		Process* s;
+		bool dq = ReadyPriQ.Dequeue(s);
+		RunPtr->ChangeProcessState(RUN);
+	}
+
+	if (RunPtr)				//if there is a process currently running
+		CrntState = BUSY;
+	else
+		CrntState = IDLE;
+}

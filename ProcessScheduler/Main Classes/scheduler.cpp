@@ -77,13 +77,6 @@ int scheduler::getProcessorsCount() const
 	return ProcessorsCount;
 }
 
-//bool scheduler::isRecentlyUpdated(const Process* p) const
-//{
-//	if (!p || p->GetLastUpdateTime() == Timestep)
-//		return true;
-//	return false;
-//}
-
 bool scheduler::ReadInputFile(string filename)
 {
 	//creating input stream object and opening file
