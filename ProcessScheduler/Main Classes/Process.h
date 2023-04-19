@@ -14,6 +14,7 @@ private:
 	int TurnAroundTime;
 	int WaitingTime;
 	int IO_N;
+
 	//int** IOPairs = new int* [2];
 	Queue<IO_Pairs*> IO_PairsQ;
 	ProcessState CrntState;

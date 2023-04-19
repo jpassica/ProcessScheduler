@@ -12,7 +12,7 @@ void RR_Processor::ScheduleAlgo()
 		if (RunPtr->GetCPUTime())		//in case the running process is not done executing
 		{ //The process should go back to RDY, and another one comes in its place
 
-			ReadyQ.Enqueue(RunPtr);
+			RR_Ready.Enqueue(RunPtr);
 		}
 		else
 		{ //process is done executing, move to TRM list
@@ -20,12 +20,12 @@ void RR_Processor::ScheduleAlgo()
 		}
 	}
 
-	if (!ReadyQ.isEmpty())
+	if (!RR_Ready.isEmpty())
 	{
 		Process* temp;
-		RunPtr = ReadyQ.Queue_front();
+		RunPtr = RR_Ready.Queue_front();
 		RunPtr->ChangeProcessState(RUN);
-		ReadyQ.Dequeue(temp);
+		RR_Ready.Dequeue(temp);
 	}
 	else
 	{
@@ -45,5 +45,5 @@ int RR_Processor::CalcFinishTime()
 
 Queue<Process*>& RR_Processor::getRDY()
 {
-	return ReadyQ;
+	return RR_Ready;
 }

@@ -13,10 +13,10 @@ void FCFS_Processor::ScheduleAlgo()
 	//move
 
 	//2: place next process (if exists) in RUN state
-	if (!ReadyList.isEmpty())						//if there is a process to run next
+	if (!FCFS_Ready.isEmpty())						//if there is a process to run next
 	{
-		RunPtr = ReadyList.getEntry(1);
-		ReadyList.remove(1);
+		RunPtr = FCFS_Ready.getEntry(1);
+		FCFS_Ready.remove(1);
 		RunPtr->ChangeProcessState(RUN);
 	}
 	else										//there is no process to run
@@ -33,9 +33,9 @@ void FCFS_Processor::ScheduleAlgo()
 
 int FCFS_Processor::CalcFinishTime()
 {
-	for (size_t i = 1; i <= ReadyList.getLength(); i++)
+	for (size_t i = 1; i <= FCFS_Ready.getLength(); i++)
 	{
-		finishTime += ReadyList.getEntry(i)->GetCPUTime();
+		finishTime += FCFS_Ready.getEntry(i)->GetCPUTime();
 	}
 	
 	if (RunPtr)
@@ -46,5 +46,5 @@ int FCFS_Processor::CalcFinishTime()
 
 List<Process*>& FCFS_Processor::getRDY()
 {
-	return ReadyList;
+	return FCFS_Ready;
 }

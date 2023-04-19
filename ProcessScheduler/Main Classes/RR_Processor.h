@@ -4,7 +4,7 @@
 class RR_Processor : public Processor
 {
 	int TimeSlice;
-	Queue<Process*> ReadyQ;
+	Queue<Process*> RR_Ready;
 
 public:
 	RR_Processor(int ID, int TimeSlice, scheduler*);

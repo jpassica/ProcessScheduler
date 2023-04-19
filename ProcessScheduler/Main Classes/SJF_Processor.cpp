@@ -13,7 +13,7 @@ void SJF_Processor::ScheduleAlgo()
 
 	//2: point to new process and dequeue
 	int key(0);
-	bool CanPeek = ReadyPriQ.QueueFront(RunPtr);
+	bool CanPeek = SJF_Ready.QueueFront(RunPtr);
 
 	if (!CanPeek)
 	{   //ReadyPriQ is empty, no need to dequeue
@@ -23,7 +23,7 @@ void SJF_Processor::ScheduleAlgo()
 	else
 	{   //now RunPtr to new running process
 		Process* s;
-		bool dq = ReadyPriQ.Dequeue(s);
+		bool dq = SJF_Ready.Dequeue(s);
 		RunPtr->ChangeProcessState(RUN);
 	}
 
@@ -40,5 +40,5 @@ int SJF_Processor::CalcFinishTime()
 
 PriorityQueue<Process*>& SJF_Processor::getRDY()
 {
-	return ReadyPriQ;
+	return SJF_Ready;
 }

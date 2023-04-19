@@ -380,7 +380,7 @@ void scheduler::Simulate()
 	UI out(this);
 	Process* pro = nullptr;
 	string s;
-	s = "testcase.txt";
+	s = "Sample Input File.txt";
 
 	//calling Load function
 	ReadInputFile(s);
@@ -468,9 +468,11 @@ void scheduler::Simulate()
 					pro = ptr->getRDY().getEntry(j);
 					if (pro->GetPID() == random)		//chcking process matcing
 					{
-						ptr->getRDY().remove(j);		//removing from RDY_List
-						ToTRM(pro);						//Killing the process
-						found = true;
+						if (ToTRM(pro))						//Killing the process
+						{
+							ptr->getRDY().remove(j);		//removing from RDY_List
+							found = true;
+						}
 					}
 				}
 			}
