@@ -21,9 +21,9 @@ struct IO_Pairs {
 	int IO_R;
 	int IO_D;
 
-	IO_Pairs(int IO_R, int IO_D) 
+	IO_Pairs(int IO_r, int IO_d) 
 	{
-		IO_R = IO_R;
-		IO_D = IO_D;
+		IO_R = IO_r;
+		IO_D = IO_d;
 	}
 };

@@ -36,26 +36,6 @@ void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
 	}
 }
 
-int Scheduler::getTimeStep() const
-{
-	return timeStep;
-}
-
-Processor** Scheduler::getProcessors_List() const
-{
-	return Processors_List;
-}
-
-Queue<Process*>& Scheduler::getBLK() 
-{
-	return BLK_List;
-}
-
-Queue<Process*>& Scheduler::getTRM() 
-{
-	return TRM_List;
-}
-
 int Scheduler::getFCFSCount() const
 {
 	return 	FCFSCount;
@@ -367,7 +347,7 @@ void Scheduler::Simulate(string fileName)
 		}
 
 		//incrementing & printing timestep
-		out.TimeStepOut();
+		out.TimeStepOut(BLK_List, TRM_List, Processors_List, FCFSCount, SJFCount, RRCount, timeStep);
 		timeStep++;
 	}
 }

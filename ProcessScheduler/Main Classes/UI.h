@@ -19,5 +19,6 @@ public:
 	UI(Scheduler*);	
 	string ReadLine();
 	void WriteLine(string);
-	void TimeStepOut();
+	void TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
+		Processor** ProcessorsList, int NF, int NS, int NR, int timeStep);
 };	

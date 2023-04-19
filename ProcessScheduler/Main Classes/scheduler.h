@@ -58,10 +58,6 @@ public:
 	Scheduler();
 	
 	//getters 
-	int getTimeStep() const ;
-	Processor** getProcessors_List() const;
-	Queue<Process*>& getBLK()  ;
-	Queue<Process*>& getTRM()  ;
 	int getFCFSCount() const;
 	int getSJFCount() const;
 	int getRRCount() const;

@@ -6,7 +6,6 @@ Processor::Processor(int ID, Scheduler* sch) : CrntState(IDLE), ID(ID), RunPtr(n
 	busyTime = 0;
 	idleTime = 0;
 	finishTime = 0;
-
 }
 
 double Processor::CalcPLoad(int TotalTRT) const	//calculates and returns pLoad %
@@ -44,7 +43,7 @@ void Processor::FlipProcessorState()
 		CrntState = IDLE;
 }
 
-int Processor::getID()
+int Processor::getID() const
 {
 	return ID;
 }

@@ -18,52 +18,42 @@ void UI::WriteLine(string s)
 	cout << s << endl;
 }
 
-void UI::TimeStepOut()
+void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
+	Processor** ProcessorsList, int NF, int NS, int NR, int timeStep)
 {
-
-	cout << "Current Time Step: " << pSch->getTimeStep() << endl;  //printing current timestep
+	cout << "Current Time Step: " << timeStep << endl;  //printing current timestep
 	cout << "--------------------   RDY Processes --------------------------------" << endl;  
 	for (int i = 0; i < pSch->getProcessorsCount(); i++)
 	{
-		int ProcessorID = pSch->getProcessors_List()[i]->getID(); 
+		int ProcessorID = ProcessorsList[i]->getID();
+		
+		cout << "Processor " << ProcessorID;
 
-		//dynamic casting is done to determine the type of processor to know call getRDY function. 
-		//getRDY func. differs according to the type of processor & can't be done by polymorphisim.
+		//printing the type of the processor 
+		if (i >= 0 && i < NF)
+			cout << " [FCFS]";
+		else if (i >= NF && i < NF + NS)
+			cout << " [SJF ]";
+		else
+			cout << " [RR  ]";
 
-		FCFS_Processor* ptr1 = dynamic_cast<FCFS_Processor*>(pSch->getProcessors_List()[i]);
-		RR_Processor* ptr2 = dynamic_cast<RR_Processor*>(pSch->getProcessors_List()[i]);
-		SJF_Processor* ptr3 = dynamic_cast<SJF_Processor*>(pSch->getProcessors_List()[i]);
-		if (ptr1) //Processor is FCFS
-		{
-			cout << "Processor " << ProcessorID << "[FCFS]" << ": " << ptr1->GetRDYCount() << " RDY : ";
-			ptr1->printRDY();
-		}
-		else if (ptr2) //Processor is RR
-		{
-			cout << "Processor " << ProcessorID << "[RR  ]" << ": " << ptr2->GetRDYCount() << " RDY : ";
-			ptr2->printRDY();
-		}
-		else if(ptr3) //Processor is SJF
-		{
-			cout << "Processor " << ProcessorID << "[SJF ]" << ": " << ptr3->GetRDYCount() << " RDY : ";
-			ptr3->printRDY();
-		}
+		cout << ": " << ProcessorsList[i]->GetRDYCount() << " RDY : ";
+		ProcessorsList[i]->printRDY();
 		cout << endl;
-
 	}
 	cout << "--------------------   BLK Processes --------------------------------" << endl;
-	Queue<Process*> BLK = pSch->getBLK();
-	cout << BLK.getCount() << " BLK: ";
-	BLK.Print();
+
+	cout << BLK_List.getCount() << " BLK: ";
+	BLK_List.Print();
 	cout << endl;
+
 	cout << "--------------------   RUN Processes --------------------------------" << endl;
 	
 	//calculating no. of running processes
 	int runningCount = 0;
 	for (int i = 0; i < pSch->getProcessorsCount(); i++)
 	{
-		Processor* currProcessor = pSch->getProcessors_List()[i];
-		Process* running = currProcessor->getRunPtr();
+		Process* running = ProcessorsList[i]->getRunPtr();
 		if (running)
 			runningCount++;
 	}
@@ -74,22 +64,21 @@ void UI::TimeStepOut()
 	bool found = false;		//used to detect first output to adjust format 
 	for (int i = 0; i < pSch->getProcessorsCount(); i++)
 	{
-		Processor* currProcessor = pSch->getProcessors_List()[i];
-		Process* running = currProcessor->getRunPtr();
+		Process* running = ProcessorsList[i]->getRunPtr();
 		if (running)
 		{
 			if (found)
 				cout << ", ";
-			cout << running->GetPID() << "(P" << currProcessor->getID() << ")";
+			cout << running->GetPID() << "(P" << ProcessorsList[i]->getID() << ")";
 			found = true;
 		}
 	}
 	cout << endl;
 
 	cout << "--------------------   TRM Processes --------------------------------" << endl;
-	Queue<Process*> TRM = pSch->getTRM();
-	cout << TRM.getCount() << " TRM: ";
-	TRM.Print();
+
+	cout << TRM_List.getCount() << " TRM: ";
+	TRM_List.Print();
 	cout << endl;
 
 	cout << "Press Any Key To Move To Next Step\n\n";

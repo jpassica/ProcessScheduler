@@ -48,7 +48,7 @@ public:
 	void FlipProcessorState();
 
 	//returns processor ID
-	int getID();
+	int getID() const;
 
 	//sets runnning processo to a passed process
 	void setRunptr(Process*);
