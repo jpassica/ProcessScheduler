@@ -27,6 +27,7 @@ public:
 	//Overoaded insertion operator
 	friend ostream& operator<<(ostream&, const Process*);
 
+
 	//Setter functions
 	void Setchild(Process*);
 	void SetTerminationTime(int n);

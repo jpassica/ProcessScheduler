@@ -82,5 +82,9 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 	cout << endl;
 
 	cout << "Press Any Key To Move To Next Step\n\n";
+
+	if (!timeStep)
+		getchar();
+
 	getchar();
 }

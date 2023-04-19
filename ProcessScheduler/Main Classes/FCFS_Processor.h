@@ -1,10 +1,10 @@
 #pragma once
 #include "Processor.h"
-#include "..\DS Classes\List.h"
+#include "..\DS Classes\ListProcessPtrs.h"
 
 class FCFS_Processor : public Processor
 {
-	List<Process*> ReadyList;
+	ListProcessPtrs FCFS_Ready;
 
 public:
 	FCFS_Processor(int ID , Scheduler*);
@@ -24,7 +24,7 @@ public:
 
 	virtual int GetRDYCount() const override;
 
-	void RandomKill(int randomID);
+	bool RandomKill(int randomID);
 
 	virtual void printRDY() const override;
 };

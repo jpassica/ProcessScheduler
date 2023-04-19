@@ -10,6 +10,7 @@ Scheduler::Scheduler()
 	FCFSCount = 0;
 	SJFCount = 0;
 	RRCount = 0;
+	RRtimeSlice = 0;
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
 
@@ -18,6 +19,14 @@ Scheduler::Scheduler()
 	StealCount = 0;
 	Forkcount = 0;
 	KillCount = 0;
+
+	RTF = 0;
+	STL = 0;
+	ForkProb = 0;
+
+	avgResponseTime = 0;
+	avgTurnAroundTime = 0;
+	avgWaitingTime = 0;
 }
 
 void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
@@ -335,14 +344,14 @@ void Scheduler::Simulate(string fileName)
 
 		//kill test
 		random = rand() % ProcessesCount;				//randoming process ID
-		bool found = false;							    //Detects if the process is found or not
+		bool killed = false;							    //Detects if the process is found or not
 
-		for (int i = 0; i < ProcessorsCount && !found; i++)
+		for (int i = 0; i < FCFSCount && !killed; i++)
 		{
-			FCFS_Processor* FCFSptr = dynamic_cast<FCFS_Processor*>(Processors_List[i]);	//only FCFS processors 
-			if (FCFSptr)
+			FCFS_Processor* processorPtr = (FCFS_Processor*) Processors_List[i];		//only FCFS processors
+			if (processorPtr)
 			{
-				FCFSptr->RandomKill(random);
+				killed = processorPtr->RandomKill(random);
 			}
 		}
 

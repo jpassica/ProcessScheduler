@@ -5,6 +5,7 @@
 template <class T>
 class List					//Linked-based implementation of List ADT
 {
+protected:
 	Node<T>* headPtr;
 	int itemCount;
 
@@ -119,20 +120,6 @@ public:
 		{
 			std::cerr << "Error! Empty list or invalid position.\n";
 		} 
-	}
-
-	int search(T data) //returns the position of the data , if not found -1 is returned
-	{
-		Node<T>* ptr = headPtr;
-		int pos= 1;
-		while (ptr)
-		{
-			if (ptr->getItem() == data)
-				return pos;
-			pos++;
-			ptr = ptr->getNext();
-		}
-		return -1;
 	}
 
 	int getCount() const

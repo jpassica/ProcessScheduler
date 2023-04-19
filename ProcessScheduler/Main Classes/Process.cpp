@@ -118,11 +118,7 @@ bool Process::isRecentlyUpdated(int crntTimeStep) const
 		return false;
 }
 
-//Destructor for deallocating the dynamic array we used
 Process::~Process() {
-	/*delete[] IOPairs[0];
-	delete[] IOPairs[1];
-	delete[] IOPairs;*/
 }
 
 void Process::Setchild(Process* c)

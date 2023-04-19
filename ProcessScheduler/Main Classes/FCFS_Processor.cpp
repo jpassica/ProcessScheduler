@@ -1,7 +1,7 @@
 ﻿#include "FCFS_Processor.h"
 #include "Scheduler.h"
 
-FCFS_Processor::FCFS_Processor(int ID , Scheduler* pSch) : Processor(ID , pSch)
+FCFS_Processor::FCFS_Processor(int ID, Scheduler* pSch) : Processor(ID, pSch)
 {
 }
 
@@ -11,11 +11,11 @@ void FCFS_Processor::ScheduleAlgo()
 
 int FCFS_Processor::CalcFinishTime()
 {
-	for (size_t i = 1; i <= ReadyList.getLength(); i++)
+	for (size_t i = 1; i <= FCFS_Ready.getLength(); i++)
 	{
-		finishTime += ReadyList.getEntry(i)->GetCPUTime();
+		finishTime += FCFS_Ready.getEntry(i)->GetCPUTime();
 	}
-	
+
 	if (RunPtr)
 		finishTime += RunPtr->GetCPUTime();
 
@@ -24,18 +24,18 @@ int FCFS_Processor::CalcFinishTime()
 
 void FCFS_Processor::AddToReadyQueue(Process* pReady)
 {
-	ReadyList.insert(ReadyList.getCount() + 1, pReady);
+	FCFS_Ready.insert(FCFS_Ready.getCount() + 1, pReady);
 }
 
 bool FCFS_Processor::isReadyQueueEmpty() const
 {
-	if (ReadyList.isEmpty())
+	if (FCFS_Ready.isEmpty())
 		return true;
 	else
 		return false;
 }
 
-bool FCFS_Processor::fromReadyToRun( int crntTimeStep)
+bool FCFS_Processor::fromReadyToRun(int crntTimeStep)
 {
 	if (RunPtr || CrntState == BUSY)
 		return false;
@@ -43,13 +43,13 @@ bool FCFS_Processor::fromReadyToRun( int crntTimeStep)
 	if (isReadyQueueEmpty())
 		return false;
 
-	Process* newRunPtr = ReadyList.getEntry(1);
+	Process* newRunPtr = FCFS_Ready.getEntry(1);
 
 	if (newRunPtr->isRecentlyUpdated(crntTimeStep))
 		return false;
-	
+
 	RunPtr = newRunPtr;
-	ReadyList.remove(1);
+	FCFS_Ready.remove(1);
 
 	CrntState = BUSY;
 	RunPtr->SetLastUpdateTime(crntTimeStep);
@@ -60,27 +60,30 @@ bool FCFS_Processor::fromReadyToRun( int crntTimeStep)
 
 int FCFS_Processor::GetRDYCount() const
 {
-	return ReadyList.getCount();
+	return FCFS_Ready.getCount();
 }
 
-void FCFS_Processor::RandomKill(int randomID)
+bool FCFS_Processor::RandomKill(int randomID)
 {
-	bool found = 0;
-	Process* killPtr(nullptr);
+	int position = FCFS_Ready.SearchByID(randomID);
 
-	for (int j = 1; j <= ReadyList.getCount() && !found; j++)
+	if (position)
 	{
-		killPtr = ReadyList.getEntry(j);
+		Process* killedProcess = FCFS_Ready.getEntry(position);
 
-		if (killPtr->GetPID() == randomID && pScheduler->ToTRM(killPtr))		//checking process matching & if able to terminate
+		if (pScheduler->ToTRM(killedProcess))
 		{
-				ReadyList.remove(j);									//removing from RDY_List
-				found = true;
+			FCFS_Ready.remove(position);
+			return true;
 		}
+		else
+			return false;
 	}
+	else
+		return false;
 }
 
 void FCFS_Processor::printRDY() const
 {
-	ReadyList.Print();
+	FCFS_Ready.Print();
 }

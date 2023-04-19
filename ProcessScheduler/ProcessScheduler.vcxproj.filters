@@ -89,6 +89,9 @@
     <ClInclude Include="DS Classes\List.h">
       <Filter>DS Classes</Filter>
     </ClInclude>
+    <ClInclude Include="DS Classes\ListProcessPtrs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="SampleInput.txt" />
