@@ -13,7 +13,6 @@ Scheduler::Scheduler()
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
 
-
 	RTFCount = 0;
 	MaxWCount = 0;
 	StealCount = 0;

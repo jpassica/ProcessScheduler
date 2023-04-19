@@ -21,7 +21,7 @@ void UI::WriteLine(string s)
 void UI::TimeStepOut()
 {
 
-	cout << "Current Timestep: " << pSch->getTimeStep() << endl;  //printing current timestep
+	cout << "Current Time Step: " << pSch->getTimeStep() << endl;  //printing current timestep
 	cout << "--------------------   RDY Processes --------------------------------" << endl;  
 	for (int i = 0; i < pSch->getProcessorsCount(); i++)
 	{
@@ -92,6 +92,6 @@ void UI::TimeStepOut()
 	TRM.Print();
 	cout << endl;
 
-	cout << "Press Any Key To Move To Next Step\n";
+	cout << "Press Any Key To Move To Next Step\n\n";
 	getchar();
 }

@@ -4,6 +4,8 @@ enum ProcessState { NEW, RDY, RUN, BLK, TRM, ORPH };
 
 enum ProcessorState { IDLE, BUSY };
 
+enum UI_Mode { Interactive, StepByStep, Silent};
+
 struct KillSignal {
 	int time;
 	int PID;
