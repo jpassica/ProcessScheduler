@@ -14,13 +14,12 @@ private:
 	int TurnAroundTime;
 	int WaitingTime;
 	int IO_N;
-
-	//int** IOPairs = new int* [2];
 	Queue<IO_Pairs*> IO_PairsQ;
 	ProcessState CrntState;
 	int ProcessedTime;
 	Process* child;
 	int LastUpdatetime; //To check if this process was updated at the current timestep to update it only once
+
 public:
 	//Non-default ctor
 	Process(int pid, int AT, int CT, int IO_N);
@@ -52,6 +51,9 @@ public:
 
 	//Decrements the CT of the process as it is executing
 	void RunProcess();
+
+	//checks if the process was previously updated in the current timestep
+	bool isRecentlyUpdated(int crntTimeStep) const;
 
 	~Process();
 };

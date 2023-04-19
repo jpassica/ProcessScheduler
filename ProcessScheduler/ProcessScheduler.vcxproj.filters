@@ -39,7 +39,7 @@
     <ClCompile Include="Defs.h">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Main Classes\scheduler.cpp">
+    <ClCompile Include="Main Classes\Scheduler.cpp">
       <Filter>Main Classes</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -80,7 +80,7 @@
     <ClInclude Include="Main Classes\RR_Processor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Main Classes\scheduler.h">
+    <ClInclude Include="Main Classes\Scheduler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Main Classes\UI.h">
@@ -91,7 +91,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Sample Input File.txt" />
+    <Text Include="SampleInput.txt" />
     <Text Include="testcase.txt" />
+    <Text Include="SampleInput2.txt" />
   </ItemGroup>
 </Project>

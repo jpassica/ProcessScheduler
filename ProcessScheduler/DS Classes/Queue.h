@@ -46,7 +46,7 @@ public:
 		}
 			
 	}
-	bool isEmpty()
+	bool isEmpty() const
 	{
 		if (back)
 			return false;
@@ -86,7 +86,7 @@ public:
 		if (!isEmpty())
 			return back->getNext()->getItem();
 	}
-	void Print()
+	void Print() const
 	{
 		if (!back)
 			return;
@@ -98,7 +98,7 @@ public:
 		}
 		cout << back->getItem();
 	}
-	int getCount()
+	int getCount() const
 	{
 		return count;
 	}

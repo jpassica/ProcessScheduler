@@ -4,6 +4,8 @@ enum ProcessState { NEW, RDY, RUN, BLK, TRM, ORPH };
 
 enum ProcessorState { IDLE, BUSY };
 
+enum UI_Mode { Interactive, StepByStep, Silent};
+
 struct KillSignal {
 	int time;
 	int PID;
@@ -19,9 +21,9 @@ struct IO_Pairs {
 	int IO_R;
 	int IO_D;
 
-	IO_Pairs(int IO_R, int IO_D) 
+	IO_Pairs(int IO_r, int IO_d) 
 	{
-		IO_R = IO_R;
-		IO_D = IO_D;
+		IO_R = IO_r;
+		IO_D = IO_d;
 	}
 };

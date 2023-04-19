@@ -150,7 +150,7 @@ public:
 		}
 	}
 
-	void Print()
+	void Print() const
 	{
 		Node<T>* printPtr = headPtr;
 		size_t i(1);

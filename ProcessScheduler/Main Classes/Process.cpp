@@ -110,6 +110,14 @@ void Process::RunProcess()
 	CPUTime--;
 }
 
+bool Process::isRecentlyUpdated(int crntTimeStep) const
+{
+	if (crntTimeStep == LastUpdatetime)
+		return true;
+	else
+		return false;
+}
+
 //Destructor for deallocating the dynamic array we used
 Process::~Process() {
 	/*delete[] IOPairs[0];

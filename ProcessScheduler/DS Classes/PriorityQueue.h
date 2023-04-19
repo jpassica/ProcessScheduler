@@ -103,18 +103,23 @@ public:
 		return true;
 	}
 
-	void Print()
+	void Print() const
 	{
-		for (int i = 0; i < size; i++)
-			cout << arr[i]->getItem();
+		for (int i = 0; i < size ; i++)
+			cout << arr[i]->getItem() << " ";
 	}
 
-	int getcount()
+	int getCount() const
 	{
 		return size;
 	}
-	~PriorityQueue(){}
 
+	bool isEmpty() const
+	{
+		return !size;
+	}
+
+	~PriorityQueue() {}
 };
 
 

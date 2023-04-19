@@ -1,13 +1,11 @@
 #include "Processor.h"
 
-Processor::Processor(int ID , scheduler* sch) : CrntState(IDLE), ID(ID), RunPtr(nullptr)
+Processor::Processor(int ID, Scheduler* sch) : CrntState(IDLE), ID(ID), RunPtr(nullptr), pScheduler(sch)
 {
 	//initializing all processor data members
 	busyTime = 0;
 	idleTime = 0;
 	finishTime = 0;
-	pScheduler = sch;
-
 }
 
 double Processor::CalcPLoad(int TotalTRT) const	//calculates and returns pLoad %
@@ -45,7 +43,7 @@ void Processor::FlipProcessorState()
 		CrntState = IDLE;
 }
 
-int Processor::getID()
+int Processor::getID() const
 {
 	return ID;
 }
@@ -55,7 +53,7 @@ void Processor::setRunptr(Process* p)
 	RunPtr = p;
 }
 
-ProcessorState Processor::getProcecssorState()
+ProcessorState Processor::getProcessorState()
 {
 	return CrntState;
 }
