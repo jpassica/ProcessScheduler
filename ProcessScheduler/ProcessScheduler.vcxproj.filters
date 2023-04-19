@@ -19,9 +19,6 @@
     <Filter Include="Main Classes">
       <UniqueIdentifier>{c139e607-7124-4ce8-ae9b-9cea19775f29}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scheduler-Related Classes">
-      <UniqueIdentifier>{afd22daa-5891-43d0-a7a5-26f8a41e53b0}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main Classes\FCFS_Processor.cpp">
@@ -94,7 +91,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Sample Input File.txt" />
+    <Text Include="SampleInputFile.txt" />
     <Text Include="testcase.txt" />
+    <Text Include="SampleInputFile2.txt" />
   </ItemGroup>
 </Project>

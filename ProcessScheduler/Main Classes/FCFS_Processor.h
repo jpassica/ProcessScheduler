@@ -22,6 +22,8 @@ public:
 
 	virtual bool fromReadyToRun(int crntTimeStep) override;
 
+	void RandomKill(int randomID);
+
 	//remove this
 	List<Process*>& getRDY();
 };

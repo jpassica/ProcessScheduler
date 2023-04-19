@@ -1,4 +1,5 @@
-#include "FCFS_Processor.h"
+﻿#include "FCFS_Processor.h"
+#include "scheduler.h"
 
 FCFS_Processor::FCFS_Processor(int ID , scheduler* pSch) : Processor(ID , pSch)
 {
@@ -78,6 +79,24 @@ bool FCFS_Processor::fromReadyToRun( int crntTimeStep)
 	RunPtr->ChangeProcessState(RUN);
 
 	return true;
+}
+
+void FCFS_Processor::RandomKill(int randomID)
+{
+	bool found = 0;
+	Process* killPtr(nullptr);
+
+	for (int j = 1; j <= ReadyList.getCount() && !found; j++)
+	{
+		killPtr = ReadyList.getEntry(j);
+
+		if (killPtr->GetPID() == randomID)					//chcking process matching
+		{
+			ReadyList.remove(j);							//removing from RDY_List
+			pScheduler->ToTRM(killPtr);						//Killing the process
+			found = true;
+		}
+	}
 }
 
 List<Process*>& FCFS_Processor::getRDY()

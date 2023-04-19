@@ -81,7 +81,7 @@ public:
 	//bool ToRUN(Processor*);					//returns false if the processor is busy
 
 	//simulation function
-	void Simulate();
+	void Simulate(string fileName);
 	//~scheduler();
 
 };
