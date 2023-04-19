@@ -49,7 +49,6 @@ private:
 	int Forkcount;						//no. of forking 
 	int KillCount;						//no. of kills
 
-	//int SIGKILL[MAXSIZE][2]; //pairs for kill-time & PID respectively
 	Queue<KillSignal*> KillSignalQ;
 
 	void setProcessors(int, int, int , int);  //used locally when input is loaded from the file
