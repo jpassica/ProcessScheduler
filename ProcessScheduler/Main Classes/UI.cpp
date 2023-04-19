@@ -1,7 +1,7 @@
 #include "UI.h"
 using namespace std;
 
-UI::UI(scheduler* s)
+UI::UI(Scheduler* s)
 {
 	pSch = s;
 }
@@ -33,20 +33,20 @@ void UI::TimeStepOut()
 		FCFS_Processor* ptr1 = dynamic_cast<FCFS_Processor*>(pSch->getProcessors_List()[i]);
 		RR_Processor* ptr2 = dynamic_cast<RR_Processor*>(pSch->getProcessors_List()[i]);
 		SJF_Processor* ptr3 = dynamic_cast<SJF_Processor*>(pSch->getProcessors_List()[i]);
-		if (ptr1) //Processor is FCFC
+		if (ptr1) //Processor is FCFS
 		{
-			cout << "Processor " << ProcessorID << "[FCFS]" << ": " << ptr1->getRDY().getCount() << " : ";
-			ptr1->getRDY().Print();
+			cout << "Processor " << ProcessorID << "[FCFS]" << ": " << ptr1->GetRDYCount() << " RDY : ";
+			ptr1->printRDY();
 		}
 		else if (ptr2) //Processor is RR
 		{
-			cout << "Processor " << ProcessorID << "[RR]" << ": " << ptr2->getRDY().getCount() << " : ";
-			ptr2->getRDY().Print();
+			cout << "Processor " << ProcessorID << "[RR  ]" << ": " << ptr2->GetRDYCount() << " RDY : ";
+			ptr2->printRDY();
 		}
 		else if(ptr3) //Processor is SJF
 		{
-			cout << "Processor " << ProcessorID << "[SJF]" << ": " << ptr3->getRDY().getCount() << " : ";
-			ptr3->getRDY().Print();
+			cout << "Processor " << ProcessorID << "[SJF ]" << ": " << ptr3->GetRDYCount() << " RDY : ";
+			ptr3->printRDY();
 		}
 		cout << endl;
 

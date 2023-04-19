@@ -3,7 +3,7 @@
 #include "Process.h"
 using namespace std;
 
-class scheduler;
+class Scheduler;
 
 class Processor
 {
@@ -13,13 +13,13 @@ private:
 	
 protected:
 	Process* RunPtr;						//ptr to the running process
-	scheduler* pScheduler;					//ptr to Scheduler class
+	Scheduler* pScheduler;					//ptr to Scheduler class
 	ProcessorState CrntState;				//current state idle vs. busy
 	int finishTime;							//estimated finish time of all processes for the processor
 
 public:
 	//ctor receives ID from the scheduler
-	Processor(int ID , scheduler*);
+	Processor(int ID , Scheduler*);
 
 	//each processor has its own version of this function
 	virtual void ScheduleAlgo() = 0;
@@ -62,7 +62,15 @@ public:
 	//this function is overriden in each processor class
 	virtual void AddToReadyQueue(Process* pReady) = 0;
 
+	//returns true if ready queue/list is empty
 	virtual bool isReadyQueueEmpty() const = 0;
 
+	//moves process at top of ready queue/list to run
 	virtual bool fromReadyToRun(int crntTimeStep) = 0;
+
+	//returns count of items in ready queue/list
+	virtual int GetRDYCount() const = 0;
+
+	//calls print function of ready queue/list
+	virtual void printRDY() const = 0;
 };

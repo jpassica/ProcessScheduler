@@ -10,7 +10,7 @@
 #define MAXSIZE 10000
 using namespace std;
 
-class scheduler
+class Scheduler
 {
 private:
 	int timeStep;
@@ -39,11 +39,15 @@ private:
 	int RRtimeSlice;
 	
 	//statistics variables
-	int RTFCount;  //no. of processors migrated by RTF
-	int MaxWCount;  //no. of processors migrated by MaxW
-	int STLCount;  //no of stolen processes
-	int Forkcount;  //no. of forking 
-	int KillCount;  //no. of kills
+	int avgWaitingTime;
+	int avgResponseTime;
+	int avgTurnAroundTime;
+
+	int RTFCount;						//no. of migrated processes due to RTF
+	int MaxWCount;						//no. of migrated processes due to MaxW
+	int StealCount;						//no of stolen processes
+	int Forkcount;						//no. of forking 
+	int KillCount;						//no. of kills
 
 	//int SIGKILL[MAXSIZE][2]; //pairs for kill-time & PID respectively
 	Queue<KillSignal*> KillSignalQ;
@@ -51,7 +55,7 @@ private:
 	void setProcessors(int, int, int , int);  //used locally when input is loaded from the file
 
 public:
-	scheduler();
+	Scheduler();
 	
 	//getters 
 	int getTimeStep() const ;

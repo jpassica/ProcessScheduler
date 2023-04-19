@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Main Classes\scheduler.cpp" />
+    <ClCompile Include="Main Classes\Scheduler.cpp" />
     <ClCompile Include="Main Classes\UI.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Defs.h" />
@@ -149,7 +149,7 @@
     <ClInclude Include="Main Classes\Processor.h" />
     <ClInclude Include="Main Classes\SJF_Processor.h" />
     <ClInclude Include="Main Classes\RR_Processor.h" />
-    <ClInclude Include="Main Classes\scheduler.h" />
+    <ClInclude Include="Main Classes\Scheduler.h" />
     <ClInclude Include="Main Classes\UI.h" />
   </ItemGroup>
   <ItemGroup>

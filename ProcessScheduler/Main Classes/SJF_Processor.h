@@ -7,7 +7,7 @@ class SJF_Processor : public Processor
 	PriorityQueue<Process*> ReadyPriQ;
 
 public:
-	SJF_Processor(int ID , scheduler*);
+	SJF_Processor(int ID , Scheduler*);
 
 	//Picks the next process to run according to 'shortest job first'
 	virtual void ScheduleAlgo() override;
@@ -22,6 +22,8 @@ public:
 
 	virtual bool fromReadyToRun(int crntTimeStep) override;
 
-	PriorityQueue<Process*>& getRDY();
+	virtual int GetRDYCount() const override;
+
+	virtual void printRDY() const override;
 };
 

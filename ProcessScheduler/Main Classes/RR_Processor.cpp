@@ -1,6 +1,6 @@
 #include "RR_Processor.h"
 
-RR_Processor::RR_Processor(int ID, int TimeSlice , scheduler* pShc) : Processor(ID , pShc), TimeSlice(TimeSlice)
+RR_Processor::RR_Processor(int ID, int TimeSlice , Scheduler* pShc) : Processor(ID , pShc), TimeSlice(TimeSlice)
 {}
 
 void RR_Processor::ScheduleAlgo() 
@@ -47,7 +47,12 @@ bool RR_Processor::fromReadyToRun(int crntTimeStep)
 	return true;
 }
 
-Queue<Process*>& RR_Processor::getRDY()
+int RR_Processor::GetRDYCount() const
 {
-	return ReadyQ;
+	return ReadyQ.getCount();
+}
+
+void RR_Processor::printRDY() const
+{
+	ReadyQ.Print();
 }

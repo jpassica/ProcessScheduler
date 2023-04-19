@@ -105,8 +105,8 @@ public:
 
 	void Print() const
 	{
-		for (int i = 0; i < size; i++)
-			cout << arr[i]->getItem();
+		for (int i = 0; i < size ; i++)
+			cout << arr[i]->getItem() << " ";
 	}
 
 	int getCount() const

@@ -1,7 +1,7 @@
 #include "scheduler.h"
 #include <fstream>
 
-scheduler::scheduler()
+Scheduler::Scheduler()
 {
 	timeStep = 0;
 
@@ -16,12 +16,12 @@ scheduler::scheduler()
 
 	RTFCount = 0;
 	MaxWCount = 0;
-	STLCount = 0;
+	StealCount = 0;
 	Forkcount = 0;
 	KillCount = 0;
 }
 
-void scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
+void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
 {
 	Processors_List = new Processor * [ProcessorsCount];
 	for (int i = 0; i < ProcessorsCount; i++)
@@ -37,47 +37,47 @@ void scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
 	}
 }
 
-int scheduler::getTimeStep() const
+int Scheduler::getTimeStep() const
 {
 	return timeStep;
 }
 
-Processor** scheduler::getProcessors_List() const
+Processor** Scheduler::getProcessors_List() const
 {
 	return Processors_List;
 }
 
-Queue<Process*>& scheduler::getBLK() 
+Queue<Process*>& Scheduler::getBLK() 
 {
 	return BLK_List;
 }
 
-Queue<Process*>& scheduler::getTRM() 
+Queue<Process*>& Scheduler::getTRM() 
 {
 	return TRM_List;
 }
 
-int scheduler::getFCFSCount() const
+int Scheduler::getFCFSCount() const
 {
 	return 	FCFSCount;
 }
 
-int scheduler::getSJFCount() const
+int Scheduler::getSJFCount() const
 {
 	return SJFCount;
 }
 
-int scheduler::getRRCount() const
+int Scheduler::getRRCount() const
 {
 	return RRCount;
 }
 
-int scheduler::getProcessorsCount() const
+int Scheduler::getProcessorsCount() const
 {
 	return ProcessorsCount;
 }
 
-bool scheduler::ReadInputFile(string filename)
+bool Scheduler::ReadInputFile(string filename)
 {
 	//creating input stream object and opening file
 	fstream IP_File_Stream;
@@ -184,15 +184,15 @@ bool scheduler::ReadInputFile(string filename)
 }
 
 
-bool scheduler::FromRUNToBLK(Processor* pro)
+bool Scheduler::FromRUNToBLK(Processor* pro)
 {
 	//checking if there is a processor in the RUN state or not
 	if (pro->getProcessorState() == IDLE)
 		return false;
 
 	//checking if this process is updated in the current timestep
-	/*if (pro->getRunPtr()->isRecentlyUpdated(timeStep))
-		return false;*/
+	if (pro->getRunPtr()->isRecentlyUpdated(timeStep))
+		return false;
 
 	//moving & updating states
 	BLK_List.Enqueue(pro->getRunPtr());				//adding to BLK
@@ -203,55 +203,40 @@ bool scheduler::FromRUNToBLK(Processor* pro)
 	return true;
 }
 
-bool scheduler::FromBLKToRDY(Processor* p)
+bool Scheduler::FromBLKToRDY(Processor* p)
 {
 	//checking if BLK_List is Empty
 	if (BLK_List.isEmpty())
 		return false;
 
 	//checking process & processor availabilty
-	Process* s = nullptr;
-	s = BLK_List.Queue_front();
-	if (!p || !s)
+	Process* BLKtoRDY = nullptr;
+	BLKtoRDY = BLK_List.Queue_front();
+	if (!p || !BLKtoRDY)
 		return false;
 
 	//checking if this process is updated in the current timestep
-	if (s->isRecentlyUpdated(timeStep))
+	if (BLKtoRDY->isRecentlyUpdated(timeStep))
 		return false;
 
-	//dynamic casting to use getRDY function
-	BLK_List.Dequeue(s);
-	FCFS_Processor* ptr1 = dynamic_cast<FCFS_Processor*>(p);
-	RR_Processor* ptr2 = dynamic_cast<RR_Processor*>(p);
-	SJF_Processor* ptr3 = dynamic_cast<SJF_Processor*>(p);
-	//if p is FCFS
-	if (ptr1)
-		ptr1->getRDY().insert(ptr1->getRDY().getCount() + 1, s);
+	BLK_List.Dequeue(BLKtoRDY);
 
-	//if p is RR
-	else if (ptr2)
-		ptr2->getRDY().Enqueue(s);
-
-	//if p is SJF
-	else if (ptr3)
-		ptr3->getRDY().Enqueue(s, s->GetCPUTime());
-	else
-		return false;
+	p->AddToReadyQueue(BLKtoRDY);
 
 	//updating process state
-	s->ChangeProcessState(RDY);
+	BLKtoRDY->ChangeProcessState(RDY);
 	return true;
 }
 
-bool scheduler::ToTRM(Process* ptr)
+bool Scheduler::ToTRM(Process* ptr)
 {
 	//checking if process not equal nullptr
 	if (!ptr)
 		return false;
 
 	//checking if this process is updated in the current timestep
-	/*if (ptr->isRecentlyUpdated(Timestep))
-		return false;*/
+	if (ptr->isRecentlyUpdated(timeStep))
+		return false;
 
 	//checking Forking 
 	if (ptr->GetChild())
@@ -264,7 +249,7 @@ bool scheduler::ToTRM(Process* ptr)
 	return true;
 }
 
-bool scheduler::ToRDY(Process* f, Processor* pro)
+bool Scheduler::ToRDY(Process* f, Processor* pro)
 {
 	//checking process & processor
 	if (!pro || !f)
@@ -290,7 +275,7 @@ bool scheduler::ToRDY(Process* f, Processor* pro)
 	return true;
 }
 
-void scheduler::Simulate(string fileName)
+void Scheduler::Simulate(string fileName)
 {
 	//initializations
 	UI out(this);

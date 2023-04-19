@@ -4,19 +4,19 @@
 #include "FCFS_Processor.h"
 #include "SJF_Processor.h"
 #include "RR_Processor.h"
-#include "scheduler.h"
+#include "Scheduler.h"
 #include "Process.h"
 #include <iostream>
 #include <string>
 
 using namespace std;
-class scheduler;
+class Scheduler;
 
 class UI
 {
-	scheduler* pSch;
+	Scheduler* pSch;
 public:
-	UI(scheduler*);	
+	UI(Scheduler*);	
 	string ReadLine();
 	void WriteLine(string);
 	void TimeStepOut();

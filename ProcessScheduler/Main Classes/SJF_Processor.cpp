@@ -1,6 +1,6 @@
 #include "SJF_Processor.h"
 
-SJF_Processor::SJF_Processor(int ID , scheduler* pSch) : Processor(ID , pSch)
+SJF_Processor::SJF_Processor(int ID , Scheduler* pSch) : Processor(ID , pSch)
 {}
 
 void SJF_Processor::ScheduleAlgo()
@@ -49,7 +49,12 @@ bool SJF_Processor::fromReadyToRun(int crntTimeStep)
 	return true;
 }
 
-PriorityQueue<Process*>& SJF_Processor::getRDY()
+int SJF_Processor::GetRDYCount() const
 {
-	return ReadyPriQ;
+	return ReadyPriQ.getCount();
+}
+
+void SJF_Processor::printRDY() const
+{
+	ReadyPriQ.Print();
 }

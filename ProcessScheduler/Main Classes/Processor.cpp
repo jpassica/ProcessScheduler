@@ -1,6 +1,6 @@
 #include "Processor.h"
 
-Processor::Processor(int ID, scheduler* sch) : CrntState(IDLE), ID(ID), RunPtr(nullptr), pScheduler(sch)
+Processor::Processor(int ID, Scheduler* sch) : CrntState(IDLE), ID(ID), RunPtr(nullptr), pScheduler(sch)
 {
 	//initializing all processor data members
 	busyTime = 0;

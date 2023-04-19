@@ -1,7 +1,7 @@
 ﻿#include "FCFS_Processor.h"
-#include "scheduler.h"
+#include "Scheduler.h"
 
-FCFS_Processor::FCFS_Processor(int ID , scheduler* pSch) : Processor(ID , pSch)
+FCFS_Processor::FCFS_Processor(int ID , Scheduler* pSch) : Processor(ID , pSch)
 {
 }
 
@@ -58,6 +58,11 @@ bool FCFS_Processor::fromReadyToRun( int crntTimeStep)
 	return true;
 }
 
+int FCFS_Processor::GetRDYCount() const
+{
+	return ReadyList.getCount();
+}
+
 void FCFS_Processor::RandomKill(int randomID)
 {
 	bool found = 0;
@@ -67,16 +72,15 @@ void FCFS_Processor::RandomKill(int randomID)
 	{
 		killPtr = ReadyList.getEntry(j);
 
-		if (killPtr->GetPID() == randomID)					//chcking process matching
+		if (killPtr->GetPID() == randomID && pScheduler->ToTRM(killPtr))		//checking process matching & if able to terminate
 		{
-			ReadyList.remove(j);							//removing from RDY_List
-			pScheduler->ToTRM(killPtr);						//Killing the process
-			found = true;
+				ReadyList.remove(j);									//removing from RDY_List
+				found = true;
 		}
 	}
 }
 
-List<Process*>& FCFS_Processor::getRDY()
+void FCFS_Processor::printRDY() const
 {
-	return ReadyList;
+	ReadyList.Print();
 }
