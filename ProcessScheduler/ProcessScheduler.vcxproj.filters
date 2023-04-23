@@ -97,5 +97,6 @@
     <Text Include="SampleInput.txt" />
     <Text Include="testcase.txt" />
     <Text Include="SampleInput2.txt" />
+    <Text Include="TextFile1.txt" />
   </ItemGroup>
 </Project>

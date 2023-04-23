@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcessScheduler", "ProcessScheduler\ProcessScheduler.vcxproj", "{54AF894F-65BF-4B23-BBF7-7BC6BB33E5AE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36D72E86-5276-4D5A-B3C5-43B1EA39BE67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
