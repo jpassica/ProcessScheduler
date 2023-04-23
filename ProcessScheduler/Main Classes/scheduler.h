@@ -62,8 +62,11 @@ public:
 	int getRRCount() const;
 	int getProcessorsCount() const; 
 
-	//the main function for reading from files
+	//function responsible for reading input file
 	bool ReadInputFile(string filename);
+
+	//function resposible for generating output file
+	void WriteOutputFile();
 
 	//process operations
 	void migrate(Process*);
