@@ -68,23 +68,20 @@ int Scheduler::getProcessorsCount() const
 bool Scheduler::ReadInputFile(string filename)
 {
 	//creating input stream object and opening file
-	fstream IP_File_Stream;
+	fstream IP_Stream;
 	filename += ".txt";
-	IP_File_Stream.open(filename);
+	IP_Stream.open(filename);
 
-	if (!IP_File_Stream.is_open())			//if file open is not successful, abort
-		return false;
-
-	if (!IP_File_Stream.good())		//if file is not good or corrupted, abort
-		return false;
+	if (!IP_Stream.is_open() || !IP_Stream.good())			//if file open is not successful, abort
+		return false;										//if file is not good or corrupted, abort
 
 	//now we can safely read from file
 
 	//reading the main parameters
-	IP_File_Stream >> FCFSCount >> SJFCount >> RRCount;
-	IP_File_Stream >> RRtimeSlice;
-	IP_File_Stream >> RTF >> MaxW >> STL >> ForkProb;
-	IP_File_Stream >> ProcessesCount;
+	IP_Stream >> FCFSCount >> SJFCount >> RRCount;
+	IP_Stream >> RRtimeSlice;
+	IP_Stream >> RTF >> MaxW >> STL >> ForkProb;
+	IP_Stream >> ProcessesCount;
 
 	//setting ProcessorsCount
 	ProcessorsCount = FCFSCount + SJFCount + RRCount;
@@ -104,11 +101,11 @@ bool Scheduler::ReadInputFile(string filename)
 	//reading data of all processes
 	for (size_t i(0); i < ProcessesCount; i++)
 	{
-		IP_File_Stream >> AT >> PID >> CT >> IO_N;
+		IP_Stream >> AT >> PID >> CT >> IO_N;
 
 		//read string only if there are IO requests
 		if (IO_N)
-			IP_File_Stream >> IO_st;
+			IP_Stream >> IO_st;
 
 		newProcess = new Process(PID, AT, CT, IO_N);
 
@@ -148,19 +145,11 @@ bool Scheduler::ReadInputFile(string filename)
 
 	//reading SIGKILLs
 
-	//skipping the phrase 'SIGKILL Times'
-	/*string SIGKILL_st, TIMES_st;
-	IP_File_Stream >> SIGKILL_st >> TIMES_st;*/
-
-	//making sure the file's format is as expected
-	/*if (SIGKILL_st != "SIGKILL" || TIMES_st != "Times")
-		return false;*/
-
 	//reading each kill signal's data until there is no more data
 	int time(0), ID(0);
-	while (!IP_File_Stream.eof())
+	while (!IP_Stream.eof())
 	{
-		IP_File_Stream >> time >> PID;
+		IP_Stream >> time >> PID;
 
 		KillSignal* newKillSignal = new KillSignal(time, PID);
 
@@ -169,6 +158,17 @@ bool Scheduler::ReadInputFile(string filename)
 
 	//after successfully reading all data
 	return true;
+}
+
+bool Scheduler::WriteOutputFile()
+{
+	fstream OP_Stream;
+	string fileName = "OutputFile";
+	OP_Stream.open(fileName);
+
+	if (!OP_Stream.is_open() || !OP_Stream.good())
+		return false;
+
 }
 
 

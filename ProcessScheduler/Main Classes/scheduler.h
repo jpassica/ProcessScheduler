@@ -66,7 +66,7 @@ public:
 	bool ReadInputFile(string filename);
 
 	//function resposible for generating output file
-	void WriteOutputFile();
+	bool WriteOutputFile();
 
 	//process operations
 	void migrate(Process*);
