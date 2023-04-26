@@ -69,7 +69,7 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 		{
 			if (found)
 				cout << ", ";
-			cout << running->GetPID() << "(P" << ProcessorsList[i]->getID() << ")";
+			cout << running->getPID() << "(P" << ProcessorsList[i]->getID() << ")";
 			found = true;
 		}
 	}

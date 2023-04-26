@@ -13,11 +13,11 @@ int FCFS_Processor::CalcFinishTime()
 {
 	for (size_t i = 1; i <= FCFS_Ready.getLength(); i++)
 	{
-		finishTime += FCFS_Ready.getEntry(i)->GetCPUTime();
+		finishTime += FCFS_Ready.getEntry(i)->getCPUTime();
 	}
 
 	if (RunPtr)
-		finishTime += RunPtr->GetCPUTime();
+		finishTime += RunPtr->getCPUTime();
 
 	return finishTime;
 }

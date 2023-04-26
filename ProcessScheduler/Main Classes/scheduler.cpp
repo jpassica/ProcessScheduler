@@ -1,5 +1,6 @@
 #include "scheduler.h"
 #include <fstream>
+#include <iomanip>
 
 Scheduler::Scheduler()
 {
@@ -23,10 +24,13 @@ Scheduler::Scheduler()
 	RTF = 0;
 	STL = 0;
 	ForkProb = 0;
+	MaxW = 0;
 
 	avgResponseTime = 0;
 	avgTurnAroundTime = 0;
 	avgWaitingTime = 0;
+	avgUtilization = 0;
+	totalTRT = 0;
 }
 
 void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
@@ -65,15 +69,23 @@ int Scheduler::getProcessorsCount() const
 	return ProcessorsCount;
 }
 
-bool Scheduler::ReadInputFile(string filename)
+bool Scheduler::ReadInputFile(string fileName)
 {
 	//creating input stream object and opening file
-	fstream IP_Stream;
-	filename += ".txt";
-	IP_Stream.open(filename);
+	ifstream IP_Stream;
+	fileName += ".txt";
+	IP_Stream.open(fileName);
 
-	if (!IP_Stream.is_open() || !IP_Stream.good())			//if file open is not successful, abort
-		return false;										//if file is not good or corrupted, abort
+	while (!IP_Stream.is_open())							//keep reading file names until we successfully open file
+	{
+		cerr << "Error opening file! Are you sure there's a file with that name?\n";
+		cout << "\nPlease enter input file name: ";
+		cin >> fileName; fileName += ".txt";
+		IP_Stream.open(fileName);
+	}
+		
+	if(!IP_Stream.good())									//if file is not good or corrupted, abort
+		return false;										
 
 	//now we can safely read from file
 
@@ -156,19 +168,100 @@ bool Scheduler::ReadInputFile(string filename)
 		KillSignalQ.Enqueue(newKillSignal);
 	}
 
+	IP_Stream.close();
+
 	//after successfully reading all data
 	return true;
 }
 
 bool Scheduler::WriteOutputFile()
 {
-	fstream OP_Stream;
-	string fileName = "OutputFile";
+	//creating output stream object and opening file for writing
+	ofstream OP_Stream;
+	string fileName = "OutputFile.txt";
 	OP_Stream.open(fileName);
 
-	if (!OP_Stream.is_open() || !OP_Stream.good())
+	//if there is any problem with the file, abort
+	if (!OP_Stream || !OP_Stream.good())
 		return false;
 
+	//start writing the first line, setting a specific width for each field
+	OP_Stream << left << setw(5) << "TT" << setw(5) << "PID"
+		<< setw(5) << "AT" << setw(5) << "CT" << setw(8) <<
+		"IO_D" << setw(5) << "WT" << setw(5) << "RT" << setw(5)
+		<< "TRT" << endl;
+
+	//ptr used to dequeue from TRM, write all needed info, and then deallocate process
+	Process* deletePtr(nullptr);
+
+	//
+	for (size_t i = 0; i < ProcessesCount && !TRM_List.isEmpty(); i++)
+	{
+		TRM_List.Dequeue(deletePtr);
+
+		OP_Stream << setw(5) << deletePtr->getTT()
+			<< setw(5) << deletePtr->getPID()
+			<< setw(5) << deletePtr->getAT()
+			<< setw(6) << deletePtr->getCPUTime()
+			<< setw(8) << deletePtr->getTotalIO_D()
+			<< setw(5) << deletePtr->getWT()
+			<< setw(5) << deletePtr->getRT()
+			<< setw(5) << deletePtr->getTRT()
+			<< endl;
+
+		delete deletePtr;
+	}
+
+	OP_Stream << "\nProcesses: " << ProcessesCount << endl
+		<< "Avg WT = " << avgWaitingTime << ",     "
+		<< "Avg RT = " << avgResponseTime << ",     "
+		<< "Avg TRT: " << avgTurnAroundTime << endl;
+
+	if (!ProcessesCount) return false;
+
+
+
+	OP_Stream << "Migration%:     RTF= " << 100 * RTFCount / ProcessesCount
+		<< "%,     MaxW= " << 100 * MaxWCount / ProcessesCount << "%\n"
+
+	<< "Work Steal%: " << 100 * StealCount / ProcessesCount << "%\n"
+
+	<< "Forked Process: " << 100 * Forkcount / ProcessesCount << "%\n"
+
+	<< "Killed Process: " << 100 * KillCount / ProcessesCount << "%\n\n";
+
+
+
+	OP_Stream << "Processors: " << FCFSCount + SJFCount + RRCount << " ["
+		<< FCFSCount << " FCFS, " << SJFCount << " SJF, " << RRCount << " RR]\n";
+
+	OP_Stream << "Processors Load\n";
+
+	for (size_t i = 0; i < FCFSCount + SJFCount + RRCount; i++)
+	{
+		OP_Stream << "p" << i + 1 << "=" <<
+			Processors_List[i]->CalcPLoad(totalTRT)	<< "%";
+
+		if (i != FCFSCount + SJFCount + RRCount)
+			OP_Stream << ",     ";
+	}
+
+	OP_Stream << endl << endl << "Processors Utiliz\n";
+
+	for (size_t i = 0; i < FCFSCount + SJFCount + RRCount; i++)
+	{
+		OP_Stream << "p" << i + 1 << "=" <<
+			Processors_List[i]->CalcPUtil() << "%";
+
+		if (i != FCFSCount + SJFCount + RRCount)
+			OP_Stream << ",     ";
+	}
+
+	OP_Stream << endl << "Avg utilization = " << calcAvgUtilization() << "%";
+
+	OP_Stream.close();
+
+	return true;
 }
 
 
@@ -232,6 +325,7 @@ bool Scheduler::ToTRM(Process* ptr)
 
 	//moving to TRM & changing states
 	ptr->SetLastUpdateTime(timeStep);
+	ptr->SetTerminationTime(timeStep);
 	TRM_List.Enqueue(ptr);
 	ptr->ChangeProcessState(TRM);
 	return true;
@@ -282,7 +376,7 @@ void Scheduler::Simulate(string fileName)
 		if (!NEW_List.isEmpty()) //checking New_List is not empty
 			pro = NEW_List.Queue_front();
 
-		while (pro && pro->GetAT() == timeStep)
+		while (pro && pro->getAT() == timeStep)
 		{
 
 			NEW_List.Dequeue(pro);					 //removing from NEW
@@ -359,4 +453,16 @@ void Scheduler::Simulate(string fileName)
 		out.TimeStepOut(BLK_List, TRM_List, Processors_List, FCFSCount, SJFCount, RRCount, timeStep);
 		timeStep++;
 	}
+}
+
+int Scheduler::calcAvgUtilization()
+{
+	int sum(0);
+
+	for (size_t i = 0; i < FCFSCount + SJFCount + RRCount; i++)
+	{
+		sum += Processors_List[i]->CalcPUtil();
+	}
+
+	return sum / FCFSCount + SJFCount + RRCount;
 }

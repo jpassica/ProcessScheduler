@@ -14,11 +14,12 @@ private:
 	int TurnAroundTime;
 	int WaitingTime;
 	int IO_N;
+	int totalIO_D;
 	Queue<IO_Pairs*> IO_PairsQ;
 	ProcessState CrntState;
-	int ProcessedTime;
+	int processedTime;
 	Process* child;
-	int LastUpdatetime; //To check if this process was updated at the current timestep to update it only once
+	int lastUpdatetime; //To check if this process was updated at the current timestep to update it only once
 
 public:
 	//Non-default ctor
@@ -34,21 +35,25 @@ public:
 	void SetResponseTime(int n);
 	void SetProcessedTime(int);
 	void SetLastUpdateTime(int);
+
 	//Takes data and creates IO request and adds it to queue
 	void AddIORequest(int IO_R, int IO_D);
 
 	//Getter functions
-	int GetCPUTime() const;
-	int GetPID() const;
-	int GetAT() const;
-	int GetTurnAroundTime() const;
-	int GetResponseTime() const;
-	int GetWaitingTime() const;
+	int getCPUTime() const;
+	int getPID() const;
+	int getAT() const;
+	int getTRT() const;
+	int getRT() const;
+	int getWT() const;
+	int getTT() const;
+	int getTotalIO_D() const;
 	ProcessState GetProcessState() const;
 	Process* GetChild() const;
 	int GetProcessedTime() const;
 	int GetLastUpdateTime()const;
 	void ChangeProcessState(ProcessState NewState);
+
 
 	//Decrements the CT of the process as it is executing
 	void RunProcess();

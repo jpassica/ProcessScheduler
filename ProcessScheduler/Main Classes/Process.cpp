@@ -9,7 +9,9 @@ Process::Process(int pid, int AT, int CT, int IO_N)
 	TurnAroundTime = 0;
 	WaitingTime = 0;
 	ResponseTime = 0;
-	LastUpdatetime = 0;
+	lastUpdatetime = 0;
+	totalIO_D = 0;
+	processedTime = 0;
 	child = nullptr;
 }
 
@@ -26,12 +28,12 @@ void Process::SetResponseTime(int FCPU) {
 
 void Process::SetProcessedTime(int t)
 {
-	ProcessedTime = t;
+	processedTime = t;
 }
 
 void Process::SetLastUpdateTime(int t)
 {
-	LastUpdatetime = t;
+	lastUpdatetime = t;
 }
 
 void Process::AddIORequest(int IO_R, int IO_D)
@@ -39,43 +41,56 @@ void Process::AddIORequest(int IO_R, int IO_D)
 	IO_Pairs* newRequest = new IO_Pairs(IO_R, IO_D);
 
 	IO_PairsQ.Enqueue(newRequest);
+
+	totalIO_D += IO_D;
 }
 
-int Process::GetCPUTime() const
+int Process::getCPUTime() const
 {
 	return CPUTime;
 }
 
 // Set the termination time as TT is the time when the process go to TRM list after processing 
-void Process::SetTerminationTime(int TT) {
+void Process::SetTerminationTime(int TT) 
+{
 	TerminationTime = TT;
 	TurnAroundTime = TerminationTime - ArrivalTime;
 	WaitingTime = TurnAroundTime - CPUTime;
 }
 
 //Getter for Process ID
-int Process::GetPID() const {
+int Process::getPID() const {
 	return PID;
 }
 
-int Process::GetTurnAroundTime() const
+int Process::getTRT() const
 {
 	return TurnAroundTime;
 }
 
-int Process::GetResponseTime() const
+int Process::getRT() const
 {
 	return ResponseTime;
 }
 
-int Process::GetAT() const
+int Process::getAT() const
 {
 	return ArrivalTime;
 }
 
-int Process::GetWaitingTime() const
+int Process::getWT() const
 {
 	return WaitingTime;
+}
+
+int Process::getTT() const
+{
+	return TerminationTime;
+}
+
+int Process::getTotalIO_D() const
+{
+	return totalIO_D;
 }
 
 ProcessState Process::GetProcessState() const
@@ -92,12 +107,12 @@ Process* Process::GetChild() const
 
 int Process::GetProcessedTime() const
 {
-	return ProcessedTime;
+	return processedTime;
 }
 
 int Process::GetLastUpdateTime() const
 {
-	return LastUpdatetime;
+	return lastUpdatetime;
 }
 
 void Process::ChangeProcessState(ProcessState NewState)
@@ -112,7 +127,7 @@ void Process::RunProcess()
 
 bool Process::isRecentlyUpdated(int crntTimeStep) const
 {
-	if (crntTimeStep == LastUpdatetime)
+	if (crntTimeStep == lastUpdatetime)
 		return true;
 	else
 		return false;

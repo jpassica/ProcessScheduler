@@ -14,7 +14,7 @@ int SJF_Processor::CalcFinishTime()
 
 void SJF_Processor::AddToReadyQueue(Process* pReady)
 {
-	SJF_Ready.Enqueue(pReady, pReady->GetCPUTime());
+	SJF_Ready.Enqueue(pReady, pReady->getCPUTime());
 }
 
 bool SJF_Processor::isReadyQueueEmpty() const

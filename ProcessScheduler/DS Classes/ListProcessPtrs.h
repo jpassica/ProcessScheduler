@@ -15,7 +15,7 @@ public:
 
 		while (curPtr)
 		{
-			if (curPtr->getItem()->GetPID() == PID)
+			if (curPtr->getItem()->getPID() == PID)
 			{
 				return position;
 			}

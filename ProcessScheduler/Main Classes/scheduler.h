@@ -42,12 +42,15 @@ private:
 	int avgWaitingTime;
 	int avgResponseTime;
 	int avgTurnAroundTime;
+	int avgUtilization;
 
 	int RTFCount;						//no. of migrated processes due to RTF
 	int MaxWCount;						//no. of migrated processes due to MaxW
 	int StealCount;						//no of stolen processes
 	int Forkcount;						//no. of forking 
 	int KillCount;						//no. of kills
+
+	int totalTRT;
 
 	Queue<KillSignal*> KillSignalQ;
 
@@ -82,5 +85,8 @@ public:
 
 	//simulation function
 	void Simulate(string fileName);
+
+	//statistics functions
+	int calcAvgUtilization();
 };
 
