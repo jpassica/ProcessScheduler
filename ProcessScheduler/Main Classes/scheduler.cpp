@@ -26,11 +26,10 @@ Scheduler::Scheduler()
 	ForkProb = 0;
 	MaxW = 0;
 
-	avgResponseTime = 0;
-	avgTurnAroundTime = 0;
-	avgWaitingTime = 0;
-	avgUtilization = 0;
+	totalRT = 0;
 	totalTRT = 0;
+	totalWT = 0;
+	avgUtilization = 0;
 }
 
 void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
@@ -83,6 +82,9 @@ bool Scheduler::ReadInputFile(string fileName)
 		cin >> fileName; fileName += ".txt";
 		IP_Stream.open(fileName);
 	}
+
+	//if (!IP_Stream.is_open())								//if file opening is unsuccessful, abort
+	//	return false;
 		
 	if(!IP_Stream.good())									//if file is not good or corrupted, abort
 		return false;										
@@ -203,19 +205,23 @@ bool Scheduler::WriteOutputFile()
 			<< setw(5) << deletePtr->getPID()
 			<< setw(5) << deletePtr->getAT()
 			<< setw(6) << deletePtr->getCPUTime()
-			<< setw(8) << deletePtr->getTotalIO_D()
+			<< setw(7) << deletePtr->getTotalIO_D()
 			<< setw(5) << deletePtr->getWT()
 			<< setw(5) << deletePtr->getRT()
 			<< setw(5) << deletePtr->getTRT()
 			<< endl;
+		
+		totalWT += deletePtr->getWT();
+		totalRT += deletePtr->getRT();
+		totalTRT += deletePtr->getTRT();
 
 		delete deletePtr;
 	}
 
 	OP_Stream << "\nProcesses: " << ProcessesCount << endl
-		<< "Avg WT = " << avgWaitingTime << ",     "
-		<< "Avg RT = " << avgResponseTime << ",     "
-		<< "Avg TRT: " << avgTurnAroundTime << endl;
+		<< "Avg WT = " << calcAvgWT() << ",     "
+		<< "Avg RT = " << calcAvgRT() << ",     "
+		<< "Avg TRT = " << calcAvgTRT() << endl;
 
 	if (!ProcessesCount) return false;
 
@@ -239,18 +245,18 @@ bool Scheduler::WriteOutputFile()
 
 	for (size_t i = 0; i < FCFSCount + SJFCount + RRCount; i++)
 	{
-		OP_Stream << "p" << i + 1 << "=" <<
+		OP_Stream << "p" << i + 1 << "= " <<
 			Processors_List[i]->CalcPLoad(totalTRT)	<< "%";
 
 		if (i != FCFSCount + SJFCount + RRCount)
 			OP_Stream << ",     ";
 	}
 
-	OP_Stream << endl << endl << "Processors Utiliz\n";
+	OP_Stream << "\n\nProcessors Utiliz\n";
 
 	for (size_t i = 0; i < FCFSCount + SJFCount + RRCount; i++)
 	{
-		OP_Stream << "p" << i + 1 << "=" <<
+		OP_Stream << "p" << i + 1 << "= " <<
 			Processors_List[i]->CalcPUtil() << "%";
 
 		if (i != FCFSCount + SJFCount + RRCount)
@@ -465,4 +471,19 @@ int Scheduler::calcAvgUtilization()
 	}
 
 	return sum / FCFSCount + SJFCount + RRCount;
+}
+
+int Scheduler::calcAvgTRT()
+{
+	return totalTRT / ProcessesCount;
+}
+
+int Scheduler::calcAvgWT()
+{
+	return totalWT / ProcessesCount;
+}
+
+int Scheduler::calcAvgRT()
+{
+	return totalRT / ProcessesCount;
 }
