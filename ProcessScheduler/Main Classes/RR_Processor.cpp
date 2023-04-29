@@ -11,7 +11,7 @@ void RR_Processor::AddToReadyQueue(Process* pReady)
 {
 	RR_Ready.Enqueue(pReady);
 
-	finishTime += pReady->GetCPUTime();
+	FinishTime += pReady->GetCPUTime();
 }
 
 bool RR_Processor::isReadyQueueEmpty() const
@@ -51,10 +51,21 @@ int RR_Processor::GetRDYCount() const
 
 int RR_Processor::GetFinishTime() const
 {
-	return finishTime;
+	return FinishTime;
 }
 
 void RR_Processor::printRDY() const
 {
 	RR_Ready.Print();
+}
+
+Process* RR_Processor::StealProcess()
+{
+	Process* StolenProcess = nullptr;
+
+	RR_Ready.Dequeue(StolenProcess);
+
+	FinishTime -= StolenProcess->GetCPUTime();
+
+	return StolenProcess;
 }

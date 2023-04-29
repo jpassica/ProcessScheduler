@@ -11,7 +11,7 @@ void FCFS_Processor::AddToReadyQueue(Process* pReady)
 {
 	FCFS_Ready.insert(FCFS_Ready.getCount() + 1, pReady);
 
-	finishTime += pReady->GetCPUTime();
+	FinishTime += pReady->GetCPUTime();
 }
 
 bool FCFS_Processor::isReadyQueueEmpty() const
@@ -52,7 +52,7 @@ int FCFS_Processor::GetRDYCount() const
 
 int FCFS_Processor::GetFinishTime() const
 {
-	return finishTime;
+	return FinishTime;
 }
 
 bool FCFS_Processor::RandomKill(int randomID)
@@ -78,4 +78,15 @@ bool FCFS_Processor::RandomKill(int randomID)
 void FCFS_Processor::printRDY() const
 {
 	FCFS_Ready.Print();
+}
+
+Process* FCFS_Processor::StealProcess()
+{
+	Process* StolenProcess = FCFS_Ready.getEntry(1);
+
+	FCFS_Ready.remove(1);
+
+	FinishTime -= StolenProcess->GetCPUTime();
+
+	return StolenProcess;
 }

@@ -5,7 +5,7 @@ Processor::Processor(int ID, Scheduler* SchedulerPtr) : CrntState(IDLE), ID(ID),
 	//initializing all processor data members
 	busyTime = 0;
 	idleTime = 0;
-	finishTime = 0;
+	FinishTime = 0;
 }
 
 double Processor::CalcPLoad(int TotalTRT) const	//calculates and returns pLoad %
@@ -24,7 +24,7 @@ bool Processor::DecrementRunningProcess()
 		return false;
 	
 	RunPtr->ExecuteProcess();
-	finishTime--;
+	FinishTime--;
 	return true;
 }
 

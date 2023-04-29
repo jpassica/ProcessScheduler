@@ -17,7 +17,7 @@ protected:
 	Process* RunPtr;						//ptr to the running process
 	Scheduler* pScheduler;					//ptr to Scheduler class
 	ProcessorState CrntState;				//current state idle vs. busy
-	int finishTime;							//estimated finish time of all processes for the processor
+	int FinishTime;							//estimated finish time of all processes for the processor
 
 public:
 	//ctor receives ID from the scheduler
@@ -75,6 +75,9 @@ public:
 
 	//Calls print function of ready queue/list
 	virtual void printRDY() const = 0;
+
+	
+	virtual Process* StealProcess() = 0;
 };
 
 #endif

@@ -51,6 +51,14 @@ private:
 
 	Queue<KillSignal*> KillSignalQ;
 
+	//Indices of the processors with the smallest & biggest finish time
+	int MinIndex;
+	int MaxIndex;
+
+	//Largest and smallest finish time between all the processors
+	int SQF;
+	int LQF;
+
 	void setProcessors(int, int, int, int);  //used locally when input is loaded from the file
 
 public:
@@ -69,8 +77,8 @@ public:
 	bool WriteOutputFile();
 
 	//process operations
-	void migrate(Process*);
-	void steal(Process*);
+	void Migrate(Process*);
+	void Steal(Process*);
 	void Kill(Process*);
 	void Fork(Process*);
 	
@@ -86,10 +94,19 @@ public:
 	void Simulate();
 
 	//statistics functions
-	int calcAvgUtilization();
-	int calcAvgTRT();
-	int calcAvgWT();
-	int calcAvgRT();
+	int CalcAvgUtilization();
+	int CalcAvgTRT();
+	int CalcAvgWT();
+	int CalcAvgRT();
+
+	//Sets the index of the processor with the smallest finish time
+	void SetMinIndex();
+
+	//Sets the index of the processor with the biggest finish time
+	void SetMaxIndex();
+
+	//Calculates and returns the steal limit
+	int CalcStealLimit();
 };
 
 #endif

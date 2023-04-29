@@ -48,7 +48,7 @@ void SJF_Processor::AddToReadyQueue(Process* pReady)
 {
 	SJF_Ready.Enqueue(pReady, pReady->GetCPUTime());
 
-	finishTime += pReady->GetCPUTime();
+	FinishTime += pReady->GetCPUTime();
 }
 
 bool SJF_Processor::isReadyQueueEmpty() const
@@ -89,10 +89,21 @@ int SJF_Processor::GetRDYCount() const
 
 int SJF_Processor::GetFinishTime() const
 {
-	return finishTime;
+	return FinishTime;
 }
 
 void SJF_Processor::printRDY() const
 {
 	SJF_Ready.Print();
+}
+
+Process* SJF_Processor::StealProcess()
+{
+	Process* StolenProcess = nullptr;
+
+	SJF_Ready.Dequeue(StolenProcess);
+
+	FinishTime -= StolenProcess->GetCPUTime();
+
+	return StolenProcess;
 }

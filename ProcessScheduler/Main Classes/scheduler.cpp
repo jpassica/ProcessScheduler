@@ -18,7 +18,7 @@ Scheduler::Scheduler()
 	RTFCount = 0;
 	MaxWCount = 0;
 	StealCount = 0;
-	Forkcount = 0;
+	ForkCount = 0;
 	KillCount = 0;
 
 	RTF = 0;
@@ -26,9 +26,9 @@ Scheduler::Scheduler()
 	ForkProb = 0;
 	MaxW = 0;
 
-	totalRT = 0;
-	totalTRT = 0;
-	totalWT = 0;
+	TotalResponseTime = 0;
+	TotalTurnAroundtime = 0;
+	TotalWaitingTime = 0;
 	avgUtilization = 0;
 }
 
@@ -211,17 +211,17 @@ bool Scheduler::WriteOutputFile()
 			<< setw(5) << deletePtr->GetTurnAroundTime()
 			<< endl;
 		
-		totalWT += deletePtr->GetWaitingTime();
-		totalRT += deletePtr->GetResponseTime();
-		totalTRT += deletePtr->GetTurnAroundTime();
+		TotalWaitingTime += deletePtr->GetWaitingTime();
+		TotalResponseTime += deletePtr->GetResponseTime();
+		TotalTurnAroundtime += deletePtr->GetTurnAroundTime();
 
 		delete deletePtr;
 	}
 
 	OP_Stream << "\nProcesses: " << ProcessesCount << endl
-		<< "Avg WT = " << calcAvgWT() << ",     "
-		<< "Avg RT = " << calcAvgRT() << ",     "
-		<< "Avg TRT = " << calcAvgTRT() << endl;
+		<< "Avg WT = " << CalcAvgWT() << ",     "
+		<< "Avg RT = " << CalcAvgRT() << ",     "
+		<< "Avg TRT = " << CalcAvgTRT() << endl;
 
 	if (!ProcessesCount) return false;
 
@@ -232,7 +232,7 @@ bool Scheduler::WriteOutputFile()
 
 	<< "Work Steal%: " << 100 * StealCount / ProcessesCount << "%\n"
 
-	<< "Forked Process: " << 100 * Forkcount / ProcessesCount << "%\n"
+	<< "Forked Process: " << 100 * ForkCount / ProcessesCount << "%\n"
 
 	<< "Killed Process: " << 100 * KillCount / ProcessesCount << "%\n\n";
 
@@ -246,7 +246,7 @@ bool Scheduler::WriteOutputFile()
 	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
 		OP_Stream << "p" << i + 1 << "= " << setprecision(1) << fixed
-			<< ProcessorsList[i]->CalcPLoad(totalTRT)	<< "%";
+			<< ProcessorsList[i]->CalcPLoad(TotalTurnAroundtime)	<< "%";
 
 		if (i != ProcessorsCount)
 			OP_Stream << ",     ";
@@ -263,7 +263,7 @@ bool Scheduler::WriteOutputFile()
 			OP_Stream << ",     ";
 	}
 
-	OP_Stream << endl << "Avg utilization = " << calcAvgUtilization() << "%";
+	OP_Stream << endl << "Avg utilization = " << CalcAvgUtilization() << "%";
 
 	OP_Stream.close();
 
@@ -272,6 +272,18 @@ bool Scheduler::WriteOutputFile()
 
 void Scheduler::Steal(Process*)
 {
+	int StealLimit = CalcStealLimit();
+
+	while (StealLimit > 40)
+	{
+		Process* StolenProcess = ProcessorsList[MaxIndex]->StealProcess();
+
+		ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
+
+		StealCount++;
+
+		StealLimit = CalcStealLimit();
+	}
 }
 
 bool Scheduler::FromRUNToBLK(Processor* ProcessPtr)
@@ -289,7 +301,7 @@ bool Scheduler::FromRUNToBLK(Processor* ProcessPtr)
 	return true;
 }
 
-bool Scheduler::FromBLKToRDY(Processor* ProcessPtr)
+bool Scheduler::FromBLKToRDY(Processor* ProcessorPtr)
 {
 	//checking if BLK_List is Empty
 	if (BLK_List.isEmpty())
@@ -298,12 +310,12 @@ bool Scheduler::FromBLKToRDY(Processor* ProcessPtr)
 	//checking process & processor availabilty
 	Process* BLKtoRDY = nullptr;
 	BLKtoRDY = BLK_List.QueueFront();
-	if (!ProcessPtr || !BLKtoRDY)
+	if (!ProcessorPtr || !BLKtoRDY)
 		return false;
 
 	BLK_List.Dequeue(BLKtoRDY);
 
-	ProcessPtr->AddToReadyQueue(BLKtoRDY);
+	ProcessorPtr->AddToReadyQueue(BLKtoRDY);
 
 	//updating process state
 	BLKtoRDY->ChangeProcessState(RDY);
@@ -350,15 +362,8 @@ bool Scheduler::ToRDY(Process* ProcessPtr, Processor* ProcessorPtr)
 
 void Scheduler::FromNEWtoRDY(Process* ProcessPtr)
 {
-	//Index of the processor with the smallest finish time
-	int MinIndex(0);
-
-	//Checking which processor has the smallest expected finish time
-	for (size_t i = 1; i < ProcessorsCount; i++)
-	{
-		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
-			MinIndex = i;
-	}
+	//Setting the index of the processor with the smallest expected finish time
+	SetMinIndex();
 
 	//Adding the process to the RDY queue of the processor with the smallest finish time
 	ProcessorsList[MinIndex]->AddToReadyQueue(ProcessPtr);
@@ -397,7 +402,7 @@ void Scheduler::Simulate()
 		while (ProcessPtr && ProcessPtr->GetArrivalTime() == TimeStep)
 		{
 			NEW_List.Dequeue(ProcessPtr);					 //removing from NEW
-			//if (ToRDY(ProcessPtr, ProcessorsList[count]));  //adding to RUN
+			//if (ToRDY(ProcessorPtr, ProcessorsList[count]));  //adding to RUN
 				//count++;
 
 			FromNEWtoRDY(ProcessPtr);
@@ -487,7 +492,7 @@ void Scheduler::Simulate()
 		ProgramUI.PrintSilentMode(1);
 }
 
-int Scheduler::calcAvgUtilization()
+int Scheduler::CalcAvgUtilization()
 {
 	int sum(0);
 
@@ -499,17 +504,56 @@ int Scheduler::calcAvgUtilization()
 	return sum / ProcessorsCount;
 }
 
-int Scheduler::calcAvgTRT()
+int Scheduler::CalcAvgTRT()
 {
-	return totalTRT / ProcessesCount;
+	return TotalTurnAroundtime / ProcessesCount;
 }
 
-int Scheduler::calcAvgWT()
+int Scheduler::CalcAvgWT()
 {
-	return totalWT / ProcessesCount;
+	return TotalWaitingTime / ProcessesCount;
 }
 
-int Scheduler::calcAvgRT()
+int Scheduler::CalcAvgRT()
 {
-	return totalRT / ProcessesCount;
+	return TotalResponseTime / ProcessesCount;
+}
+
+void Scheduler::SetMinIndex() 
+{
+	//Initializing the index of the processor with the smallest finish time
+	MinIndex = 0;
+
+	//Checking which processor has the smallest expected finish time
+	for (size_t i = 1; i < ProcessorsCount; i++)
+	{
+		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
+			MinIndex = i;
+	}
+}
+
+void Scheduler::SetMaxIndex() 
+{
+	//Initializing the index of the processor with the biggest finish time
+	MaxIndex = 0;
+
+	//Checking which processor has the biggest expected finish time
+	for (size_t i = 1; i < ProcessorsCount; i++)
+	{
+		if (ProcessorsList[i]->GetFinishTime() > ProcessorsList[MaxIndex]->GetFinishTime())
+			MaxIndex = i;
+	}
+}
+
+int Scheduler::CalcStealLimit()
+{
+	SetMinIndex();
+	SetMaxIndex();
+
+	SQF = ProcessorsList[MinIndex]->GetFinishTime();
+	LQF = ProcessorsList[MaxIndex]->GetFinishTime();
+
+	int StealLimit = 100 * (LQF - SQF) / LQF;
+
+	return StealLimit;
 }

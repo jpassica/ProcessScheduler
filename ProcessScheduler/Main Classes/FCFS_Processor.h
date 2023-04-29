@@ -28,6 +28,8 @@ public:
 	bool RandomKill(int randomID);
 
 	virtual void printRDY() const override;
+
+	virtual Process* StealProcess() override;
 };
 
 #endif

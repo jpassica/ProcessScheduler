@@ -26,6 +26,8 @@ public:
 	virtual int GetFinishTime() const override;
 
 	virtual void printRDY() const override;
+
+	virtual Process* StealProcess() override;
 };
 
 #endif
