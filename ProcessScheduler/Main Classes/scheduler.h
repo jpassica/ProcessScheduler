@@ -38,15 +38,15 @@ private:
 	int RRtimeSlice;
 	
 	//statistics variables
-	int totalWT;
-	int totalRT;
-	int totalTRT;	
+	int TotalWaitingTime;
+	int TotalResponseTime;
+	int TotalTurnAroundtime;	
 	int avgUtilization;
 
 	int RTFCount;						//no. of migrated processes due to RTF
 	int MaxWCount;						//no. of migrated processes due to MaxW
 	int StealCount;						//no of stolen processes
-	int Forkcount;						//no. of forking instances
+	int ForkCount;						//no. of forking instances
 	int KillCount;						//no. of kills
 
 	Queue<KillSignal*> KillSignalQ;
@@ -78,7 +78,7 @@ public:
 
 	//process operations
 	void Migrate(Process*);
-	void Steal(Process*);
+	void Steal();
 	void Kill(Process*);
 	void Fork(Process*);
 	

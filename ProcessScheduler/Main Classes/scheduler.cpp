@@ -30,6 +30,12 @@ Scheduler::Scheduler()
 	TotalTurnAroundtime = 0;
 	TotalWaitingTime = 0;
 	avgUtilization = 0;
+
+	MaxIndex = 0;
+	MinIndex = 0;
+
+	LQF = 0;
+	SQF = 0;
 }
 
 void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
@@ -270,8 +276,13 @@ bool Scheduler::WriteOutputFile()
 	return true;
 }
 
-void Scheduler::Steal(Process*)
+void Scheduler::Steal()
 {
+	//Setting the indices of the processors with the longest and shortest finish times
+	SetMinIndex();
+	SetMaxIndex();
+
+	//Calculating the steal limit
 	int StealLimit = CalcStealLimit();
 
 	while (StealLimit > 40)
@@ -282,6 +293,7 @@ void Scheduler::Steal(Process*)
 
 		StealCount++;
 
+		//Recalculating the steal limit
 		StealLimit = CalcStealLimit();
 	}
 }
@@ -386,9 +398,9 @@ void Scheduler::Simulate()
 		ProgramUI.PrintSilentMode(0);
 
 	//calling Load function
-	bool fileOpened = ReadInputFile(FileName);
+	bool FileOpened = ReadInputFile(FileName);
 
-	if (!fileOpened) return;
+	if (!FileOpened) return;
 
 	int count = 0;							//acts as an index to detect which processor will be passed processes from the NEW_List
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
@@ -460,6 +472,16 @@ void Scheduler::Simulate()
 			if (ToRDY(ProcessPtr, ProcessorsList[count]))
 				BLK_List.Dequeue(ProcessPtr);
 		}
+
+
+
+
+		if (TimeStep % STL == 0)
+			Steal();
+
+
+
+
 
 		//kill test
 		random = rand() % ProcessesCount;				//randoming process ID
@@ -547,11 +569,11 @@ void Scheduler::SetMaxIndex()
 
 int Scheduler::CalcStealLimit()
 {
-	SetMinIndex();
-	SetMaxIndex();
-
 	SQF = ProcessorsList[MinIndex]->GetFinishTime();
 	LQF = ProcessorsList[MaxIndex]->GetFinishTime();
+
+	if (!LQF)		
+		return 0;
 
 	int StealLimit = 100 * (LQF - SQF) / LQF;
 
