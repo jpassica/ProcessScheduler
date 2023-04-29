@@ -1,4 +1,5 @@
 #include "UI.h"
+#include <Windows.h>
 using namespace std;
 
 UI::UI(Scheduler* s)
@@ -18,11 +19,57 @@ void UI::WriteLine(string s)
 	cout << s << endl;
 }
 
+UI_Mode UI::InputInterfaceMode()
+{
+	int ModeCode(0);
+
+	cout << "\nChoose the interface mode for the simulation: \n"
+		<< "1. Interactive Mode\n"
+		<< "2. StepByStep Mode\n"
+		<< "3. Silent Mode\n"
+		<< ">";
+
+	cin >> ModeCode;
+	
+	if (ModeCode == 1)
+		CrntMode = Interactive;
+	else if (ModeCode == 2)
+		CrntMode = StepByStep;
+	else
+		CrntMode = Silent;
+
+	return CrntMode;
+}
+
+void UI::PrintSilentMode(bool StartorEnd)
+{
+	//if StartorEnd = 0, this means we are at the beginning of the simulation
+	
+	if (!StartorEnd)
+	{
+		cout << "Silent Mode: Simulation started.... \n\n";
+	}
+	else		//if StartorEnd = 1, this means we are at the end
+	{
+		cout << "Simulation ended, output file created!\n\n";
+	}
+}
+
+string UI::InputFileName()
+{
+	string FileName;
+
+	cout << "Please enter input file name: >"; 
+	cin >> FileName;
+
+	return FileName;
+}
+
 void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
 	Processor** ProcessorsList, int NF, int NS, int NR, int timeStep)
 {
 	cout << "Current Time Step: " << timeStep << endl;  //printing current timestep
-	cout << "--------------------   RDY Processes --------------------------------" << endl;  
+	cout << "--------------------   RDY Processes  -------------------------------" << endl;  
 	for (int i = 0; i < pSch->getProcessorsCount(); i++)
 	{
 		int ProcessorID = ProcessorsList[i]->getID();
@@ -41,19 +88,19 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 		ProcessorsList[i]->printRDY();
 		cout << endl;
 	}
-	cout << "--------------------   BLK Processes --------------------------------" << endl;
+	cout << "--------------------   BLK Processes  -------------------------------" << endl;
 
 	cout << BLK_List.getCount() << " BLK: ";
 	BLK_List.Print();
 	cout << endl;
 
-	cout << "--------------------   RUN Processes --------------------------------" << endl;
+	cout << "--------------------   RUN Processes  -------------------------------" << endl;
 	
 	//calculating no. of running processes
 	int runningCount = 0;
 	for (int i = 0; i < pSch->getProcessorsCount(); i++)
 	{
-		Process* running = ProcessorsList[i]->getRunPtr();
+		Process* running = ProcessorsList[i]->GetRunPtr();
 		if (running)
 			runningCount++;
 	}
@@ -64,12 +111,12 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 	bool found = false;		//used to detect first output to adjust format 
 	for (int i = 0; i < pSch->getProcessorsCount(); i++)
 	{
-		Process* running = ProcessorsList[i]->getRunPtr();
+		Process* running = ProcessorsList[i]->GetRunPtr();
 		if (running)
 		{
 			if (found)
 				cout << ", ";
-			cout << running->getPID() << "(P" << ProcessorsList[i]->getID() << ")";
+			cout << running->GetPID() << "(P" << ProcessorsList[i]->getID() << ")";
 			found = true;
 		}
 	}
@@ -79,12 +126,20 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 
 	cout << TRM_List.getCount() << " TRM: ";
 	TRM_List.Print();
-	cout << endl;
+	
+	cout << endl << endl;
+	
 
-	cout << "Press Any Key To Move To Next Step\n\n";
+	if (CrntMode == Interactive)
+	{
+		cout << "Press Any Key To Move To Next Step\n";
 
-	if (!timeStep)
+		if (!timeStep)
+			getchar();
+
 		getchar();
-
-	getchar();
+	}
+	else if (CrntMode == StepByStep)
+		Sleep(1000);
+	
 }

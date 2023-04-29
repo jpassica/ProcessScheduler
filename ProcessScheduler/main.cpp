@@ -11,10 +11,6 @@ using namespace std;
 int main()
 {
 	Scheduler S;
-	string fileName;
-	cout << "Please enter input file name: "; cin >> fileName;
-	S.Simulate(fileName);
-
-	cout << S.WriteOutputFile();
+	S.Simulate();
 }
 

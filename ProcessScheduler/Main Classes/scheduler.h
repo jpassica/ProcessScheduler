@@ -1,22 +1,21 @@
-#pragma once
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
+
 #include "../DS Classes/PriorityQueue.h"
 #include "../DS Classes/Queue.h"
-#include "Process.h"
-#include "Processor.h"
+#include "FCFS_Processor.h";
+#include "SJF_Processor.h";
+#include "RR_Processor.h";
 #include "UI.h"
-#include "FCFS_Processor.h"
-#include "RR_Processor.h"
-#include "SJF_Processor.h"
 #define MAXSIZE 10000
-using namespace std;
 
 class Scheduler
 {
 private:
-	int timeStep;
+	int TimeStep;
 
 	//processors lists(dynamic allocation)
-	Processor** Processors_List;
+	Processor** ProcessorsList;
 
 	//Processor counters
 	int FCFSCount;
@@ -50,10 +49,9 @@ private:
 	int Forkcount;						//no. of forking instances
 	int KillCount;						//no. of kills
 
-
 	Queue<KillSignal*> KillSignalQ;
 
-	void setProcessors(int, int, int , int);  //used locally when input is loaded from the file
+	void setProcessors(int, int, int, int);  //used locally when input is loaded from the file
 
 public:
 	Scheduler();
@@ -82,8 +80,10 @@ public:
 	bool ToTRM(Process*);
 	bool ToRDY(Process* , Processor*);
 
+	void FromNEWtoRDY(Process*);
+
 	//simulation function
-	void Simulate(string fileName);
+	void Simulate();
 
 	//statistics functions
 	int calcAvgUtilization();
@@ -92,3 +92,4 @@ public:
 	int calcAvgRT();
 };
 
+#endif

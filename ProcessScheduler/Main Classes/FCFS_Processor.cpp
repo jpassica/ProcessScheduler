@@ -1,30 +1,17 @@
 ﻿#include "FCFS_Processor.h"
 #include "Scheduler.h"
 
-FCFS_Processor::FCFS_Processor(int ID, Scheduler* pSch) : Processor(ID, pSch)
+FCFS_Processor::FCFS_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr) {}
+
+void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-}
-
-void FCFS_Processor::ScheduleAlgo()
-{
-}
-
-int FCFS_Processor::CalcFinishTime()
-{
-	for (size_t i = 1; i <= FCFS_Ready.getLength(); i++)
-	{
-		finishTime += FCFS_Ready.getEntry(i)->getCPUTime();
-	}
-
-	if (RunPtr)
-		finishTime += RunPtr->getCPUTime();
-
-	return finishTime;
 }
 
 void FCFS_Processor::AddToReadyQueue(Process* pReady)
 {
 	FCFS_Ready.insert(FCFS_Ready.getCount() + 1, pReady);
+
+	finishTime += pReady->GetCPUTime();
 }
 
 bool FCFS_Processor::isReadyQueueEmpty() const
@@ -45,15 +32,15 @@ bool FCFS_Processor::fromReadyToRun(int crntTimeStep)
 
 	Process* newRunPtr = FCFS_Ready.getEntry(1);
 
-	if (newRunPtr->isRecentlyUpdated(crntTimeStep))
-		return false;
 
 	RunPtr = newRunPtr;
 	FCFS_Ready.remove(1);
 
 	CrntState = BUSY;
-	RunPtr->SetLastUpdateTime(crntTimeStep);
 	RunPtr->ChangeProcessState(RUN);
+
+	if (RunPtr->isFirstExecution())
+		RunPtr->SetResponseTime(crntTimeStep);
 
 	return true;
 }
@@ -61,6 +48,11 @@ bool FCFS_Processor::fromReadyToRun(int crntTimeStep)
 int FCFS_Processor::GetRDYCount() const
 {
 	return FCFS_Ready.getCount();
+}
+
+int FCFS_Processor::GetFinishTime() const
+{
+	return finishTime;
 }
 
 bool FCFS_Processor::RandomKill(int randomID)

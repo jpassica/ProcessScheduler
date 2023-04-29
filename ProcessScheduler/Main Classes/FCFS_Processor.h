@@ -1,4 +1,6 @@
-#pragma once
+#ifndef FCFS_PROCESSOR_H
+#define FCFS_PROCESSOR_H
+
 #include "Processor.h"
 #include "..\DS Classes\ListProcessPtrs.h"
 
@@ -7,13 +9,10 @@ class FCFS_Processor : public Processor
 	ListProcessPtrs FCFS_Ready;
 
 public:
-	FCFS_Processor(int ID , Scheduler*);
+	FCFS_Processor(int ID, Scheduler* SchedulerPtr);
 
 	//Picks the next process to run according to 'first come first serve'
-	virtual void ScheduleAlgo() override;
-
-	//calculates and returns finish time according to CT of processes
-	virtual int CalcFinishTime() override;
+	virtual void ScheduleAlgo(int) override;
 
 	//adds the passed process to the FCFS_Ready
 	virtual void AddToReadyQueue(Process* pReady) override;
@@ -24,8 +23,11 @@ public:
 
 	virtual int GetRDYCount() const override;
 
+	virtual int GetFinishTime() const override;
+
 	bool RandomKill(int randomID);
 
 	virtual void printRDY() const override;
 };
 
+#endif

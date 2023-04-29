@@ -4,9 +4,9 @@
 
 Scheduler::Scheduler()
 {
-	timeStep = 0;
+	TimeStep = 0;
 
-	Processors_List = nullptr;
+	ProcessorsList = nullptr;
 
 	FCFSCount = 0;
 	SJFCount = 0;
@@ -34,17 +34,17 @@ Scheduler::Scheduler()
 
 void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
 {
-	Processors_List = new Processor * [ProcessorsCount];
+	ProcessorsList = new Processor * [ProcessorsCount];
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		if (i < NF)
-			Processors_List[i] = new FCFS_Processor(i + 1, this);
+			ProcessorsList[i] = new FCFS_Processor(i + 1, this);
 
 		else if (i >= NF && i < NF + NR)
-			Processors_List[i] = new SJF_Processor(i + 1, this);
+			ProcessorsList[i] = new SJF_Processor(i + 1, this);
 
 		else
-			Processors_List[i] = new RR_Processor(i + 1, RRtimeSlice, this);
+			ProcessorsList[i] = new RR_Processor(i + 1, RRtimeSlice, this);
 	}
 }
 
@@ -201,19 +201,19 @@ bool Scheduler::WriteOutputFile()
 	{
 		TRM_List.Dequeue(deletePtr);
 
-		OP_Stream << setw(5) << deletePtr->getTT()
-			<< setw(5) << deletePtr->getPID()
-			<< setw(5) << deletePtr->getAT()
-			<< setw(6) << deletePtr->getCPUTime()
-			<< setw(7) << deletePtr->getTotalIO_D()
-			<< setw(5) << deletePtr->getWT()
-			<< setw(5) << deletePtr->getRT()
-			<< setw(5) << deletePtr->getTRT()
+		OP_Stream << setw(5) << deletePtr->GetTerminationTime()
+			<< setw(5) << deletePtr->GetPID()
+			<< setw(5) << deletePtr->GetArrivalTime()
+			<< setw(6) << deletePtr->GetCPUTime()
+			<< setw(7) << deletePtr->GetTotalIO_D()
+			<< setw(5) << deletePtr->GetWaitingTime()
+			<< setw(5) << deletePtr->GetResponseTime()
+			<< setw(5) << deletePtr->GetTurnAroundTime()
 			<< endl;
 		
-		totalWT += deletePtr->getWT();
-		totalRT += deletePtr->getRT();
-		totalTRT += deletePtr->getTRT();
+		totalWT += deletePtr->GetWaitingTime();
+		totalRT += deletePtr->GetResponseTime();
+		totalTRT += deletePtr->GetTurnAroundTime();
 
 		delete deletePtr;
 	}
@@ -238,28 +238,28 @@ bool Scheduler::WriteOutputFile()
 
 
 
-	OP_Stream << "Processors: " << FCFSCount + SJFCount + RRCount << " ["
+	OP_Stream << "Processors: " << ProcessorsCount << " ["
 		<< FCFSCount << " FCFS, " << SJFCount << " SJF, " << RRCount << " RR]\n";
 
 	OP_Stream << "Processors Load\n";
 
-	for (size_t i = 0; i < FCFSCount + SJFCount + RRCount; i++)
+	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
-		OP_Stream << "p" << i + 1 << "= " <<
-			Processors_List[i]->CalcPLoad(totalTRT)	<< "%";
+		OP_Stream << "p" << i + 1 << "= " << setprecision(1) << fixed
+			<< ProcessorsList[i]->CalcPLoad(totalTRT)	<< "%";
 
-		if (i != FCFSCount + SJFCount + RRCount)
+		if (i != ProcessorsCount)
 			OP_Stream << ",     ";
 	}
 
 	OP_Stream << "\n\nProcessors Utiliz\n";
 
-	for (size_t i = 0; i < FCFSCount + SJFCount + RRCount; i++)
+	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
 		OP_Stream << "p" << i + 1 << "= " <<
-			Processors_List[i]->CalcPUtil() << "%";
+			ProcessorsList[i]->CalcPUtil() << "%";
 
-		if (i != FCFSCount + SJFCount + RRCount)
+		if (i != ProcessorsCount)
 			OP_Stream << ",     ";
 	}
 
@@ -270,27 +270,26 @@ bool Scheduler::WriteOutputFile()
 	return true;
 }
 
+void Scheduler::Steal(Process*)
+{
+}
 
-bool Scheduler::FromRUNToBLK(Processor* pro)
+bool Scheduler::FromRUNToBLK(Processor* ProcessPtr)
 {
 	//checking if there is a processor in the RUN state or not
-	if (pro->getProcessorState() == IDLE)
+	if (ProcessPtr->GetProcessorState() == IDLE)
 		return false;
 
-	//checking if this process is updated in the current timestep
-	if (pro->getRunPtr()->isRecentlyUpdated(timeStep))
-		return false;
 
 	//moving & updating states
-	BLK_List.Enqueue(pro->getRunPtr());				//adding to BLK
-	pro->getRunPtr()->ChangeProcessState(BLK);		//changing Process state to BLK
-	pro->getRunPtr()->SetLastUpdateTime(timeStep);	//time Update
-	pro->setRunptr(nullptr);						//removing the process from Runptr
-	pro->FlipProcessorState();						//changing processor state
+	BLK_List.Enqueue(ProcessPtr->GetRunPtr());				//adding to BLK
+	ProcessPtr->GetRunPtr()->ChangeProcessState(BLK);		//changing Process state to BLK
+	ProcessPtr->setRunptr(nullptr);						//removing the process from Runptr
+	ProcessPtr->FlipProcessorState();						//changing processor state
 	return true;
 }
 
-bool Scheduler::FromBLKToRDY(Processor* p)
+bool Scheduler::FromBLKToRDY(Processor* ProcessPtr)
 {
 	//checking if BLK_List is Empty
 	if (BLK_List.isEmpty())
@@ -298,17 +297,13 @@ bool Scheduler::FromBLKToRDY(Processor* p)
 
 	//checking process & processor availabilty
 	Process* BLKtoRDY = nullptr;
-	BLKtoRDY = BLK_List.Queue_front();
-	if (!p || !BLKtoRDY)
-		return false;
-
-	//checking if this process is updated in the current timestep
-	if (BLKtoRDY->isRecentlyUpdated(timeStep))
+	BLKtoRDY = BLK_List.QueueFront();
+	if (!ProcessPtr || !BLKtoRDY)
 		return false;
 
 	BLK_List.Dequeue(BLKtoRDY);
 
-	p->AddToReadyQueue(BLKtoRDY);
+	ProcessPtr->AddToReadyQueue(BLKtoRDY);
 
 	//updating process state
 	BLKtoRDY->ChangeProcessState(RDY);
@@ -321,56 +316,72 @@ bool Scheduler::ToTRM(Process* ptr)
 	if (!ptr)
 		return false;
 
-	//checking if this process is updated in the current timestep
-	if (ptr->isRecentlyUpdated(timeStep))
-		return false;
-
 	//checking Forking 
 	if (ptr->GetChild())
 		ToTRM(ptr->GetChild());
 
 	//moving to TRM & changing states
-	ptr->SetLastUpdateTime(timeStep);
-	ptr->SetTerminationTime(timeStep);
+	ptr->SetTerminationTime(TimeStep);
 	TRM_List.Enqueue(ptr);
 	ptr->ChangeProcessState(TRM);
 	return true;
 }
 
-bool Scheduler::ToRDY(Process* f, Processor* pro)
+bool Scheduler::ToRDY(Process* ProcessPtr, Processor* ProcessorPtr)
 {
 	//checking process & processor
-	if (!pro || !f)
+	if (!ProcessorPtr || !ProcessPtr)
 		return false;
 
-	//checking if this process is updated in the current timestep
-	if (f->isRecentlyUpdated(timeStep))
-		return false;
-
-	if (pro)
-		pro->AddToReadyQueue(f);
+	if (ProcessorPtr)
+		ProcessorPtr->AddToReadyQueue(ProcessPtr);
 	else
 		return false;
 
 	//updating states
-	if (f->GetProcessState() == RUN)
+	if (ProcessPtr->GetProcessState() == RUN)
 	{
-		pro->setRunptr(nullptr);
-		pro->FlipProcessorState();
+		ProcessorPtr->setRunptr(nullptr);
+		ProcessorPtr->FlipProcessorState();
 	}
-	f->ChangeProcessState(RDY);
-	f->SetLastUpdateTime(timeStep);
+	ProcessPtr->ChangeProcessState(RDY);
 	return true;
 }
 
-void Scheduler::Simulate(string fileName)
+void Scheduler::FromNEWtoRDY(Process* ProcessPtr)
+{
+	//Index of the processor with the smallest finish time
+	int MinIndex(0);
+
+	//Checking which processor has the smallest expected finish time
+	for (size_t i = 1; i < ProcessorsCount; i++)
+	{
+		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
+			MinIndex = i;
+	}
+
+	//Adding the process to the RDY queue of the processor with the smallest finish time
+	ProcessorsList[MinIndex]->AddToReadyQueue(ProcessPtr);
+
+	ProcessPtr->ChangeProcessState(RDY);
+}
+
+void Scheduler::Simulate()
 {
 	//initializations
-	UI out(this);
-	Process* pro = nullptr;
+	UI ProgramUI(this);
+	UI_Mode CrntMode;
+	Process* ProcessPtr = nullptr;
+
+	string FileName = ProgramUI.InputFileName();
+
+	CrntMode = ProgramUI.InputInterfaceMode();
+
+	if (CrntMode == Silent)
+		ProgramUI.PrintSilentMode(0);
 
 	//calling Load function
-	bool fileOpened = ReadInputFile(fileName);
+	bool fileOpened = ReadInputFile(FileName);
 
 	if (!fileOpened) return;
 
@@ -378,54 +389,57 @@ void Scheduler::Simulate(string fileName)
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
 	{
 		//Moving Arrived processes from NEW to RDY
-		pro = nullptr;
+		ProcessPtr = nullptr;
+
 		if (!NEW_List.isEmpty()) //checking New_List is not empty
-			pro = NEW_List.Queue_front();
+			ProcessPtr = NEW_List.QueueFront();
 
-		while (pro && pro->getAT() == timeStep)
+		while (ProcessPtr && ProcessPtr->GetArrivalTime() == TimeStep)
 		{
+			NEW_List.Dequeue(ProcessPtr);					 //removing from NEW
+			//if (ToRDY(ProcessPtr, ProcessorsList[count]));  //adding to RUN
+				//count++;
 
-			NEW_List.Dequeue(pro);					 //removing from NEW
-			if (ToRDY(pro, Processors_List[count]));  //adding to RUN
-				count++;
+			FromNEWtoRDY(ProcessPtr);
 
-			if (count == ProcessorsCount)
-				count = 0;
+		    //if (count == ProcessorsCount)
+				//count = 0;
 
 			if (!NEW_List.isEmpty())
-				pro = NEW_List.Queue_front();
+				ProcessPtr = NEW_List.QueueFront();
 			else
-				pro = nullptr;
+				ProcessPtr = nullptr;
 		}
 
 
-		//Moving to RUN
+		//Calling ScheduleAlgo of each processor
 		for (int i = 0; i < ProcessorsCount; i++)
 		{
-			Processors_List[i]->fromReadyToRun(timeStep);
+			ProcessorsList[i]->fromReadyToRun(TimeStep);
+			//ProcessorsList[i]->ScheduleAlgo(TimeStep);
 		}
 
 		//Moving From RUN
 		for (int i = 0; i < ProcessorsCount; i++)
 		{
-			if (Processors_List[i]->getProcessorState() == BUSY)
+			if (ProcessorsList[i]->GetProcessorState() == BUSY)
 			{
 
 				int random = rand() % 100;
 				if (random >= 1 && random <= 15)   //probability to terminate process
 				{
-					FromRUNToBLK(Processors_List[i]);
+					FromRUNToBLK(ProcessorsList[i]);
 				}
 				else if (random >= 20 && random <= 30)  //probality to move to RDY
 				{
-					ToRDY(Processors_List[i]->getRunPtr(), Processors_List[i]);
+					ToRDY(ProcessorsList[i]->GetRunPtr(), ProcessorsList[i]);
 				}
 				else if (random >= 50 && random <= 60) //probability to terminate
 				{
-					if (ToTRM(Processors_List[i]->getRunPtr()))
+					if (ToTRM(ProcessorsList[i]->GetRunPtr()))
 					{
-						Processors_List[i]->FlipProcessorState();
-						Processors_List[i]->setRunptr(nullptr);
+						ProcessorsList[i]->FlipProcessorState();
+						ProcessorsList[i]->setRunptr(nullptr);
 					}
 				}
 			}
@@ -435,11 +449,11 @@ void Scheduler::Simulate(string fileName)
 		int random = rand() % 100;
 		if (random < 10 && !BLK_List.isEmpty())
 		{
-			pro = BLK_List.Queue_front();
+			ProcessPtr = BLK_List.QueueFront();
 			if (count >= ProcessorsCount)
 				count = 0;
-			if (ToRDY(pro, Processors_List[count]))
-				BLK_List.Dequeue(pro);
+			if (ToRDY(ProcessPtr, ProcessorsList[count]))
+				BLK_List.Dequeue(ProcessPtr);
 		}
 
 		//kill test
@@ -448,7 +462,7 @@ void Scheduler::Simulate(string fileName)
 
 		for (int i = 0; i < FCFSCount && !killed; i++)
 		{
-			FCFS_Processor* processorPtr = (FCFS_Processor*) Processors_List[i];		//only FCFS processors
+			FCFS_Processor* processorPtr = (FCFS_Processor*) ProcessorsList[i];		//only FCFS processors
 			if (processorPtr)
 			{
 				killed = processorPtr->RandomKill(random);
@@ -456,21 +470,33 @@ void Scheduler::Simulate(string fileName)
 		}
 
 		//incrementing & printing timestep
-		out.TimeStepOut(BLK_List, TRM_List, Processors_List, FCFSCount, SJFCount, RRCount, timeStep);
-		timeStep++;
+		if (CrntMode != Silent)
+			ProgramUI.TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, TimeStep);
+
+		TimeStep++;
+
+		for (int i = 0; i < ProcessorsCount; i++)
+		{
+			ProcessorsList[i]->IncrementBusyOrIdleTime();
+		}
 	}
+
+	WriteOutputFile();
+
+	if (CrntMode == Silent)
+		ProgramUI.PrintSilentMode(1);
 }
 
 int Scheduler::calcAvgUtilization()
 {
 	int sum(0);
 
-	for (size_t i = 0; i < FCFSCount + SJFCount + RRCount; i++)
+	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
-		sum += Processors_List[i]->CalcPUtil();
+		sum += ProcessorsList[i]->CalcPUtil();
 	}
 
-	return sum / FCFSCount + SJFCount + RRCount;
+	return sum / ProcessorsCount;
 }
 
 int Scheduler::calcAvgTRT()

@@ -1,20 +1,17 @@
 #include "RR_Processor.h"
 
-RR_Processor::RR_Processor(int ID, int TimeSlice , Scheduler* pShc) : Processor(ID , pShc), TimeSlice(TimeSlice)
+RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr), timeSlice(timeSlice)
 {}
 
-void RR_Processor::ScheduleAlgo() 
+void RR_Processor::ScheduleAlgo(int CrntTimeStep) 
 {
-}
-
-int RR_Processor::CalcFinishTime()
-{
-	return 0;
 }
 
 void RR_Processor::AddToReadyQueue(Process* pReady)
 {
 	RR_Ready.Enqueue(pReady);
+
+	finishTime += pReady->GetCPUTime();
 }
 
 bool RR_Processor::isReadyQueueEmpty() const
@@ -33,16 +30,16 @@ bool RR_Processor::fromReadyToRun(int crntTimeStep)
 	if (isReadyQueueEmpty())
 		return false;
 
-	Process* newRunPtr = RR_Ready.Queue_front();
+	Process* newRunPtr = RR_Ready.QueueFront();
 
-	if (newRunPtr->isRecentlyUpdated(crntTimeStep))
-		return false;
 
 	RR_Ready.Dequeue(RunPtr);
 
 	CrntState = BUSY;
-	RunPtr->SetLastUpdateTime(crntTimeStep);
 	RunPtr->ChangeProcessState(RUN);
+
+	if (RunPtr->isFirstExecution())
+		RunPtr->SetResponseTime(crntTimeStep);
 
 	return true;
 }
@@ -50,6 +47,11 @@ bool RR_Processor::fromReadyToRun(int crntTimeStep)
 int RR_Processor::GetRDYCount() const
 {
 	return RR_Ready.getCount();
+}
+
+int RR_Processor::GetFinishTime() const
+{
+	return finishTime;
 }
 
 void RR_Processor::printRDY() const

@@ -6,6 +6,8 @@ using namespace std;
 
 class Process {
 private:
+
+	//Main parameters
 	const int PID;
 	int ArrivalTime;
 	int ResponseTime;
@@ -13,13 +15,20 @@ private:
 	int TerminationTime;
 	int TurnAroundTime;
 	int WaitingTime;
+
+
 	int IO_N;
 	int totalIO_D;
 	Queue<IO_Pairs*> IO_PairsQ;
+
+
 	ProcessState CrntState;
-	int processedTime;
+
+	int ProcessedTime;
 	Process* child;
-	int lastUpdatetime; //To check if this process was updated at the current timestep to update it only once
+
+	//to put down the response time
+	bool firstTimeExecution;
 
 public:
 	//Non-default ctor
@@ -34,32 +43,33 @@ public:
 	void SetTerminationTime(int n);
 	void SetResponseTime(int n);
 	void SetProcessedTime(int);
-	void SetLastUpdateTime(int);
 
 	//Takes data and creates IO request and adds it to queue
 	void AddIORequest(int IO_R, int IO_D);
 
 	//Getter functions
-	int getCPUTime() const;
-	int getPID() const;
-	int getAT() const;
-	int getTRT() const;
-	int getRT() const;
-	int getWT() const;
-	int getTT() const;
-	int getTotalIO_D() const;
+	int GetCPUTime() const;
+	int GetPID() const;
+	int GetArrivalTime() const;
+	int GetTurnAroundTime() const;
+	int GetResponseTime() const;
+	int GetWaitingTime() const;
+	int GetTerminationTime() const;
+
+	int GetTotalIO_D() const;
 	ProcessState GetProcessState() const;
 	Process* GetChild() const;
+
 	int GetProcessedTime() const;
-	int GetLastUpdateTime()const;
+	int GetRemainingCPUTime() const;
 	void ChangeProcessState(ProcessState NewState);
 
 
-	//Decrements the CT of the process as it is executing
-	void RunProcess();
+	//Increments the ProcessedTime of the process currently being executed
+	void ExecuteProcess();
 
-	//checks if the process was previously updated in the current timestep
-	bool isRecentlyUpdated(int crntTimeStep) const;
+	//returns true if this the process had not received the CPU before
+	bool isFirstExecution() const;
 
 	~Process();
 };

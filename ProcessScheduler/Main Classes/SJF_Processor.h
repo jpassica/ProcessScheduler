@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SJF_PROCESSOR_H
+#define SJF_PROCESSOR_H
+
 #include "Processor.h"
 #include "..\DS Classes\PriorityQueue.h"
 
@@ -7,13 +9,10 @@ class SJF_Processor : public Processor
 	PriorityQueue<Process*> SJF_Ready;
 
 public:
-	SJF_Processor(int ID , Scheduler*);
+	SJF_Processor(int ID, Scheduler* SchedulerPtr);
 
 	//Picks the next process to run according to 'shortest job first'
-	virtual void ScheduleAlgo() override;
-
-	//calculates and returns finish time according to CT of processes
-	virtual int CalcFinishTime() override;
+	virtual void ScheduleAlgo(int) override;
 
 	//adds passed process to SJF_Ready
 	virtual void AddToReadyQueue(Process* pReady) override;
@@ -24,6 +23,9 @@ public:
 
 	virtual int GetRDYCount() const override;
 
+	virtual int GetFinishTime() const override;
+
 	virtual void printRDY() const override;
 };
 
+#endif

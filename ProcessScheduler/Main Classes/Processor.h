@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PROCESSOR_H
+#define PROCESSOR_H
+
 #include <iostream>
 #include "Process.h"
 using namespace std;
@@ -19,16 +21,13 @@ protected:
 
 public:
 	//ctor receives ID from the scheduler
-	Processor(int ID , Scheduler*);
+	Processor(int ID, Scheduler* SchedulerPtr);
 
 	//each processor has its own version of this function
-	virtual void ScheduleAlgo() = 0;
+	virtual void ScheduleAlgo(int) = 0;
 
 	//outputs Processor's ID
 	friend ostream& operator<<(ostream&, const Processor&);  
-	
-	//calculates and returns finish time according to CT of processes
-	virtual int CalcFinishTime() = 0;
 
 	//calculates and returns pLoad %
 	double CalcPLoad(int TotalTRT) const;			
@@ -54,10 +53,10 @@ public:
 	void setRunptr(Process*);
 
 	//returns crnt processor state
-	ProcessorState getProcessorState();
+	ProcessorState GetProcessorState();
 
 	//returns run ptr
-	Process* getRunPtr();
+	Process* GetRunPtr();
 
 	//this function is overriden in each processor class
 	virtual void AddToReadyQueue(Process* pReady) = 0;
@@ -71,6 +70,11 @@ public:
 	//returns count of items in ready queue/list
 	virtual int GetRDYCount() const = 0;
 
-	//calls print function of ready queue/list
+	//returns expected finish time of all processes for the processor
+	virtual int GetFinishTime() const = 0;
+
+	//Calls print function of ready queue/list
 	virtual void printRDY() const = 0;
 };
+
+#endif

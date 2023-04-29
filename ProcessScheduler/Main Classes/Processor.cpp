@@ -1,6 +1,6 @@
 #include "Processor.h"
 
-Processor::Processor(int ID, Scheduler* sch) : CrntState(IDLE), ID(ID), RunPtr(nullptr), pScheduler(sch)
+Processor::Processor(int ID, Scheduler* SchedulerPtr) : CrntState(IDLE), ID(ID), RunPtr(nullptr), pScheduler(SchedulerPtr)
 {
 	//initializing all processor data members
 	busyTime = 0;
@@ -23,7 +23,8 @@ bool Processor::DecrementRunningProcess()
 	if (!RunPtr)
 		return false;
 	
-	RunPtr->RunProcess();
+	RunPtr->ExecuteProcess();
+	finishTime--;
 	return true;
 }
 
@@ -53,12 +54,12 @@ void Processor::setRunptr(Process* p)
 	RunPtr = p;
 }
 
-ProcessorState Processor::getProcessorState()
+ProcessorState Processor::GetProcessorState()
 {
 	return CrntState;
 }
 
-Process* Processor::getRunPtr()
+Process* Processor::GetRunPtr()
 {
 	return RunPtr;
 }

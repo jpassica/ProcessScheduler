@@ -81,7 +81,7 @@ public:
 		delete Temp;
 		return true;
 	}
-	T Queue_front()
+	T QueueFront()
 	{
 		if (!isEmpty())
 			return back->getNext()->getItem();

@@ -9,10 +9,10 @@ Process::Process(int pid, int AT, int CT, int IO_N)
 	TurnAroundTime = 0;
 	WaitingTime = 0;
 	ResponseTime = 0;
-	lastUpdatetime = 0;
 	totalIO_D = 0;
-	processedTime = 0;
+	ProcessedTime = 0;
 	child = nullptr;
+	firstTimeExecution = 1;
 }
 
 ostream& operator<<(ostream& out, const Process* P) 
@@ -22,18 +22,21 @@ ostream& operator<<(ostream& out, const Process* P)
 }
 
 //Set the response time as FCPU is the time when the process is ready to be processed at first time
-void Process::SetResponseTime(int FCPU) {
+void Process::SetResponseTime(int FCPU) 
+{
 	ResponseTime = FCPU - ArrivalTime;
+
+	//since this function will only be used once for each process
+	//which is when it is being executed for the first time,
+	//the function changes this data member to false 
+	//to stop the processors from overrwriting the RT
+
+	firstTimeExecution = 0;
 }
 
 void Process::SetProcessedTime(int t)
 {
-	processedTime = t;
-}
-
-void Process::SetLastUpdateTime(int t)
-{
-	lastUpdatetime = t;
+	ProcessedTime = t;
 }
 
 void Process::AddIORequest(int IO_R, int IO_D)
@@ -45,7 +48,7 @@ void Process::AddIORequest(int IO_R, int IO_D)
 	totalIO_D += IO_D;
 }
 
-int Process::getCPUTime() const
+int Process::GetCPUTime() const
 {
 	return CPUTime;
 }
@@ -59,36 +62,36 @@ void Process::SetTerminationTime(int TT)
 }
 
 //Getter for Process ID
-int Process::getPID() const {
+int Process::GetPID() const {
 	return PID;
 }
 
-int Process::getTRT() const
+int Process::GetTurnAroundTime() const
 {
 	return TurnAroundTime;
 }
 
-int Process::getRT() const
+int Process::GetResponseTime() const
 {
 	return ResponseTime;
 }
 
-int Process::getAT() const
+int Process::GetArrivalTime() const
 {
 	return ArrivalTime;
 }
 
-int Process::getWT() const
+int Process::GetWaitingTime() const
 {
 	return WaitingTime;
 }
 
-int Process::getTT() const
+int Process::GetTerminationTime() const
 {
 	return TerminationTime;
 }
 
-int Process::getTotalIO_D() const
+int Process::GetTotalIO_D() const
 {
 	return totalIO_D;
 }
@@ -103,16 +106,14 @@ Process* Process::GetChild() const
 	return child;
 }
 
-
-
 int Process::GetProcessedTime() const
 {
-	return processedTime;
+	return ProcessedTime;
 }
 
-int Process::GetLastUpdateTime() const
+int Process::GetRemainingCPUTime() const
 {
-	return lastUpdatetime;
+	return CPUTime - ProcessedTime;
 }
 
 void Process::ChangeProcessState(ProcessState NewState)
@@ -120,17 +121,14 @@ void Process::ChangeProcessState(ProcessState NewState)
 	CrntState = NewState;
 }
 
-void Process::RunProcess()
+void Process::ExecuteProcess()
 {
-	CPUTime--;
+	ProcessedTime++;
 }
 
-bool Process::isRecentlyUpdated(int crntTimeStep) const
+bool Process::isFirstExecution() const
 {
-	if (crntTimeStep == lastUpdatetime)
-		return true;
-	else
-		return false;
+	return firstTimeExecution;
 }
 
 Process::~Process() {
