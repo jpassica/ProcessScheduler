@@ -43,14 +43,14 @@ public:
 	//it should be called each time step
 	void IncrementBusyOrIdleTime();
 
-	//changes current state from idle to busy and vice versa
-	void FlipProcessorState();
+	//Changes current state from idle to busy and vice versa
+	void ChangeProcessorState(ProcessorState NextState);
 
 	//returns processor ID
 	int getID() const;
 
 	//sets runnning processo to a passed process
-	void setRunptr(Process*);
+	void SetRunptr(Process*);
 
 	//returns crnt processor state
 	ProcessorState GetProcessorState();

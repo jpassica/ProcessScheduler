@@ -32,12 +32,9 @@ void Processor::IncrementBusyOrIdleTime()
 		BusyTime++;
 }
 
-void Processor::FlipProcessorState()
+void Processor::ChangeProcessorState(ProcessorState NextState)
 {
-	if (CrntState == IDLE)
-		CrntState = BUSY;
-	else
-		CrntState = IDLE;
+	CrntState = NextState;
 }
 
 int Processor::getID() const
@@ -45,7 +42,7 @@ int Processor::getID() const
 	return ID;
 }
 
-void Processor::setRunptr(Process* p)
+void Processor::SetRunptr(Process* p)
 {
 	RunPtr = p;
 }

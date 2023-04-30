@@ -86,11 +86,12 @@ public:
 	
 	//process moving
 	bool FromRUNToBLK(Processor*);
-	bool FromBLKToRDY(Processor*);
+	bool FromBLKToRDY();
 	bool ToTRM(Process*);
 	bool ToRDY(Process* , Processor*);
 
-	void FromNEWtoRDY(Process*);
+	//Moves all processes arriving at current timestep to shortest ready queues 
+	void FromNEWtoRDY();
 
 	//simulation function
 	void Simulate();

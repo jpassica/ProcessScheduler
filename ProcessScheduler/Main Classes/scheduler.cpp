@@ -306,12 +306,12 @@ bool Scheduler::FromRUNToBLK(Processor* ProcessorPtr)
 	//moving & updating states
 	BLK_List.Enqueue(ProcessorPtr->GetRunPtr());				//adding to BLK
 	ProcessorPtr->GetRunPtr()->ChangeProcessState(BLK);		//changing Process state to BLK
-	ProcessorPtr->setRunptr(nullptr);						//removing the process from Runptr
-	ProcessorPtr->FlipProcessorState();						//changing processor state
+	ProcessorPtr->SetRunptr(nullptr);						//removing the process from Runptr
+	ProcessorPtr->ChangeProcessorState(IDLE);						//changing processor state
 	return true;
 }
 
-bool Scheduler::FromBLKToRDY(Processor* ProcessorPtr)
+bool Scheduler::FromBLKToRDY()
 {
 	//checking if BLK_List is Empty
 	if (BLK_List.isEmpty())
@@ -320,12 +320,14 @@ bool Scheduler::FromBLKToRDY(Processor* ProcessorPtr)
 	//checking process & processor availabilty
 	Process* BLKtoRDY = nullptr;
 	BLKtoRDY = BLK_List.QueueFront();
-	if (!ProcessorPtr || !BLKtoRDY)
+	if (!BLKtoRDY)
 		return false;
+
+	SetMinIndex();
 
 	BLK_List.Dequeue(BLKtoRDY);
 
-	ProcessorPtr->AddToReadyQueue(BLKtoRDY);
+	ProcessorsList[MinIndex]->AddToReadyQueue(BLKtoRDY);
 
 	//updating process state
 	BLKtoRDY->ChangeProcessState(RDY);
@@ -363,22 +365,39 @@ bool Scheduler::ToTRM(Process* ptr)
 //	//updating states
 //	if (ProcessorPtr->GetProcessState() == RUN)
 //	{
-//		ProcessorPtr->setRunptr(nullptr);
-//		ProcessorPtr->FlipProcessorState();
+//		ProcessorPtr->SetRunptr(nullptr);
+//		ProcessorPtr->ChangeProcessorState();
 //	}
 //	ProcessorPtr->ChangeProcessState(RDY);
 //	return true;
 //}
 
-void Scheduler::FromNEWtoRDY(Process* ProcessPtr)
+void Scheduler::FromNEWtoRDY()
 {
-	//Setting the index of the processor with the smallest expected finish time
-	SetMinIndex();
+	Process* NewProcessPtr = nullptr;
 
-	//Adding the process to the RDY queue of the processor with the smallest finish time
-	ProcessorsList[MinIndex]->AddToReadyQueue(ProcessPtr);
+	if (!NEW_List.isEmpty())
+		NewProcessPtr = NEW_List.QueueFront();
+	else
+		return;
 
-	ProcessPtr->ChangeProcessState(RDY);
+	while (NewProcessPtr && NewProcessPtr->GetArrivalTime() == TimeStep)
+	{
+		NEW_List.Dequeue(NewProcessPtr);
+
+		//Setting the index of the processor with the smallest expected finish time
+		SetMinIndex();
+
+		//Adding the process to the RDY queue of the processor with the smallest finish time
+		ProcessorsList[MinIndex]->AddToReadyQueue(NewProcessPtr);
+
+		NewProcessPtr->ChangeProcessState(RDY);
+
+		if (!NEW_List.isEmpty())
+			NewProcessPtr = NEW_List.QueueFront();
+		else
+			NewProcessPtr = nullptr;
+	}
 }
 
 void Scheduler::Simulate()
@@ -405,26 +424,7 @@ void Scheduler::Simulate()
 		//Moving Arrived processes from NEW to RDY
 		ProcessPtr = nullptr;
 
-		if (!NEW_List.isEmpty()) //checking New_List is not empty
-			ProcessPtr = NEW_List.QueueFront();
-
-		while (ProcessPtr && ProcessPtr->GetArrivalTime() == TimeStep)
-		{
-			NEW_List.Dequeue(ProcessPtr);					 //removing from NEW
-			//if (ToRDY(ProcessorPtr, ProcessorsList[count]));  //adding to RUN
-				//count++;
-
-			FromNEWtoRDY(ProcessPtr);
-
-		    //if (count == ProcessorsCount)
-				//count = 0;
-
-			if (!NEW_List.isEmpty())
-				ProcessPtr = NEW_List.QueueFront();
-			else
-				ProcessPtr = nullptr;
-		}
-
+		FromNEWtoRDY();
 
 		//Calling ScheduleAlgo of each processor
 		for (int i = 0; i < ProcessorsCount; i++)
@@ -448,18 +448,20 @@ void Scheduler::Simulate()
 				{
 					//ToRDY(ProcessorsList[i]->GetRunPtr(), ProcessorsList[i]);
 			
-					FromNEWtoRDY(ProcessorsList[i]->GetRunPtr());
-
-					ProcessorsList[i]->setRunptr(nullptr);
-					ProcessorsList[i]->FlipProcessorState();
+					//this should be removed and schedulealgos should substitute
+					SetMinIndex();
+					ProcessorsList[MinIndex]->AddToReadyQueue(ProcessorsList[i]->GetRunPtr());
+					ProcessorsList[i]->GetRunPtr()->ChangeProcessState(RDY);
+					ProcessorsList[i]->SetRunptr(nullptr);
+					ProcessorsList[i]->ChangeProcessorState(IDLE);
 
 				}
 				else if (random >= 50 && random <= 60) //probability to terminate
 				{
 					if (ToTRM(ProcessorsList[i]->GetRunPtr()))
 					{
-						ProcessorsList[i]->FlipProcessorState();
-						ProcessorsList[i]->setRunptr(nullptr);
+						ProcessorsList[i]->ChangeProcessorState(IDLE);
+						ProcessorsList[i]->SetRunptr(nullptr);
 					}
 				}
 			}
@@ -469,15 +471,11 @@ void Scheduler::Simulate()
 		int random = rand() % 100;
 		if (random < 10 && !BLK_List.isEmpty())
 		{
-			ProcessPtr = BLK_List.QueueFront();
-
 			//if (count >= ProcessorsCount)
 				//count = 0;
 			//if (ToRDY(ProcessorPtr, ProcessorsList[count]))
 				//BLK_List.Dequeue(ProcessorPtr);
-
-			BLK_List.Dequeue(ProcessPtr);
-			FromNEWtoRDY(ProcessPtr);
+			FromBLKToRDY();
 		}
 
 
