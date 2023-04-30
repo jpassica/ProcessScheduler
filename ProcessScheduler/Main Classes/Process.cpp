@@ -34,11 +34,6 @@ void Process::SetResponseTime(int FCPU)
 	firstTimeExecution = 0;
 }
 
-void Process::SetProcessedTime(int t)
-{
-	ProcessedTime = t;
-}
-
 void Process::AddIORequest(int IO_R, int IO_D)
 {
 	IO_Pairs* newRequest = new IO_Pairs(IO_R, IO_D);

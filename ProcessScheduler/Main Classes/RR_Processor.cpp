@@ -51,11 +51,6 @@ int RR_Processor::GetRDYCount() const
 	return RR_Ready.getCount();
 }
 
-int RR_Processor::GetFinishTime() const
-{
-	return FinishTime;
-}
-
 void RR_Processor::printRDY() const
 {
 	RR_Ready.Print();

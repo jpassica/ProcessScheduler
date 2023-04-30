@@ -23,8 +23,6 @@ public:
 
 	virtual int GetRDYCount() const override;
 
-	virtual int GetFinishTime() const override;
-
 	bool RandomKill(int randomID);
 
 	virtual void printRDY() const override;

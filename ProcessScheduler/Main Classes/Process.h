@@ -40,7 +40,6 @@ public:
 	void Setchild(Process*);
 	void SetTerminationTime(int n);
 	void SetResponseTime(int n);
-	void SetProcessedTime(int);
 
 	//Takes data and creates IO request and adds it to queue
 	void AddIORequest(int IO_R, int IO_D);

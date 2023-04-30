@@ -35,8 +35,6 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 			SJF_Ready.Dequeue(RunPtr);
 			RunPtr->ChangeProcessState(RUN);
 
-			FinishTime -= RunPtr->GetRemainingCPUTime();
-
 			if (RunPtr->isFirstExecution())
 				RunPtr->SetResponseTime(CrntTimeStep);
 		}
@@ -89,11 +87,6 @@ bool SJF_Processor::fromReadyToRun(int crntTimeStep)
 int SJF_Processor::GetRDYCount() const
 {
 	return SJF_Ready.getCount();
-}
-
-int SJF_Processor::GetFinishTime() const
-{
-	return FinishTime;
 }
 
 void SJF_Processor::printRDY() const

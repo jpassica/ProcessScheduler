@@ -65,3 +65,8 @@ ostream& operator<<(ostream& out, const Processor& P)
 	out << P.ID;
 	return out;
 }
+
+int Processor::GetFinishTime() const
+{
+	return FinishTime;
+}

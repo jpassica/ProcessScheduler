@@ -389,7 +389,6 @@ void Scheduler::Simulate()
 	Process* ProcessPtr = nullptr;
 
 	string FileName = ProgramUI->InputFileName();
-
 	CrntMode = ProgramUI->InputInterfaceMode();
 
 	if (CrntMode == Silent)
@@ -445,7 +444,7 @@ void Scheduler::Simulate()
 				{
 					FromRUNToBLK(ProcessorsList[i]);
 				}
-				else if (random >= 20 && random <= 30)  //probality to move to RDY
+				else if (random >= 20 && random <= 30)  //probability to move to RDY
 				{
 					//ToRDY(ProcessorsList[i]->GetRunPtr(), ProcessorsList[i]);
 			

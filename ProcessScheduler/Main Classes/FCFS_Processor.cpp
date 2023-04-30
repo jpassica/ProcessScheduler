@@ -52,11 +52,6 @@ int FCFS_Processor::GetRDYCount() const
 	return FCFS_Ready.getCount();
 }
 
-int FCFS_Processor::GetFinishTime() const
-{
-	return FinishTime;
-}
-
 bool FCFS_Processor::RandomKill(int randomID)
 {
 	int position = FCFS_Ready.SearchByID(randomID);
@@ -68,6 +63,18 @@ bool FCFS_Processor::RandomKill(int randomID)
 		if (pScheduler->ToTRM(killedProcess))
 		{
 			FCFS_Ready.remove(position);
+			
+			FinishTime -= killedProcess->GetRemainingCPUTime();
+
+
+
+
+
+
+
+
+
+
 			return true;
 		}
 		else

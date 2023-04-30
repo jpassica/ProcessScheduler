@@ -14,10 +14,10 @@ private:
 	int BusyTime, IdleTime;
 	
 protected:
-	Process* RunPtr;						//ptr to the running process
-	Scheduler* pScheduler;					//ptr to Scheduler class
-	ProcessorState CrntState;				//current state idle vs. busy
-	int FinishTime;							//estimated finish time of all processes for the processor
+	Process* RunPtr;						//Ptr to the running process
+	Scheduler* pScheduler;					//Ptr to Scheduler class
+	ProcessorState CrntState;				//Current state: idle vs. busy
+	int FinishTime;							//Estimated finish time of all processes in the ready queue/list
 
 public:
 	//ctor receives ID from the scheduler
@@ -70,8 +70,8 @@ public:
 	//returns count of items in ready queue/list
 	virtual int GetRDYCount() const = 0;
 
-	//returns expected finish time of all processes for the processor
-	virtual int GetFinishTime() const = 0;
+	//returns expected finish time of all processes in the ready queue/list
+	int GetFinishTime() const;
 
 	//Calls print function of ready queue/list
 	virtual void printRDY() const = 0;
