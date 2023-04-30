@@ -424,11 +424,13 @@ void Scheduler::Simulate()
 		//Moving Arrived processes from NEW to RDY
 		ProcessPtr = nullptr;
 
+		//Moving all processes arriving at current timestep to shortest ready queues
 		FromNEWtoRDY();
 
 		//Calling ScheduleAlgo of each processor
 		for (int i = 0; i < ProcessorsCount; i++)
 		{
+			//This should be removed when all ScheduleAlgo fns are ready
 			ProcessorsList[i]->fromReadyToRun(TimeStep);
 			//ProcessorsList[i]->ScheduleAlgo(TimeStep);
 		}
@@ -471,16 +473,12 @@ void Scheduler::Simulate()
 		int random = rand() % 100;
 		if (random < 10 && !BLK_List.isEmpty())
 		{
-			//if (count >= ProcessorsCount)
-				//count = 0;
-			//if (ToRDY(ProcessorPtr, ProcessorsList[count]))
-				//BLK_List.Dequeue(ProcessorPtr);
 			FromBLKToRDY();
 		}
 
 
 
-
+		//Initiating the steal action each STL timesteps
 		if (TimeStep % STL == 0)
 			Steal();
 
