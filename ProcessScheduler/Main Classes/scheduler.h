@@ -59,6 +59,8 @@ private:
 	int SQF;
 	int LQF;
 
+	UI* ProgramUI;
+
 	void setProcessors(int, int, int, int);  //used locally when input is loaded from the file
 
 public:

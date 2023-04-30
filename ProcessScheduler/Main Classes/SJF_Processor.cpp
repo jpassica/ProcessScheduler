@@ -17,6 +17,8 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 		SJF_Ready.Dequeue(RunPtr);
 		RunPtr->ChangeProcessState(RUN);
 
+		FinishTime -= RunPtr->GetRemainingCPUTime();
+
 		if (RunPtr->isFirstExecution())
 			RunPtr->SetResponseTime(CrntTimeStep);
 		return;
@@ -33,6 +35,8 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 			SJF_Ready.Dequeue(RunPtr);
 			RunPtr->ChangeProcessState(RUN);
 
+			FinishTime -= RunPtr->GetRemainingCPUTime();
+
 			if (RunPtr->isFirstExecution())
 				RunPtr->SetResponseTime(CrntTimeStep);
 		}
@@ -40,15 +44,13 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 			RunPtr = nullptr;
 	}
 		//if the running process is not done executing, then there is nothing to do for now
-	
-
 }
 
 void SJF_Processor::AddToReadyQueue(Process* pReady)
 {
 	SJF_Ready.Enqueue(pReady, pReady->GetCPUTime());
 
-	FinishTime += pReady->GetCPUTime();
+	FinishTime += pReady->GetRemainingCPUTime();
 }
 
 bool SJF_Processor::isReadyQueueEmpty() const
@@ -79,6 +81,8 @@ bool SJF_Processor::fromReadyToRun(int crntTimeStep)
 	if (RunPtr->isFirstExecution())
 		RunPtr->SetResponseTime(crntTimeStep);
 
+	FinishTime -= RunPtr->GetRemainingCPUTime();
+
 	return true;
 }
 
@@ -103,7 +107,7 @@ Process* SJF_Processor::StealProcess()
 
 	SJF_Ready.Dequeue(StolenProcess);
 
-	FinishTime -= StolenProcess->GetCPUTime();
+	FinishTime -= StolenProcess->GetRemainingCPUTime();
 
 	return StolenProcess;
 }

@@ -2,11 +2,6 @@
 #include <Windows.h>
 using namespace std;
 
-UI::UI(Scheduler* s)
-{
-	pSch = s;
-}
-
 string UI::ReadLine()
 {
 	string s;
@@ -68,9 +63,11 @@ string UI::InputFileName()
 void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
 	Processor** ProcessorsList, int NF, int NS, int NR, int timeStep)
 {
+	int ProcessorsCount = NF + NS + NR;
+
 	cout << "Current Time Step: " << timeStep << endl;  //printing current timestep
 	cout << "--------------------   RDY Processes  -------------------------------" << endl;  
-	for (int i = 0; i < pSch->getProcessorsCount(); i++)
+	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		int ProcessorID = ProcessorsList[i]->getID();
 		
@@ -98,7 +95,7 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 	
 	//calculating no. of running processes
 	int runningCount = 0;
-	for (int i = 0; i < pSch->getProcessorsCount(); i++)
+	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		Process* running = ProcessorsList[i]->GetRunPtr();
 		if (running)
@@ -109,7 +106,7 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 	
 	//printing running processes by getting the RunPtr in each processor
 	bool found = false;		//used to detect first output to adjust format 
-	for (int i = 0; i < pSch->getProcessorsCount(); i++)
+	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		Process* running = ProcessorsList[i]->GetRunPtr();
 		if (running)

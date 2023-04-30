@@ -11,7 +11,7 @@ void RR_Processor::AddToReadyQueue(Process* pReady)
 {
 	RR_Ready.Enqueue(pReady);
 
-	FinishTime += pReady->GetCPUTime();
+	FinishTime += pReady->GetRemainingCPUTime();
 }
 
 bool RR_Processor::isReadyQueueEmpty() const
@@ -41,6 +41,8 @@ bool RR_Processor::fromReadyToRun(int crntTimeStep)
 	if (RunPtr->isFirstExecution())
 		RunPtr->SetResponseTime(crntTimeStep);
 
+	FinishTime -= RunPtr->GetRemainingCPUTime();
+
 	return true;
 }
 
@@ -65,7 +67,7 @@ Process* RR_Processor::StealProcess()
 
 	RR_Ready.Dequeue(StolenProcess);
 
-	FinishTime -= StolenProcess->GetCPUTime();
+	FinishTime -= StolenProcess->GetRemainingCPUTime();
 
 	return StolenProcess;
 }

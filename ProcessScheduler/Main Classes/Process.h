@@ -16,11 +16,9 @@ private:
 	int TurnAroundTime;
 	int WaitingTime;
 
-
 	int IO_N;
 	int totalIO_D;
 	Queue<IO_Pairs*> IO_PairsQ;
-
 
 	ProcessState CrntState;
 

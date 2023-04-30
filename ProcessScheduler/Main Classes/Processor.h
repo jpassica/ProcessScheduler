@@ -11,7 +11,7 @@ class Processor
 {
 private:
 	int ID;
-	int busyTime, idleTime;
+	int BusyTime, IdleTime;
 	
 protected:
 	Process* RunPtr;						//ptr to the running process
@@ -35,11 +35,11 @@ public:
 	//calculates and returns pUtil %
 	double CalcPUtil() const;			
 
-	//This function decrements the CT of the running process
+	//Increments the ProcessedTime of the running process
 	//it should be called each time step
-	bool DecrementRunningProcess();		
+	void IncrementRunningProcess();		
 
-	//This function keeps track of busyTime and idleTime
+	//This function keeps track of BusyTime and IdleTime
 	//it should be called each time step
 	void IncrementBusyOrIdleTime();
 
@@ -75,8 +75,8 @@ public:
 
 	//Calls print function of ready queue/list
 	virtual void printRDY() const = 0;
-
 	
+	//Steals a process from the top of the RDY queue/list
 	virtual Process* StealProcess() = 0;
 };
 

@@ -11,7 +11,7 @@ void FCFS_Processor::AddToReadyQueue(Process* pReady)
 {
 	FCFS_Ready.insert(FCFS_Ready.getCount() + 1, pReady);
 
-	FinishTime += pReady->GetCPUTime();
+	FinishTime += pReady->GetRemainingCPUTime();
 }
 
 bool FCFS_Processor::isReadyQueueEmpty() const
@@ -41,6 +41,8 @@ bool FCFS_Processor::fromReadyToRun(int crntTimeStep)
 
 	if (RunPtr->isFirstExecution())
 		RunPtr->SetResponseTime(crntTimeStep);
+
+	FinishTime -= RunPtr->GetRemainingCPUTime();
 
 	return true;
 }
@@ -86,7 +88,7 @@ Process* FCFS_Processor::StealProcess()
 
 	FCFS_Ready.remove(1);
 
-	FinishTime -= StolenProcess->GetCPUTime();
+	FinishTime -= StolenProcess->GetRemainingCPUTime();
 
 	return StolenProcess;
 }

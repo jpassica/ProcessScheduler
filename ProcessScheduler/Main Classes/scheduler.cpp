@@ -74,19 +74,18 @@ int Scheduler::getProcessorsCount() const
 	return ProcessorsCount;
 }
 
-bool Scheduler::ReadInputFile(string fileName)
+bool Scheduler::ReadInputFile(string FileName)
 {
 	//creating input stream object and opening file
 	ifstream IP_Stream;
-	fileName += ".txt";
-	IP_Stream.open(fileName);
+	FileName += ".txt";
+	IP_Stream.open(FileName);
 
 	while (!IP_Stream.is_open())							//keep reading file names until we successfully open file
 	{
-		cerr << "Error opening file! Are you sure there's a file with that name?\n";
-		cout << "\nPlease enter input file name: ";
-		cin >> fileName; fileName += ".txt";
-		IP_Stream.open(fileName);
+		FileName = ProgramUI->InputFileName();
+		FileName += ".txt";
+		IP_Stream.open(FileName);
 	}
 
 	//if (!IP_Stream.is_open())								//if file opening is unsuccessful, abort
@@ -298,18 +297,17 @@ void Scheduler::Steal()
 	}
 }
 
-bool Scheduler::FromRUNToBLK(Processor* ProcessPtr)
+bool Scheduler::FromRUNToBLK(Processor* ProcessorPtr)
 {
 	//checking if there is a processor in the RUN state or not
-	if (ProcessPtr->GetProcessorState() == IDLE)
+	if (ProcessorPtr->GetProcessorState() == IDLE)
 		return false;
 
-
 	//moving & updating states
-	BLK_List.Enqueue(ProcessPtr->GetRunPtr());				//adding to BLK
-	ProcessPtr->GetRunPtr()->ChangeProcessState(BLK);		//changing Process state to BLK
-	ProcessPtr->setRunptr(nullptr);						//removing the process from Runptr
-	ProcessPtr->FlipProcessorState();						//changing processor state
+	BLK_List.Enqueue(ProcessorPtr->GetRunPtr());				//adding to BLK
+	ProcessorPtr->GetRunPtr()->ChangeProcessState(BLK);		//changing Process state to BLK
+	ProcessorPtr->setRunptr(nullptr);						//removing the process from Runptr
+	ProcessorPtr->FlipProcessorState();						//changing processor state
 	return true;
 }
 
@@ -351,26 +349,26 @@ bool Scheduler::ToTRM(Process* ptr)
 	return true;
 }
 
-bool Scheduler::ToRDY(Process* ProcessPtr, Processor* ProcessorPtr)
-{
-	//checking process & processor
-	if (!ProcessorPtr || !ProcessPtr)
-		return false;
-
-	if (ProcessorPtr)
-		ProcessorPtr->AddToReadyQueue(ProcessPtr);
-	else
-		return false;
-
-	//updating states
-	if (ProcessPtr->GetProcessState() == RUN)
-	{
-		ProcessorPtr->setRunptr(nullptr);
-		ProcessorPtr->FlipProcessorState();
-	}
-	ProcessPtr->ChangeProcessState(RDY);
-	return true;
-}
+//bool Scheduler::ToRDY(Process* ProcessorPtr, Processor* ProcessorPtr)
+//{
+//	//checking process & processor
+//	if (!ProcessorPtr || !ProcessorPtr)
+//		return false;
+//
+//	if (ProcessorPtr)
+//		ProcessorPtr->AddToReadyQueue(ProcessorPtr);
+//	else
+//		return false;
+//
+//	//updating states
+//	if (ProcessorPtr->GetProcessState() == RUN)
+//	{
+//		ProcessorPtr->setRunptr(nullptr);
+//		ProcessorPtr->FlipProcessorState();
+//	}
+//	ProcessorPtr->ChangeProcessState(RDY);
+//	return true;
+//}
 
 void Scheduler::FromNEWtoRDY(Process* ProcessPtr)
 {
@@ -386,16 +384,16 @@ void Scheduler::FromNEWtoRDY(Process* ProcessPtr)
 void Scheduler::Simulate()
 {
 	//initializations
-	UI ProgramUI(this);
+	ProgramUI = new UI();
 	UI_Mode CrntMode;
 	Process* ProcessPtr = nullptr;
 
-	string FileName = ProgramUI.InputFileName();
+	string FileName = ProgramUI->InputFileName();
 
-	CrntMode = ProgramUI.InputInterfaceMode();
+	CrntMode = ProgramUI->InputInterfaceMode();
 
 	if (CrntMode == Silent)
-		ProgramUI.PrintSilentMode(0);
+		ProgramUI->PrintSilentMode(0);
 
 	//calling Load function
 	bool FileOpened = ReadInputFile(FileName);
@@ -449,7 +447,13 @@ void Scheduler::Simulate()
 				}
 				else if (random >= 20 && random <= 30)  //probality to move to RDY
 				{
-					ToRDY(ProcessorsList[i]->GetRunPtr(), ProcessorsList[i]);
+					//ToRDY(ProcessorsList[i]->GetRunPtr(), ProcessorsList[i]);
+			
+					FromNEWtoRDY(ProcessorsList[i]->GetRunPtr());
+
+					ProcessorsList[i]->setRunptr(nullptr);
+					ProcessorsList[i]->FlipProcessorState();
+
 				}
 				else if (random >= 50 && random <= 60) //probability to terminate
 				{
@@ -467,10 +471,14 @@ void Scheduler::Simulate()
 		if (random < 10 && !BLK_List.isEmpty())
 		{
 			ProcessPtr = BLK_List.QueueFront();
-			if (count >= ProcessorsCount)
-				count = 0;
-			if (ToRDY(ProcessPtr, ProcessorsList[count]))
-				BLK_List.Dequeue(ProcessPtr);
+
+			//if (count >= ProcessorsCount)
+				//count = 0;
+			//if (ToRDY(ProcessorPtr, ProcessorsList[count]))
+				//BLK_List.Dequeue(ProcessorPtr);
+
+			BLK_List.Dequeue(ProcessPtr);
+			FromNEWtoRDY(ProcessPtr);
 		}
 
 
@@ -478,7 +486,6 @@ void Scheduler::Simulate()
 
 		if (TimeStep % STL == 0)
 			Steal();
-
 
 
 
@@ -498,32 +505,33 @@ void Scheduler::Simulate()
 
 		//incrementing & printing timestep
 		if (CrntMode != Silent)
-			ProgramUI.TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, TimeStep);
+			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, TimeStep);
 
 		TimeStep++;
 
 		for (int i = 0; i < ProcessorsCount; i++)
 		{
 			ProcessorsList[i]->IncrementBusyOrIdleTime();
+			ProcessorsList[i]->IncrementRunningProcess();
 		}
 	}
 
 	WriteOutputFile();
 
 	if (CrntMode == Silent)
-		ProgramUI.PrintSilentMode(1);
+		ProgramUI->PrintSilentMode(1);
 }
 
 int Scheduler::CalcAvgUtilization()
 {
-	int sum(0);
+	int Sum(0);
 
 	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
-		sum += ProcessorsList[i]->CalcPUtil();
+		Sum += ProcessorsList[i]->CalcPUtil();
 	}
 
-	return sum / ProcessorsCount;
+	return Sum / ProcessorsCount;
 }
 
 int Scheduler::CalcAvgTRT()
