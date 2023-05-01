@@ -19,6 +19,22 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	//if there is no running process but there is a process in the ready queue, move it to RUN
 	if (!RunPtr)
 	{
+		this->fromReadyToRun(CrntTimeStep);
+		TimeSliceCounter++;
+		return;
+	}
+	//FIRST CASE 
+	//if there is no running process and the ready queue is empty,
+	//then there is nothing to do
+	if (!RunPtr && RR_Ready.isEmpty()) {
+		TimeSliceCounter = 0;
+		return;
+	}
+
+	//SECOND CASE
+	//if there is no running process but there is a process in the ready queue, move it to RUN
+	if (!RunPtr)
+	{
 		fromReadyToRun(CrntTimeStep);
 		TimeSliceCounter++;
 		return;
@@ -35,6 +51,40 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 			TimeSliceCounter++;
 		
     }
+
+	//THIRD CASE
+	//if the running process is done executing and is ready to move to TRM
+	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime()){
+
+		pScheduler->ToTRM(RunPtr);
+	    TimeSliceCounter = 0;
+		if (!RR_Ready.isEmpty()) {
+			this->fromReadyToRun(CrntTimeStep);
+			TimeSliceCounter++;
+		}
+		else 
+			RunPtr = nullptr;
+    }
+
+	//else if the running process is not done executing but has just finished it's time slice
+	//then it goes back to RDY list 
+	else if (TimeSliceCounter == timeSlice) {
+		this->AddToReadyQueue(RunPtr);
+		TimeSliceCounter = 0;
+		if (!RR_Ready.isEmpty()) {
+			this->fromReadyToRun(CrntTimeStep);
+			TimeSliceCounter++;
+		}
+		else
+			RunPtr = nullptr;
+	}
+	//else -> the process does not complete it's time slice 
+	else 
+		TimeSliceCounter++;
+	
+	return;
+}
+		
 
 	//else if the running process is not done executing but has just finished it's time slice
 	//then it goes back to RDY list 
