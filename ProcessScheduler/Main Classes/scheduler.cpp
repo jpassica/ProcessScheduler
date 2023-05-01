@@ -198,7 +198,7 @@ bool Scheduler::WriteOutputFile()
 		"IO_D" << setw(5) << "WT" << setw(5) << "RT" << setw(5)
 		<< "TRT" << endl;
 
-	//ptr used to dequeue from TRM, write all needed info, and then deallocate process
+	//ProcessToTerminate used to dequeue from TRM, write all needed info, and then deallocate process
 	Process* deletePtr(nullptr);
 
 	//
@@ -334,20 +334,20 @@ bool Scheduler::FromBLKToRDY()
 	return true;
 }
 
-bool Scheduler::ToTRM(Process* ptr)
+bool Scheduler::TerminateProcess(Process* ProcessToTerminate)
 {
 	//checking if process not equal nullptr
-	if (!ptr)
+	if (!ProcessToTerminate)
 		return false;
 
 	//checking Forking 
-	if (ptr->GetChild())
-		ToTRM(ptr->GetChild());
+	if (ProcessToTerminate->GetChild())
+		TerminateProcess(ProcessToTerminate->GetChild());
 
 	//moving to TRM & changing states
-	ptr->SetTerminationTime(TimeStep);
-	TRM_List.Enqueue(ptr);
-	ptr->ChangeProcessState(TRM);
+	ProcessToTerminate->SetTerminationTime(TimeStep);
+	TRM_List.Enqueue(ProcessToTerminate);
+	ProcessToTerminate->ChangeProcessState(TRM);
 	return true;
 }
 
@@ -405,7 +405,7 @@ void Scheduler::Simulate()
 	//initializations
 	ProgramUI = new UI();
 	UI_Mode CrntMode;
-	Process* ProcessPtr = nullptr;
+	//Process* ProcessPtr = nullptr;
 
 	string FileName = ProgramUI->InputFileName();
 	CrntMode = ProgramUI->InputInterfaceMode();
@@ -421,8 +421,7 @@ void Scheduler::Simulate()
 	int count = 0;							//acts as an index to detect which processor will be passed processes from the NEW_List
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
 	{
-		//Moving Arrived processes from NEW to RDY
-		ProcessPtr = nullptr;
+		//ProcessPtr = nullptr;
 
 		//Moving all processes arriving at current timestep to shortest ready queues
 		FromNEWtoRDY();
@@ -460,7 +459,7 @@ void Scheduler::Simulate()
 				}
 				else if (random >= 50 && random <= 60) //probability to terminate
 				{
-					if (ToTRM(ProcessorsList[i]->GetRunPtr()))
+					if (TerminateProcess(ProcessorsList[i]->GetRunPtr()))
 					{
 						ProcessorsList[i]->ChangeProcessorState(IDLE);
 						ProcessorsList[i]->SetRunptr(nullptr);
@@ -471,7 +470,7 @@ void Scheduler::Simulate()
 
 		//moving from BLK 
 		int random = rand() % 100;
-		if (random < 10 && !BLK_List.isEmpty())
+		if (random < 50 && !BLK_List.isEmpty())
 		{
 			FromBLKToRDY();
 		}
@@ -486,17 +485,17 @@ void Scheduler::Simulate()
 
 
 		//kill test
-		random = rand() % ProcessesCount;				//randoming process ID
-		bool killed = false;							    //Detects if the process is found or not
+		//random = rand() % ProcessesCount;				//randoming process ID
+		//bool killed = false;							    //Detects if the process is found or not
 
-		for (int i = 0; i < FCFSCount && !killed; i++)
-		{
-			FCFS_Processor* processorPtr = (FCFS_Processor*) ProcessorsList[i];		//only FCFS processors
-			if (processorPtr)
-			{
-				killed = processorPtr->RandomKill(random);
-			}
-		}
+		//for (int i = 0; i < FCFSCount && !killed; i++)
+		//{
+		//	FCFS_Processor* processorPtr = (FCFS_Processor*) ProcessorsList[i];		//only FCFS processors
+		//	if (processorPtr)
+		//	{
+		//		killed = processorPtr->RandomKill(random);
+		//	}
+		//}
 
 		//incrementing & printing timestep
 		if (CrntMode != Silent)

@@ -60,7 +60,7 @@ bool FCFS_Processor::RandomKill(int randomID)
 	{
 		Process* killedProcess = FCFS_Ready.getEntry(position);
 
-		if (pScheduler->ToTRM(killedProcess))
+		if (pScheduler->TerminateProcess(killedProcess))
 		{
 			FCFS_Ready.remove(position);
 			

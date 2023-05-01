@@ -1,13 +1,10 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include "../DS Classes/PriorityQueue.h"
-#include "../DS Classes/Queue.h"
 #include "FCFS_Processor.h";
 #include "SJF_Processor.h";
 #include "RR_Processor.h";
 #include "UI.h"
-#define MAXSIZE 10000
 
 class Scheduler
 {
@@ -88,7 +85,7 @@ public:
 	//process moving
 	bool FromRUNToBLK(Processor*);
 	bool FromBLKToRDY();
-	bool ToTRM(Process*);
+	bool TerminateProcess(Process*);
 	bool ToRDY(Process* , Processor*);
 
 	//Moves all processes arriving at current timestep to shortest ready queues 

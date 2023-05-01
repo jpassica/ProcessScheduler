@@ -140,7 +140,7 @@
   <ItemGroup>
     <ClInclude Include="DS Classes\KeyNode.h" />
     <ClInclude Include="DS Classes\List.h" />
-    <ClInclude Include="DS Classes\ListProcessPtrs.h" />
+    <ClInclude Include="DS Classes\ProcessList.h" />
     <ClInclude Include="DS Classes\Node.h" />
     <ClInclude Include="DS Classes\PriorityQueue.h" />
     <ClInclude Include="DS Classes\PriQueue.h" />

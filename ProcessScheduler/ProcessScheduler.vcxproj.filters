@@ -89,7 +89,7 @@
     <ClInclude Include="DS Classes\List.h">
       <Filter>DS Classes</Filter>
     </ClInclude>
-    <ClInclude Include="DS Classes\ListProcessPtrs.h">
+    <ClInclude Include="DS Classes\ProcessList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
