@@ -67,14 +67,6 @@ bool FCFS_Processor::RandomKill(int randomID)
 			FinishTime -= killedProcess->GetRemainingCPUTime();
 
 
-
-
-
-
-
-
-
-
 			return true;
 		}
 		else

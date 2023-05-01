@@ -48,6 +48,9 @@
     <ClCompile Include="Main Classes\UI.cpp">
       <Filter>Main Classes</Filter>
     </ClCompile>
+    <ClCompile Include="Main Classes\EDF_Processor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DS Classes\Queue.h">
@@ -90,6 +93,9 @@
       <Filter>DS Classes</Filter>
     </ClInclude>
     <ClInclude Include="DS Classes\ProcessList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Main Classes\EDF_Processor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
