@@ -68,10 +68,10 @@ public:
 	Scheduler();
 	
 	//getters 
-	int getFCFSCount() const;
+	/*int getFCFSCount() const;
 	int getSJFCount() const;
 	int getRRCount() const;
-	int getProcessorsCount() const; 
+	int getProcessorsCount() const; */
 
 	//function responsible for reading input file
 	bool ReadInputFile(string filename);
