@@ -1,10 +1,10 @@
 #pragma once
 #include "Processor.h"
-#include "..\DS Classes\ProcessList.h"
+#include "..\DS Classes\PriorityQueue.h"
 
 class EDF_Processor : public Processor
 {
-	ProcessList EDF_Ready;
+	PriorityQueue<Process*> EDF_Ready;
 
 public:
 	EDF_Processor(int ID, Scheduler* SchedulerPtr);

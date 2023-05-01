@@ -4,6 +4,7 @@
 #include "FCFS_Processor.h";
 #include "SJF_Processor.h";
 #include "RR_Processor.h";
+#include "EDF_Processor.h"
 #include "UI.h"
 
 class Scheduler
@@ -18,6 +19,7 @@ private:
 	int FCFSCount;
 	int SJFCount;
 	int RRCount;
+	int EDFCount;
 	int ProcessorsCount;
 
 
@@ -45,6 +47,7 @@ private:
 	int StealCount;						//no of stolen processes
 	int ForkCount;						//no. of forking instances
 	int KillCount;						//no. of kills
+	int CompletedBeforeDeadlineCount;
 
 	Queue<KillSignal*> KillSignalQ;
 
@@ -59,7 +62,7 @@ private:
 	//Pointer to the User Interface that will work throughout the simulation
 	UI* ProgramUI;
 
-	void setProcessors(int, int, int, int);  //used locally when input is loaded from the file
+	void setProcessors(int, int, int, int, int);  //used locally when input is loaded from the file
 
 public:
 	Scheduler();

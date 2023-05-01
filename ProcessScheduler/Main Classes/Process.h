@@ -16,6 +16,8 @@ private:
 	int TurnAroundTime;
 	int WaitingTime;
 
+	int Deadline;
+
 	int IO_N;
 	int totalIO_D;
 	Queue<IO_Pairs*> IO_PairsQ;
@@ -52,6 +54,7 @@ public:
 	int GetResponseTime() const;
 	int GetWaitingTime() const;
 	int GetTerminationTime() const;
+	int GetDeadline() const;
 
 	int GetTotalIO_D() const;
 	ProcessState GetProcessState() const;

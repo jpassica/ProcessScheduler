@@ -86,6 +86,11 @@ int Process::GetTerminationTime() const
 	return TerminationTime;
 }
 
+int Process::GetDeadline() const
+{
+	return Deadline;
+}
+
 int Process::GetTotalIO_D() const
 {
 	return totalIO_D;

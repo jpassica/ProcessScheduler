@@ -11,6 +11,7 @@ Scheduler::Scheduler()
 	FCFSCount = 0;
 	SJFCount = 0;
 	RRCount = 0;
+	EDFCount = 0;
 	RRtimeSlice = 0;
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
@@ -20,6 +21,7 @@ Scheduler::Scheduler()
 	StealCount = 0;
 	ForkCount = 0;
 	KillCount = 0;
+	CompletedBeforeDeadlineCount = 0;
 
 	RTF = 0;
 	STL = 0;
@@ -38,7 +40,7 @@ Scheduler::Scheduler()
 	SQF = 0;
 }
 
-void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
+void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
 {
 	ProcessorsList = new Processor * [ProcessorsCount];
 	for (int i = 0; i < ProcessorsCount; i++)
@@ -46,33 +48,36 @@ void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
 		if (i < NF)
 			ProcessorsList[i] = new FCFS_Processor(i + 1, this);
 
-		else if (i >= NF && i < NF + NR)
+		else if (i >= NF && i < NF + NS)
 			ProcessorsList[i] = new SJF_Processor(i + 1, this);
 
-		else
+		else if (i >= NF + NS && i < NF + NS + NR)
 			ProcessorsList[i] = new RR_Processor(i + 1, RRtimeSlice, this);
+
+		else
+			ProcessorsList[i] = new EDF_Processor(i + 1, this);
 	}
 }
 
-int Scheduler::getFCFSCount() const
-{
-	return 	FCFSCount;
-}
-
-int Scheduler::getSJFCount() const
-{
-	return SJFCount;
-}
-
-int Scheduler::getRRCount() const
-{
-	return RRCount;
-}
-
-int Scheduler::getProcessorsCount() const
-{
-	return ProcessorsCount;
-}
+//int Scheduler::getFCFSCount() const
+//{
+//	return 	FCFSCount;
+//}
+//
+//int Scheduler::getSJFCount() const
+//{
+//	return SJFCount;
+//}
+//
+//int Scheduler::getRRCount() const
+//{
+//	return RRCount;
+//}
+//
+//int Scheduler::getProcessorsCount() const
+//{
+//	return ProcessorsCount;
+//}
 
 bool Scheduler::ReadInputFile(string FileName)
 {
@@ -97,7 +102,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	//now we can safely read from file
 
 	//reading the main parameters
-	IP_Stream >> FCFSCount >> SJFCount >> RRCount;
+	IP_Stream >> FCFSCount >> SJFCount >> RRCount >> EDFCount;
 	IP_Stream >> RRtimeSlice;
 	IP_Stream >> RTF >> MaxW >> STL >> ForkProb;
 	IP_Stream >> ProcessesCount;
@@ -106,10 +111,10 @@ bool Scheduler::ReadInputFile(string FileName)
 	ProcessorsCount = FCFSCount + SJFCount + RRCount;
 
 	//creating the processors according to the read data
-	setProcessors(FCFSCount, SJFCount, RRCount, RRtimeSlice);
+	setProcessors(FCFSCount, SJFCount, RRCount, EDFCount, RRtimeSlice);
 
 	//variables to be read for each process and sent to ctor
-	int AT(0), PID(0), CT(0), IO_N(0), IO_R(0), IO_D(0);
+	int AT(0), PID(0), CT(0), DL(0), IO_N(0), IO_R(0), IO_D(0);
 
 	//pointer to be used for creating and allocating all the processes
 	Process* newProcess(nullptr);
@@ -120,7 +125,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	//reading data of all processes
 	for (size_t i(0); i < ProcessesCount; i++)
 	{
-		IP_Stream >> AT >> PID >> CT >> IO_N;
+		IP_Stream >> AT >> PID >> CT >> DL >> IO_N;
 
 		//read string only if there are IO requests
 		if (IO_N)
@@ -159,7 +164,7 @@ bool Scheduler::ReadInputFile(string FileName)
 		}
 
 		//enqueue process in New List once all its data has been read
-		this->NEW_List.Enqueue(newProcess);
+		NEW_List.Enqueue(newProcess);
 	}
 
 	//reading SIGKILLs
@@ -346,6 +351,11 @@ bool Scheduler::TerminateProcess(Process* ProcessToTerminate)
 
 	//moving to TRM & changing states
 	ProcessToTerminate->SetTerminationTime(TimeStep);
+
+	//If the process was completed before its expected deadline
+	if (TimeStep < ProcessToTerminate->GetDeadline())
+		CompletedBeforeDeadlineCount++;
+
 	TRM_List.Enqueue(ProcessToTerminate);
 	ProcessToTerminate->ChangeProcessState(TRM);
 	return true;
