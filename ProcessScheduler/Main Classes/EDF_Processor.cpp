@@ -12,7 +12,7 @@ void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 	{
 		CrntState = IDLE;
 		return;
-	}
+}
 
 	//if there is no running process but there is a process in the ready queue, move it to RUN
 	if (!RunPtr)
@@ -52,7 +52,7 @@ void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 
 		//adding the next process to run
 		if (!EDF_Ready.isEmpty())
-		{
+{
 			EDF_Ready.Dequeue(RunPtr);
 			RunPtr->ChangeProcessState(RUN);
 
@@ -61,7 +61,7 @@ void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 		}
 		else
 			RunPtr = nullptr;
-	}
+}
 	//if the running process is not done executing, then there is nothing to do for now
 }
 
