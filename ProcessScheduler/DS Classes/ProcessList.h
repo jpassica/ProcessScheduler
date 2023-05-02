@@ -2,7 +2,7 @@
 #include "List.h"
 #include "..\Main Classes\Process.h"
 
-class ListProcessPtrs : public List<Process*>
+class ProcessList : public List<Process*>
 {
 public:
 	int SearchByID(int PID)

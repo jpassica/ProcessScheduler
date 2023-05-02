@@ -1,8 +1,8 @@
 #include "Process.h"
 
 //Process Constructor
-Process::Process(int pid, int AT, int CT, int IO_N) 
-	: PID(pid), ArrivalTime(AT), CPUTime(CT), IO_N(IO_N), CrntState(NEW)
+Process::Process(int ID, int AT, int CT, int DL, int IO_N) 
+	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), IO_N(IO_N), CrntState(NEW)
 {
 	//initializing all data members
 	TerminationTime = 0;
@@ -86,6 +86,11 @@ int Process::GetTerminationTime() const
 	return TerminationTime;
 }
 
+int Process::GetDeadline() const
+{
+	return Deadline;
+}
+
 int Process::GetTotalIO_D() const
 {
 	return totalIO_D;
@@ -114,6 +119,24 @@ int Process::GetRemainingCPUTime() const
 void Process::ChangeProcessState(ProcessState NewState)
 {
 	CrntState = NewState;
+}
+
+bool Process::TimeForIO(int& IO_Duration)
+{
+	if (!IO_PairsQ.isEmpty())
+	{
+		IO_Pairs* IO_Request = IO_PairsQ.QueueFront();
+
+		if (ProcessedTime == IO_Request->IO_R)
+		{
+			IO_PairsQ.Dequeue(IO_Request);
+			IO_Duration = IO_Request->IO_D;
+			return true;
+		}
+	}
+	
+	
+	return false;
 }
 
 void Process::ExecuteProcess()

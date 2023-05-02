@@ -1,13 +1,11 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include "../DS Classes/PriorityQueue.h"
-#include "../DS Classes/Queue.h"
 #include "FCFS_Processor.h";
 #include "SJF_Processor.h";
 #include "RR_Processor.h";
+#include "EDF_Processor.h"
 #include "UI.h"
-#define MAXSIZE 10000
 
 class Scheduler
 {
@@ -21,6 +19,7 @@ private:
 	int FCFSCount;
 	int SJFCount;
 	int RRCount;
+	int EDFCount;
 	int ProcessorsCount;
 
 
@@ -48,6 +47,7 @@ private:
 	int StealCount;						//no of stolen processes
 	int ForkCount;						//no. of forking instances
 	int KillCount;						//no. of kills
+	int CompletedBeforeDeadlineCount;
 
 	Queue<KillSignal*> KillSignalQ;
 
@@ -62,16 +62,12 @@ private:
 	//Pointer to the User Interface that will work throughout the simulation
 	UI* ProgramUI;
 
-	void setProcessors(int, int, int, int);  //used locally when input is loaded from the file
+	void setProcessors(int, int, int, int, int);  //used locally when input is loaded from the file
 
 public:
 	Scheduler();
 	
 	//getters 
-	int getFCFSCount() const;
-	int getSJFCount() const;
-	int getRRCount() const;
-	int getProcessorsCount() const; 
 
 	//function responsible for reading input file
 	bool ReadInputFile(string filename);
@@ -82,14 +78,14 @@ public:
 	//process operations
 	void Migrate(Process*);
 	void Steal();
-	void Kill(Process*);
+	//void Kill(Process*);
+	bool Kill(Processor*, KillSignal*);
 	void Fork(Process*);
 	
 	//process moving
 	bool FromRUNToBLK(Processor*);
 	bool FromBLKToRDY();
-	bool ToTRM(Process*);
-	bool ToRDY(Process* , Processor*);
+	bool TerminateProcess(Process*);
 
 	//Moves all processes arriving at current timestep to shortest ready queues 
 	void FromNEWtoRDY();
@@ -98,10 +94,18 @@ public:
 	void Simulate();
 
 	//statistics functions
-	int CalcAvgUtilization();
-	int CalcAvgTRT();
-	int CalcAvgWT();
-	int CalcAvgRT();
+	double CalcAvgUtilization() const;
+	double CalcAvgTRT() const;
+	double CalcAvgWT() const;
+	double CalcAvgRT() const;
+
+	double CalcRTFMigrationPercentage() const;
+	double CalcMaxWMigrationPercentage() const;
+	double CalcStealPercentage() const;
+	double CalcForkingPercentage() const;
+	double CalcKillPercentage() const;
+	double CalcBeforeDeadlinePercentage() const;
+
 
 	//Sets the index of the processor with the smallest finish time
 	void SetMinIndex();
