@@ -21,6 +21,11 @@ ostream& operator<<(ostream& out, const Process* P)
 	return out;
 }
 
+void Process::Setchild(Process* c)
+{
+	child = c;
+}
+
 //Set the response time as FCPU is the time when the process is ready to be processed at first time
 void Process::SetResponseTime(int FCPU) 
 {
@@ -48,7 +53,6 @@ int Process::GetCPUTime() const
 	return CPUTime;
 }
 
-// Set the termination time as TT is the time when the process go to TRM list after processing 
 void Process::SetTerminationTime(int TT) 
 {
 	TerminationTime = TT;
@@ -56,7 +60,6 @@ void Process::SetTerminationTime(int TT)
 	WaitingTime = TurnAroundTime - CPUTime;
 }
 
-//Getter for Process ID
 int Process::GetPID() const {
 	return PID;
 }
@@ -116,6 +119,11 @@ int Process::GetRemainingCPUTime() const
 	return CPUTime - ProcessedTime;
 }
 
+int Process::GetRemainingIO_D()
+{
+	return 0;
+}
+
 void Process::ChangeProcessState(ProcessState NewState)
 {
 	CrntState = NewState;
@@ -134,8 +142,6 @@ bool Process::TimeForIO(int& IO_Duration)
 			return true;
 		}
 	}
-	
-	
 	return false;
 }
 
@@ -152,7 +158,4 @@ bool Process::isFirstExecution() const
 Process::~Process() {
 }
 
-void Process::Setchild(Process* c)
-{
-	child = c;
-}
+

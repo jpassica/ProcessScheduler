@@ -23,10 +23,9 @@ public:
 
 	virtual int GetRDYCount() const override;
 
-	bool RandomKill(int randomID);
-	bool KillById(int ID);
+	bool KillByID(int randomID);
 
-	virtual void printRDY() const override;
+	virtual void PrintRDY() const override;
 
 	virtual Process* StealProcess() override;
 };

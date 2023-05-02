@@ -24,7 +24,7 @@ public:
 	virtual int GetRDYCount() const override;
 
 	//Calls print function of ready queue/list
-	virtual void printRDY() const override;
+	virtual void PrintRDY() const override;
 
 	//Steals a process from the top of the RDY queue/list
 	virtual Process* StealProcess() override;

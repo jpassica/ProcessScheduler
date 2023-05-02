@@ -110,7 +110,7 @@ int EDF_Processor::GetRDYCount() const
 	return EDF_Ready.getCount();
 }
 
-void EDF_Processor::printRDY() const
+void EDF_Processor::PrintRDY() const
 {
 	EDF_Ready.Print();
 }

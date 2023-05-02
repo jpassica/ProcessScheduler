@@ -28,7 +28,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	//if the running process is done executing and is ready to move to TRM
 	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime()){
 
-		pScheduler->ToTRM(RunPtr);
+		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
 	    TimeSliceCounter = 0;
 		if (fromReadyToRun(CrntTimeStep))
@@ -99,7 +99,7 @@ int RR_Processor::GetRDYCount() const
 	return RR_Ready.getCount();
 }
 
-void RR_Processor::printRDY() const
+void RR_Processor::PrintRDY() const
 {
 	RR_Ready.Print();
 }
