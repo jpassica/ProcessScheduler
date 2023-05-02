@@ -82,7 +82,8 @@ public:
 	//process operations
 	void Migrate(Process*);
 	void Steal();
-	void Kill(Process*);
+	//void Kill(Process*);
+	bool Kill(Processor*, KillSignal*);
 	void Fork(Process*);
 	
 	//process moving

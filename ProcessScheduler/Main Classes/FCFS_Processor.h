@@ -24,6 +24,7 @@ public:
 	virtual int GetRDYCount() const override;
 
 	bool RandomKill(int randomID);
+	bool KillById(int ID);
 
 	virtual void printRDY() const override;
 

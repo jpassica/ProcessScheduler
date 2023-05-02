@@ -116,6 +116,24 @@ void Process::ChangeProcessState(ProcessState NewState)
 	CrntState = NewState;
 }
 
+bool Process::TimeForIO(int& IO_Duration)
+{
+	if (!IO_PairsQ.isEmpty())
+	{
+		IO_Pairs* IO_Request = IO_PairsQ.QueueFront();
+
+		if (ProcessedTime == IO_Request->IO_R)
+		{
+			IO_PairsQ.Dequeue(IO_Request);
+			IO_Duration = IO_Request->IO_D;
+			return true;
+		}
+	}
+	
+	
+	return false;
+}
+
 void Process::ExecuteProcess()
 {
 	ProcessedTime++;

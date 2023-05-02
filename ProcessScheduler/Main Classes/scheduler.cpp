@@ -275,6 +275,26 @@ bool Scheduler::WriteOutputFile()
 	return true;
 }
 
+void Scheduler::HandleIORequest(Processor* pror)
+{
+	int IO_Duration;
+	if (pror->GetRunPtr()->TimeForIO(IO_Duration)) {
+		FromRUNToBLK(pror);
+	}
+
+	return;
+}
+
+void Scheduler::HandleIODuration() {
+	if (!BLK_List.isEmpty()) {
+		int Remaining =BLK_List.QueueFront()->GetRemainingDuarationTime();
+		if (Remaining == 0) {
+			FromBLKToRDY();
+		}
+	}
+	return;
+}
+
 void Scheduler::Steal()
 {
 	//Setting the indices of the processors with the longest and shortest finish times
@@ -295,6 +315,27 @@ void Scheduler::Steal()
 		//Recalculating the steal limit
 		StealLimit = CalcStealLimit();
 	}
+}
+
+bool Scheduler::Kill(Processor* pror , KillSignal* KS) {
+
+	// force casting to get fun which is defined at FCFS only (not overrided)
+	FCFS_Processor* fc = (FCFS_Processor*)pror;
+
+	// if the process to be killed is the runptr 
+	if (fc->GetRunPtr()->GetPID() == KS->PID) {
+		ToTRM(fc->GetRunPtr());          // terminate the process
+		pror->SetRunptr(nullptr);
+		//fc->fromReadyToRun(KS->time);    // run the ready process( kill signal time = current time step) 
+		return true;
+	}
+
+	// if the process to be killed is RDY one at FCFS 
+	if (fc->KillById(KS->PID))
+		return true;
+
+	// not RDY/RUN for FCFS -> ignore
+	return false;
 }
 
 bool Scheduler::FromRUNToBLK(Processor* ProcessorPtr)
@@ -418,6 +459,10 @@ void Scheduler::Simulate()
 
 	if (!FileOpened) return;
 
+
+	KillSignal* CurrentKS= nullptr; // for kill signal
+	bool IsKilled = false;
+	
 	int count = 0;							//acts as an index to detect which processor will be passed processes from the NEW_List
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
 	{
@@ -428,10 +473,28 @@ void Scheduler::Simulate()
 		FromNEWtoRDY();
 
 		//Calling ScheduleAlgo of each processor
+		IsKilled = false;
 		for (int i = 0; i < ProcessorsCount; i++)
 		{
+
+			// FIRST : check if the current time step is a Kill Signal
+			if (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == TimeStep) {
+				KillSignalQ.Dequeue(CurrentKS); // dequeue the first at any way (killed or ignored)
+
+				// FCFS only
+				if (i < FCFSCount ) {
+					// if it is killed -> I will not use Kill fun at this time step
+					if(!IsKilled) 
+						IsKilled = Kill(ProcessorsList[i], CurrentKS);
+				}
+			}
+
+			// SECOND : we check if any process need IO_request at this time step
+			HandleIORequest(ProcessorsList[i]);
+
 			//This should be removed when all ScheduleAlgo fns are ready
 			ProcessorsList[i]->fromReadyToRun(TimeStep);
+			// THIRD: if (no kill nor IO_r) then we simply complete SchedulAlgo   
 			//ProcessorsList[i]->ScheduleAlgo(TimeStep);
 		}
 
@@ -486,17 +549,17 @@ void Scheduler::Simulate()
 
 
 		//kill test
-		random = rand() % ProcessesCount;				//randoming process ID
-		bool killed = false;							    //Detects if the process is found or not
+		//random = rand() % ProcessesCount;				//randoming process ID
+		//bool killed = false;							    //Detects if the process is found or not
 
-		for (int i = 0; i < FCFSCount && !killed; i++)
-		{
-			FCFS_Processor* processorPtr = (FCFS_Processor*) ProcessorsList[i];		//only FCFS processors
-			if (processorPtr)
-			{
-				killed = processorPtr->RandomKill(random);
-			}
-		}
+		//for (int i = 0; i < FCFSCount && !killed; i++)
+		//{
+		//	FCFS_Processor* processorPtr = (FCFS_Processor*) ProcessorsList[i];		//only FCFS processors
+		//	if (processorPtr)
+		//	{
+		//		killed = processorPtr->RandomKill(random);
+		//	}
+		//}
 
 		//incrementing & printing timestep
 		if (CrntMode != Silent)
@@ -510,6 +573,11 @@ void Scheduler::Simulate()
 			ProcessorsList[i]->IncrementRunningProcess();
 		}
 	}
+	if(CurrentKS)
+		delete CurrentKS; // free memory
+
+	// Handle IO_Duration in BLK list each time step
+	HandleIODuration();
 
 	WriteOutputFile();
 

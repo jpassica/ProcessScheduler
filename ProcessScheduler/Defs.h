@@ -10,7 +10,7 @@ struct KillSignal {
 	int time;
 	int PID;
 
-	KillSignal(int t, int ID)
+	KillSignal(int t=0, int ID=0)
 	{
 		time = t;
 		PID = ID;

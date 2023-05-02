@@ -61,6 +61,8 @@ public:
 	int GetRemainingCPUTime() const;
 	void ChangeProcessState(ProcessState NewState);
 
+	bool TimeForIO(int& IO_Duration);
+
 
 	//Increments the ProcessedTime of the process currently being executed
 	void ExecuteProcess();

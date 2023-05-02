@@ -84,6 +84,29 @@ bool FCFS_Processor::RandomKill(int randomID)
 		return false;
 }
 
+
+bool FCFS_Processor::KillById(int ID)
+{
+	int position = FCFS_Ready.SearchByID(ID);
+
+	if (position)
+	{
+		Process* killedProcess = FCFS_Ready.getEntry(position);
+
+		if (pScheduler->ToTRM(killedProcess))
+		{
+			FCFS_Ready.remove(position);
+
+			FinishTime -= killedProcess->GetRemainingCPUTime();
+
+			return true;
+		}
+		else
+			return false;
+	}
+	else
+		return false;
+}
 void FCFS_Processor::printRDY() const
 {
 	FCFS_Ready.Print();
