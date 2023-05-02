@@ -38,6 +38,8 @@ Scheduler::Scheduler()
 
 	LQF = 0;
 	SQF = 0;
+
+	RemainingIO_D = 0;
 }
 
 void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
@@ -277,11 +279,13 @@ void Scheduler::HandleIODuration()
 {
 	if (!BLK_List.isEmpty()) 
 	{
-		int Remaining = BLK_List.QueueFront()->GetRemainingIO_D();
+		RemainingIO_D--;
 
-		if (Remaining == 0) 
+		if (RemainingIO_D == 0) 
 		{
 			FromBLKToRDY();
+
+			RemainingIO_D = BLK_List.QueueFront()->GetRemainingIO_D();
 		}
 	}
 	return;
@@ -542,6 +546,9 @@ void Scheduler::Simulate()
 		//incrementing & printing timestep
 		if (CrntMode != Silent)
 			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
+		
+		// Handle IO_Duration in BLK list each time step
+		HandleIODuration();
 
 		TimeStep++;
 
@@ -554,8 +561,7 @@ void Scheduler::Simulate()
 	if(CurrentKS)
 		delete CurrentKS; // free memory
 
-	// Handle IO_Duration in BLK list each time step
-	HandleIODuration();
+	
 
 	WriteOutputFile();
 

@@ -59,6 +59,8 @@ private:
 	int SQF;
 	int LQF;
 
+	int RemainingIO_D;
+
 	//Pointer to the User Interface that will work throughout the simulation
 	UI* ProgramUI;
 

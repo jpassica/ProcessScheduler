@@ -119,9 +119,9 @@ int Process::GetRemainingCPUTime() const
 	return CPUTime - ProcessedTime;
 }
 
-int Process::GetRemainingIO_D()
+int Process::GetIO_D()
 {
-	return 0;
+	return IO_PairsQ.QueueFront()->IO_D;
 }
 
 void Process::ChangeProcessState(ProcessState NewState)
