@@ -285,7 +285,7 @@ void Scheduler::HandleIODuration()
 		{
 			FromBLKToRDY();
 
-			RemainingIO_D = BLK_List.QueueFront()->GetRemainingIO_D();
+			RemainingIO_D = BLK_List.QueueFront()->GetIO_D();
 		}
 	}
 	return;
