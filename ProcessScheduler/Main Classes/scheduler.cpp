@@ -316,6 +316,27 @@ void Scheduler::Steal()
 bool Scheduler::Kill(Processor* pror , KillSignal* KS) {
 
 	// force casting to get fun which is defined at FCFS only (not overrided)
+	FCFS_Processor* fc = (FCFS_Processor*)pror;
+
+	// if the process to be killed is the runptr 
+	if (fc->GetRunPtr()->GetPID() == KS->PID) {
+		ToTRM(fc->GetRunPtr());          // terminate the process
+		pror->SetRunptr(nullptr);
+		//fc->fromReadyToRun(KS->time);    // run the ready process( kill signal time = current time step) 
+		return true;
+	}
+
+	// if the process to be killed is RDY one at FCFS 
+	if (fc->KillById(KS->PID))
+		return true;
+
+	// not RDY/RUN for FCFS -> ignore
+	return false;
+}
+
+bool Scheduler::Kill(Processor* pror , KillSignal* KS) {
+
+	// force casting to get fun which is defined at FCFS only (not overrided)
 	FCFS_Processor* ProcessorPtr = (FCFS_Processor*)pror;
 
 	// if the process to be killed is the runptr 
