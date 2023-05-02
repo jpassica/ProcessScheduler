@@ -11,6 +11,7 @@ Scheduler::Scheduler()
 	FCFSCount = 0;
 	SJFCount = 0;
 	RRCount = 0;
+	EDFCount = 0;
 	RRtimeSlice = 0;
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
@@ -20,6 +21,7 @@ Scheduler::Scheduler()
 	StealCount = 0;
 	ForkCount = 0;
 	KillCount = 0;
+	CompletedBeforeDeadlineCount = 0;
 
 	RTF = 0;
 	STL = 0;
@@ -38,7 +40,7 @@ Scheduler::Scheduler()
 	SQF = 0;
 }
 
-void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
+void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
 {
 	ProcessorsList = new Processor * [ProcessorsCount];
 	for (int i = 0; i < ProcessorsCount; i++)
@@ -46,32 +48,15 @@ void Scheduler::setProcessors(int NF, int NS, int NR, int RRtimeSlice)
 		if (i < NF)
 			ProcessorsList[i] = new FCFS_Processor(i + 1, this);
 
-		else if (i >= NF && i < NF + NR)
+		else if (i >= NF && i < NF + NS)
 			ProcessorsList[i] = new SJF_Processor(i + 1, this);
 
-		else
+		else if (i >= NF + NS && i < NF + NS + NR)
 			ProcessorsList[i] = new RR_Processor(i + 1, RRtimeSlice, this);
+
+		else
+			ProcessorsList[i] = new EDF_Processor(i + 1, this);
 	}
-}
-
-int Scheduler::getFCFSCount() const
-{
-	return 	FCFSCount;
-}
-
-int Scheduler::getSJFCount() const
-{
-	return SJFCount;
-}
-
-int Scheduler::getRRCount() const
-{
-	return RRCount;
-}
-
-int Scheduler::getProcessorsCount() const
-{
-	return ProcessorsCount;
 }
 
 bool Scheduler::ReadInputFile(string FileName)
@@ -97,19 +82,19 @@ bool Scheduler::ReadInputFile(string FileName)
 	//now we can safely read from file
 
 	//reading the main parameters
-	IP_Stream >> FCFSCount >> SJFCount >> RRCount;
+	IP_Stream >> FCFSCount >> SJFCount >> RRCount >> EDFCount;
 	IP_Stream >> RRtimeSlice;
 	IP_Stream >> RTF >> MaxW >> STL >> ForkProb;
 	IP_Stream >> ProcessesCount;
 
 	//setting ProcessorsCount
-	ProcessorsCount = FCFSCount + SJFCount + RRCount;
+	ProcessorsCount = FCFSCount + SJFCount + RRCount + EDFCount;
 
 	//creating the processors according to the read data
-	setProcessors(FCFSCount, SJFCount, RRCount, RRtimeSlice);
+	setProcessors(FCFSCount, SJFCount, RRCount, EDFCount, RRtimeSlice);
 
 	//variables to be read for each process and sent to ctor
-	int AT(0), PID(0), CT(0), IO_N(0), IO_R(0), IO_D(0);
+	int AT(0), PID(0), CT(0), DL(0), IO_N(0), IO_R(0), IO_D(0);
 
 	//pointer to be used for creating and allocating all the processes
 	Process* newProcess(nullptr);
@@ -120,13 +105,13 @@ bool Scheduler::ReadInputFile(string FileName)
 	//reading data of all processes
 	for (size_t i(0); i < ProcessesCount; i++)
 	{
-		IP_Stream >> AT >> PID >> CT >> IO_N;
+		IP_Stream >> AT >> PID >> CT >> DL >> IO_N;
 
 		//read string only if there are IO requests
 		if (IO_N)
 			IP_Stream >> IO_st;
 
-		newProcess = new Process(PID, AT, CT, IO_N);
+		newProcess = new Process(PID, AT, CT, DL, IO_N);
 
 		//iterator for reading the IO requests string
 		int StIndex(1);
@@ -159,7 +144,7 @@ bool Scheduler::ReadInputFile(string FileName)
 		}
 
 		//enqueue process in New List once all its data has been read
-		this->NEW_List.Enqueue(newProcess);
+		NEW_List.Enqueue(newProcess);
 	}
 
 	//reading SIGKILLs
@@ -193,12 +178,13 @@ bool Scheduler::WriteOutputFile()
 		return false;
 
 	//start writing the first line, setting a specific width for each field
-	OP_Stream << left << setw(5) << "TT" << setw(5) << "PID"
-		<< setw(5) << "AT" << setw(5) << "CT" << setw(8) <<
-		"IO_D" << setw(5) << "WT" << setw(5) << "RT" << setw(5)
-		<< "TRT" << endl;
+	OP_Stream << left << setprecision(1) << fixed
+		<< setw(5) << "TT" << setw(5) << "PID" 
+		<< setw(5) << "AT" << setw(5) << "CT" 
+		<< setw(8) << "IO_D" << setw(5) << "WT" 
+		<< setw(5) << "RT" << setw(5) << "TRT" << endl;
 
-	//ptr used to dequeue from TRM, write all needed info, and then deallocate process
+	//ProcessToTerminate used to dequeue from TRM, write all needed info, and then deallocate process
 	Process* deletePtr(nullptr);
 
 	//
@@ -231,27 +217,28 @@ bool Scheduler::WriteOutputFile()
 	if (!ProcessesCount) return false;
 
 
+	OP_Stream << "Migration%:     RTF= " << CalcRTFMigrationPercentage()
+		<< "%,     MaxW= " << CalcMaxWMigrationPercentage() << "%\n"
 
-	OP_Stream << "Migration%:     RTF= " << 100 * RTFCount / ProcessesCount
-		<< "%,     MaxW= " << 100 * MaxWCount / ProcessesCount << "%\n"
+	<< "Work Steal%: " << CalcStealPercentage() << "%\n"
 
-	<< "Work Steal%: " << 100 * StealCount / ProcessesCount << "%\n"
+	<< "Forked Process: " << CalcForkingPercentage() << "%\n"
 
-	<< "Forked Process: " << 100 * ForkCount / ProcessesCount << "%\n"
-
-	<< "Killed Process: " << 100 * KillCount / ProcessesCount << "%\n\n";
-
+	<< "Killed Process: " << CalcKillPercentage() << "%\n"
+		
+	<< "Processes Completed Before Deadline: " << CalcBeforeDeadlinePercentage() << "%\n\n";
 
 
 	OP_Stream << "Processors: " << ProcessorsCount << " ["
-		<< FCFSCount << " FCFS, " << SJFCount << " SJF, " << RRCount << " RR]\n";
+		<< FCFSCount << " FCFS, " << SJFCount << " SJF, " 
+		<< RRCount << " RR, " << EDFCount << " EDF]\n";
 
 	OP_Stream << "Processors Load\n";
 
 	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
-		OP_Stream << "p" << i + 1 << "= " << setprecision(1) << fixed
-			<< ProcessorsList[i]->CalcPLoad(TotalTurnAroundtime)	<< "%";
+		OP_Stream << "p" << i + 1 << "= " << 
+			ProcessorsList[i]->CalcPLoad(TotalTurnAroundtime) << "%";
 
 		if (i != ProcessorsCount)
 			OP_Stream << ",     ";
@@ -375,43 +362,27 @@ bool Scheduler::FromBLKToRDY()
 	return true;
 }
 
-bool Scheduler::ToTRM(Process* ptr)
+bool Scheduler::TerminateProcess(Process* ProcessToTerminate)
 {
 	//checking if process not equal nullptr
-	if (!ptr)
+	if (!ProcessToTerminate)
 		return false;
 
 	//checking Forking 
-	if (ptr->GetChild())
-		ToTRM(ptr->GetChild());
+	if (ProcessToTerminate->GetChild())
+		TerminateProcess(ProcessToTerminate->GetChild());
 
 	//moving to TRM & changing states
-	ptr->SetTerminationTime(TimeStep);
-	TRM_List.Enqueue(ptr);
-	ptr->ChangeProcessState(TRM);
+	ProcessToTerminate->SetTerminationTime(TimeStep);
+
+	//If the process was completed before its expected deadline
+	if (TimeStep < ProcessToTerminate->GetDeadline())
+		CompletedBeforeDeadlineCount++;
+
+	TRM_List.Enqueue(ProcessToTerminate);
+	ProcessToTerminate->ChangeProcessState(TRM);
 	return true;
 }
-
-//bool Scheduler::ToRDY(Process* ProcessorPtr, Processor* ProcessorPtr)
-//{
-//	//checking process & processor
-//	if (!ProcessorPtr || !ProcessorPtr)
-//		return false;
-//
-//	if (ProcessorPtr)
-//		ProcessorPtr->AddToReadyQueue(ProcessorPtr);
-//	else
-//		return false;
-//
-//	//updating states
-//	if (ProcessorPtr->GetProcessState() == RUN)
-//	{
-//		ProcessorPtr->SetRunptr(nullptr);
-//		ProcessorPtr->ChangeProcessorState();
-//	}
-//	ProcessorPtr->ChangeProcessState(RDY);
-//	return true;
-//}
 
 void Scheduler::FromNEWtoRDY()
 {
@@ -446,7 +417,7 @@ void Scheduler::Simulate()
 	//initializations
 	ProgramUI = new UI();
 	UI_Mode CrntMode;
-	Process* ProcessPtr = nullptr;
+	//Process* ProcessPtr = nullptr;
 
 	string FileName = ProgramUI->InputFileName();
 	CrntMode = ProgramUI->InputInterfaceMode();
@@ -466,8 +437,7 @@ void Scheduler::Simulate()
 	int count = 0;							//acts as an index to detect which processor will be passed processes from the NEW_List
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
 	{
-		//Moving Arrived processes from NEW to RDY
-		ProcessPtr = nullptr;
+		//ProcessPtr = nullptr;
 
 		//Moving all processes arriving at current timestep to shortest ready queues
 		FromNEWtoRDY();
@@ -523,7 +493,7 @@ void Scheduler::Simulate()
 				}
 				else if (random >= 50 && random <= 60) //probability to terminate
 				{
-					if (ToTRM(ProcessorsList[i]->GetRunPtr()))
+					if (TerminateProcess(ProcessorsList[i]->GetRunPtr()))
 					{
 						ProcessorsList[i]->ChangeProcessorState(IDLE);
 						ProcessorsList[i]->SetRunptr(nullptr);
@@ -534,7 +504,7 @@ void Scheduler::Simulate()
 
 		//moving from BLK 
 		int random = rand() % 100;
-		if (random < 10 && !BLK_List.isEmpty())
+		if (random < 50 && !BLK_List.isEmpty())
 		{
 			FromBLKToRDY();
 		}
@@ -544,7 +514,6 @@ void Scheduler::Simulate()
 		//Initiating the steal action each STL timesteps
 		if (TimeStep % STL == 0)
 			Steal();
-
 
 
 
@@ -563,7 +532,7 @@ void Scheduler::Simulate()
 
 		//incrementing & printing timestep
 		if (CrntMode != Silent)
-			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, TimeStep);
+			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
 
 		TimeStep++;
 
@@ -585,9 +554,9 @@ void Scheduler::Simulate()
 		ProgramUI->PrintSilentMode(1);
 }
 
-int Scheduler::CalcAvgUtilization()
+double Scheduler::CalcAvgUtilization() const
 {
-	int Sum(0);
+	double Sum(0);
 
 	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
@@ -597,19 +566,49 @@ int Scheduler::CalcAvgUtilization()
 	return Sum / ProcessorsCount;
 }
 
-int Scheduler::CalcAvgTRT()
+double Scheduler::CalcAvgTRT() const
 {
-	return TotalTurnAroundtime / ProcessesCount;
+	return (double)TotalTurnAroundtime / ProcessesCount;
 }
 
-int Scheduler::CalcAvgWT()
+double Scheduler::CalcAvgWT() const
 {
-	return TotalWaitingTime / ProcessesCount;
+	return (double)TotalWaitingTime / ProcessesCount;
 }
 
-int Scheduler::CalcAvgRT()
+double Scheduler::CalcAvgRT() const
 {
-	return TotalResponseTime / ProcessesCount;
+	return (double)TotalResponseTime / ProcessesCount;
+}
+
+double Scheduler::CalcRTFMigrationPercentage() const
+{
+	return (double)100 * RTFCount / ProcessesCount;
+}
+
+double Scheduler::CalcMaxWMigrationPercentage() const
+{
+	return (double)100 * MaxWCount / ProcessesCount;
+}
+
+double Scheduler::CalcStealPercentage() const
+{
+	return (double)100 * StealCount / ProcessesCount;
+}
+
+double Scheduler::CalcForkingPercentage() const
+{
+	return (double)100 * ForkCount / ProcessesCount;
+}
+
+double Scheduler::CalcKillPercentage() const
+{
+	return (double)100 * KillCount / ProcessesCount;
+}
+
+double Scheduler::CalcBeforeDeadlinePercentage() const
+{
+	return (double)100 * CompletedBeforeDeadlineCount / ProcessesCount;
 }
 
 void Scheduler::SetMinIndex() 

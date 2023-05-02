@@ -1,5 +1,5 @@
 #include "SJF_Processor.h"
-#include "scheduler.h"
+#include "Scheduler.h"
 
 SJF_Processor::SJF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr)
 {}
@@ -27,7 +27,7 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 	//if the running process is done executing and is ready to move to TRM
 	if (RunPtr && !RunPtr->GetRemainingCPUTime())
 	{
-		pScheduler->ToTRM(RunPtr);
+		pScheduler->TerminateProcess(RunPtr);
 
 		//adding the next process to run
 		if (!SJF_Ready.isEmpty())

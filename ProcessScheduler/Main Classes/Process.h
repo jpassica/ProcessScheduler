@@ -16,6 +16,8 @@ private:
 	int TurnAroundTime;
 	int WaitingTime;
 
+	int Deadline;
+
 	int IO_N;
 	int totalIO_D;
 	Queue<IO_Pairs*> IO_PairsQ;
@@ -30,7 +32,7 @@ private:
 
 public:
 	//Non-default ctor
-	Process(int pid, int AT, int CT, int IO_N);
+	Process(int ID, int AT, int CT, int DL, int IO_N);
 
 	//Overoaded insertion operator
 	friend ostream& operator<<(ostream&, const Process*);
@@ -52,6 +54,7 @@ public:
 	int GetResponseTime() const;
 	int GetWaitingTime() const;
 	int GetTerminationTime() const;
+	int GetDeadline() const;
 
 	int GetTotalIO_D() const;
 	ProcessState GetProcessState() const;
