@@ -111,7 +111,7 @@ bool Scheduler::ReadInputFile(string FileName)
 		if (IO_N)
 			IP_Stream >> IO_st;
 
-		newProcess = new Process(PID, AT, CT, IO_N);
+		newProcess = new Process(PID, AT, CT, DL, IO_N);
 
 		//iterator for reading the IO requests string
 		int StIndex(1);
@@ -217,7 +217,6 @@ bool Scheduler::WriteOutputFile()
 	if (!ProcessesCount) return false;
 
 
-
 	OP_Stream << "Migration%:     RTF= " << CalcRTFMigrationPercentage()
 		<< "%,     MaxW= " << CalcMaxWMigrationPercentage() << "%\n"
 
@@ -228,7 +227,6 @@ bool Scheduler::WriteOutputFile()
 	<< "Killed Process: " << CalcKillPercentage() << "%\n"
 		
 	<< "Processes Completed Before Deadline: " << CalcBeforeDeadlinePercentage() << "%\n\n";
-
 
 
 	OP_Stream << "Processors: " << ProcessorsCount << " ["

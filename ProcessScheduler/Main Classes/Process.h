@@ -32,7 +32,7 @@ private:
 
 public:
 	//Non-default ctor
-	Process(int pid, int AT, int CT, int IO_N);
+	Process(int ID, int AT, int CT, int DL, int IO_N);
 
 	//Overoaded insertion operator
 	friend ostream& operator<<(ostream&, const Process*);
