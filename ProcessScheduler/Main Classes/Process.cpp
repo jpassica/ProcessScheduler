@@ -129,20 +129,22 @@ void Process::ChangeProcessState(ProcessState NewState)
 	CrntState = NewState;
 }
 
-bool Process::TimeForIO(int& IO_Duration)
+bool Process::TimeForIO()
 {
 	if (!IO_PairsQ.isEmpty())
 	{
-		IO_Pairs* IO_Request = IO_PairsQ.QueueFront();
-
-		if (ProcessedTime == IO_Request->IO_R)
+		
+		if (ProcessedTime == IO_PairsQ.QueueFront()->IO_R)
 		{
-			IO_PairsQ.Dequeue(IO_Request);
-			IO_Duration = IO_Request->IO_D;
 			return true;
 		}
 	}
 	return false;
+}
+
+void Process::PopIO() {
+	IO_Pairs* dummy;
+	IO_PairsQ.Dequeue(dummy);
 }
 
 void Process::ExecuteProcess()
