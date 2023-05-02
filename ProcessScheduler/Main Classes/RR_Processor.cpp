@@ -7,15 +7,18 @@ RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Pro
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//FIRST CASE 
+
+	pScheduler->HandleIORequest(this);
+	//pScheduler->MigrateToFCFS(this); 
+
 	//if there is no running process and the ready queue is empty,
 	//then there is nothing to do
 	if (!RunPtr && RR_Ready.isEmpty()) {
 		TimeSliceCounter = 0;
+		CrntState = IDLE;
 		return;
 	}
 
-	//SECOND CASE
 	//if there is no running process but there is a process in the ready queue, move it to RUN
 	if (!RunPtr)
 	{
@@ -24,7 +27,6 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		return;
 	}
 
-	//THIRD CASE
 	//if the running process is done executing and is ready to move to TRM
 	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime()){
 

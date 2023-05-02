@@ -39,7 +39,7 @@ Scheduler::Scheduler()
 	LQF = 0;
 	SQF = 0;
 
-	RemainingIO_D = 0;
+	ConsumedIO_D = 0;
 }
 
 void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
@@ -266,11 +266,11 @@ bool Scheduler::WriteOutputFile()
 
 void Scheduler::HandleIORequest(Processor* ProcessorPtr)
 {
-	int IO_Duration;
-
-	if (ProcessorPtr->GetRunPtr()->TimeForIO(IO_Duration)) 
-	{
-		FromRUNToBLK(ProcessorPtr);
+	if (ProcessorPtr->GetRunPtr()) {
+		if (ProcessorPtr->GetRunPtr()->TimeForIO())
+		{
+			FromRUNToBLK(ProcessorPtr);
+		}
 	}
 	return;
 }
@@ -279,14 +279,14 @@ void Scheduler::HandleIODuration()
 {
 	if (!BLK_List.isEmpty()) 
 	{
-		RemainingIO_D--;
-
-		if (RemainingIO_D == 0) 
+		
+		if (ConsumedIO_D == BLK_List.QueueFront()->GetIO_D())
 		{
+			BLK_List.QueueFront()->PopIO();
 			FromBLKToRDY();
-
-			RemainingIO_D = BLK_List.QueueFront()->GetIO_D();
+			ConsumedIO_D = 0;
 		}
+		ConsumedIO_D++;
 	}
 	return;
 }
@@ -473,7 +473,7 @@ void Scheduler::Simulate()
 			}
 
 			// SECOND : we check if any process need IO_request at this time step
-			HandleIORequest(ProcessorsList[i]);
+			//HandleIORequest(ProcessorsList[i]);
 
 			//This should be removed when all ScheduleAlgo fns are ready
 			ProcessorsList[i]->fromReadyToRun(TimeStep);

@@ -66,7 +66,8 @@ public:
 	int GetIO_D();
 	void ChangeProcessState(ProcessState NewState);
 
-	bool TimeForIO(int& IO_Duration);
+	bool TimeForIO();
+	void PopIO();
 
 
 	//Increments the ProcessedTime of the process currently being executed
