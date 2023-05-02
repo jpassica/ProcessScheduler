@@ -178,11 +178,11 @@ bool Scheduler::WriteOutputFile()
 		return false;
 
 	//start writing the first line, setting a specific width for each field
-	OP_Stream << left << setw(5) << "TT" 
-		<< setw(5) << "PID" << setw(5) << "AT" 
-		<< setw(5) << "CT" << setw(8) << "IO_D" 
-		<< setw(5) << "WT" << setw(5) << "RT" 
-		<< setw(5) << "TRT" << endl;
+	OP_Stream << left << setprecision(1) << fixed
+		<< setw(5) << "TT" << setw(5) << "PID" 
+		<< setw(5) << "AT" << setw(5) << "CT" 
+		<< setw(8) << "IO_D" << setw(5) << "WT" 
+		<< setw(5) << "RT" << setw(5) << "TRT" << endl;
 
 	//ProcessToTerminate used to dequeue from TRM, write all needed info, and then deallocate process
 	Process* deletePtr(nullptr);
@@ -218,26 +218,29 @@ bool Scheduler::WriteOutputFile()
 
 
 
-	OP_Stream << "Migration%:     RTF= " << 100 * RTFCount / ProcessesCount
-		<< "%,     MaxW= " << 100 * MaxWCount / ProcessesCount << "%\n"
+	OP_Stream << "Migration%:     RTF= " << CalcRTFMigrationPercentage()
+		<< "%,     MaxW= " << CalcMaxWMigrationPercentage() << "%\n"
 
-	<< "Work Steal%: " << 100 * StealCount / ProcessesCount << "%\n"
+	<< "Work Steal%: " << CalcStealPercentage() << "%\n"
 
-	<< "Forked Process: " << 100 * ForkCount / ProcessesCount << "%\n"
+	<< "Forked Process: " << CalcForkingPercentage() << "%\n"
 
-	<< "Killed Process: " << 100 * KillCount / ProcessesCount << "%\n\n";
+	<< "Killed Process: " << CalcKillPercentage() << "%\n"
+		
+	<< "Processes Completed Before Deadline: " << CalcBeforeDeadlinePercentage() << "%\n\n";
 
 
 
 	OP_Stream << "Processors: " << ProcessorsCount << " ["
-		<< FCFSCount << " FCFS, " << SJFCount << " SJF, " << RRCount << " RR]\n";
+		<< FCFSCount << " FCFS, " << SJFCount << " SJF, " 
+		<< RRCount << " RR, " << EDFCount << " EDF]\n";
 
 	OP_Stream << "Processors Load\n";
 
 	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
-		OP_Stream << "p" << i + 1 << "= " << setprecision(1) << fixed
-			<< ProcessorsList[i]->CalcPLoad(TotalTurnAroundtime)	<< "%";
+		OP_Stream << "p" << i + 1 << "= " << 
+			ProcessorsList[i]->CalcPLoad(TotalTurnAroundtime) << "%";
 
 		if (i != ProcessorsCount)
 			OP_Stream << ",     ";
@@ -485,9 +488,9 @@ void Scheduler::Simulate()
 		ProgramUI->PrintSilentMode(1);
 }
 
-int Scheduler::CalcAvgUtilization()
+double Scheduler::CalcAvgUtilization() const
 {
-	int Sum(0);
+	double Sum(0);
 
 	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
@@ -497,19 +500,49 @@ int Scheduler::CalcAvgUtilization()
 	return Sum / ProcessorsCount;
 }
 
-int Scheduler::CalcAvgTRT()
+double Scheduler::CalcAvgTRT() const
 {
-	return TotalTurnAroundtime / ProcessesCount;
+	return (double)TotalTurnAroundtime / ProcessesCount;
 }
 
-int Scheduler::CalcAvgWT()
+double Scheduler::CalcAvgWT() const
 {
-	return TotalWaitingTime / ProcessesCount;
+	return (double)TotalWaitingTime / ProcessesCount;
 }
 
-int Scheduler::CalcAvgRT()
+double Scheduler::CalcAvgRT() const
 {
-	return TotalResponseTime / ProcessesCount;
+	return (double)TotalResponseTime / ProcessesCount;
+}
+
+double Scheduler::CalcRTFMigrationPercentage() const
+{
+	return (double)100 * RTFCount / ProcessesCount;
+}
+
+double Scheduler::CalcMaxWMigrationPercentage() const
+{
+	return (double)100 * MaxWCount / ProcessesCount;
+}
+
+double Scheduler::CalcStealPercentage() const
+{
+	return (double)100 * StealCount / ProcessesCount;
+}
+
+double Scheduler::CalcForkingPercentage() const
+{
+	return (double)100 * ForkCount / ProcessesCount;
+}
+
+double Scheduler::CalcKillPercentage() const
+{
+	return (double)100 * KillCount / ProcessesCount;
+}
+
+double Scheduler::CalcBeforeDeadlinePercentage() const
+{
+	return (double)100 * CompletedBeforeDeadlineCount / ProcessesCount;
 }
 
 void Scheduler::SetMinIndex() 

@@ -93,10 +93,18 @@ public:
 	void Simulate();
 
 	//statistics functions
-	int CalcAvgUtilization();
-	int CalcAvgTRT();
-	int CalcAvgWT();
-	int CalcAvgRT();
+	double CalcAvgUtilization() const;
+	double CalcAvgTRT() const;
+	double CalcAvgWT() const;
+	double CalcAvgRT() const;
+
+	double CalcRTFMigrationPercentage() const;
+	double CalcMaxWMigrationPercentage() const;
+	double CalcStealPercentage() const;
+	double CalcForkingPercentage() const;
+	double CalcKillPercentage() const;
+	double CalcBeforeDeadlinePercentage() const;
+
 
 	//Sets the index of the processor with the smallest finish time
 	void SetMinIndex();
