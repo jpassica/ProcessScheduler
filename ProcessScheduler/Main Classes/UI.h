@@ -29,5 +29,5 @@ public:
 
 	//Main function for printing info each time step
 	void TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
-		Processor** ProcessorsList, int NF, int NS, int NR, int timeStep);
+		Processor** ProcessorsList, int NF, int NS, int NR, int NE, int timeStep);
 };	

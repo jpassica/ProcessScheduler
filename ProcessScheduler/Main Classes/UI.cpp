@@ -61,9 +61,9 @@ string UI::InputFileName()
 }
 
 void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
-	Processor** ProcessorsList, int NF, int NS, int NR, int timeStep)
+	Processor** ProcessorsList, int NF, int NS, int NR, int NE, int timeStep)
 {
-	int ProcessorsCount = NF + NS + NR;
+	int ProcessorsCount = NF + NS + NR + NE;
 
 	cout << "Current Time Step: " << timeStep << endl;  //printing current timestep
 	cout << "--------------------   RDY Processes  -------------------------------" << endl;  
@@ -78,8 +78,10 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 			cout << " [FCFS]";
 		else if (i >= NF && i < NF + NS)
 			cout << " [SJF ]";
-		else
+		else if (i >= NF + NS && i < NF + NS + NR)
 			cout << " [RR  ]";
+		else
+			cout << " [EDF ]";
 
 		cout << ": " << ProcessorsList[i]->GetRDYCount() << " RDY : ";
 		ProcessorsList[i]->printRDY();

@@ -28,7 +28,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	//if the running process is done executing and is ready to move to TRM
 	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime()){
 
-		pScheduler->ToTRM(RunPtr);
+		pScheduler->TerminateProcess(RunPtr);
 	    TimeSliceCounter = 0;
 		if (!RR_Ready.isEmpty()) {
 			this->fromReadyToRun(CrntTimeStep);

@@ -59,26 +59,6 @@ void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
 	}
 }
 
-//int Scheduler::getFCFSCount() const
-//{
-//	return 	FCFSCount;
-//}
-//
-//int Scheduler::getSJFCount() const
-//{
-//	return SJFCount;
-//}
-//
-//int Scheduler::getRRCount() const
-//{
-//	return RRCount;
-//}
-//
-//int Scheduler::getProcessorsCount() const
-//{
-//	return ProcessorsCount;
-//}
-
 bool Scheduler::ReadInputFile(string FileName)
 {
 	//creating input stream object and opening file
@@ -108,7 +88,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	IP_Stream >> ProcessesCount;
 
 	//setting ProcessorsCount
-	ProcessorsCount = FCFSCount + SJFCount + RRCount;
+	ProcessorsCount = FCFSCount + SJFCount + RRCount + EDFCount;
 
 	//creating the processors according to the read data
 	setProcessors(FCFSCount, SJFCount, RRCount, EDFCount, RRtimeSlice);
@@ -361,27 +341,6 @@ bool Scheduler::TerminateProcess(Process* ProcessToTerminate)
 	return true;
 }
 
-//bool Scheduler::ToRDY(Process* ProcessorPtr, Processor* ProcessorPtr)
-//{
-//	//checking process & processor
-//	if (!ProcessorPtr || !ProcessorPtr)
-//		return false;
-//
-//	if (ProcessorPtr)
-//		ProcessorPtr->AddToReadyQueue(ProcessorPtr);
-//	else
-//		return false;
-//
-//	//updating states
-//	if (ProcessorPtr->GetProcessState() == RUN)
-//	{
-//		ProcessorPtr->SetRunptr(nullptr);
-//		ProcessorPtr->ChangeProcessorState();
-//	}
-//	ProcessorPtr->ChangeProcessState(RDY);
-//	return true;
-//}
-
 void Scheduler::FromNEWtoRDY()
 {
 	Process* NewProcessPtr = nullptr;
@@ -493,7 +452,6 @@ void Scheduler::Simulate()
 
 
 
-
 		//kill test
 		//random = rand() % ProcessesCount;				//randoming process ID
 		//bool killed = false;							    //Detects if the process is found or not
@@ -509,7 +467,7 @@ void Scheduler::Simulate()
 
 		//incrementing & printing timestep
 		if (CrntMode != Silent)
-			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, TimeStep);
+			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
 
 		TimeStep++;
 

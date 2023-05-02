@@ -68,10 +68,6 @@ public:
 	Scheduler();
 	
 	//getters 
-	/*int getFCFSCount() const;
-	int getSJFCount() const;
-	int getRRCount() const;
-	int getProcessorsCount() const; */
 
 	//function responsible for reading input file
 	bool ReadInputFile(string filename);
@@ -89,7 +85,6 @@ public:
 	bool FromRUNToBLK(Processor*);
 	bool FromBLKToRDY();
 	bool TerminateProcess(Process*);
-	bool ToRDY(Process* , Processor*);
 
 	//Moves all processes arriving at current timestep to shortest ready queues 
 	void FromNEWtoRDY();
