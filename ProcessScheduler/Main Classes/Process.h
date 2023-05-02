@@ -62,6 +62,8 @@ public:
 
 	int GetProcessedTime() const;
 	int GetRemainingCPUTime() const;
+
+	int GetRemainingIO_D();
 	void ChangeProcessState(ProcessState NewState);
 
 	bool TimeForIO(int& IO_Duration);

@@ -73,7 +73,7 @@ public:
 	int GetFinishTime() const;
 
 	//Calls print function of ready queue/list
-	virtual void printRDY() const = 0;
+	virtual void PrintRDY() const = 0;
 	
 	//Steals a process from the top of the RDY queue/list
 	virtual Process* StealProcess() = 0;

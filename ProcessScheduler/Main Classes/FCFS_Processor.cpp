@@ -52,7 +52,7 @@ int FCFS_Processor::GetRDYCount() const
 	return FCFS_Ready.getCount();
 }
 
-bool FCFS_Processor::RandomKill(int randomID)
+bool FCFS_Processor::KillByID(int randomID)
 {
 	int position = FCFS_Ready.SearchByID(randomID);
 
@@ -76,30 +76,7 @@ bool FCFS_Processor::RandomKill(int randomID)
 		return false;
 }
 
-
-bool FCFS_Processor::KillById(int ID)
-{
-	int position = FCFS_Ready.SearchByID(ID);
-
-	if (position)
-	{
-		Process* killedProcess = FCFS_Ready.getEntry(position);
-
-		if (pScheduler->ToTRM(killedProcess))
-		{
-			FCFS_Ready.remove(position);
-
-			FinishTime -= killedProcess->GetRemainingCPUTime();
-
-			return true;
-		}
-		else
-			return false;
-	}
-	else
-		return false;
-}
-void FCFS_Processor::printRDY() const
+void FCFS_Processor::PrintRDY() const
 {
 	FCFS_Ready.Print();
 }

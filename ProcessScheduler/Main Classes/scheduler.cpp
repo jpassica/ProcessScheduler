@@ -262,20 +262,25 @@ bool Scheduler::WriteOutputFile()
 	return true;
 }
 
-void Scheduler::HandleIORequest(Processor* pror)
+void Scheduler::HandleIORequest(Processor* ProcessorPtr)
 {
 	int IO_Duration;
-	if (pror->GetRunPtr()->TimeForIO(IO_Duration)) {
-		FromRUNToBLK(pror);
-	}
 
+	if (ProcessorPtr->GetRunPtr()->TimeForIO(IO_Duration)) 
+	{
+		FromRUNToBLK(ProcessorPtr);
+	}
 	return;
 }
 
-void Scheduler::HandleIODuration() {
-	if (!BLK_List.isEmpty()) {
-		int Remaining =BLK_List.QueueFront()->GetRemainingDuarationTime();
-		if (Remaining == 0) {
+void Scheduler::HandleIODuration() 
+{
+	if (!BLK_List.isEmpty()) 
+	{
+		int Remaining = BLK_List.QueueFront()->GetRemainingIO_D();
+
+		if (Remaining == 0) 
+		{
 			FromBLKToRDY();
 		}
 	}
@@ -307,18 +312,22 @@ void Scheduler::Steal()
 bool Scheduler::Kill(Processor* pror , KillSignal* KS) {
 
 	// force casting to get fun which is defined at FCFS only (not overrided)
-	FCFS_Processor* fc = (FCFS_Processor*)pror;
+	FCFS_Processor* ProcessorPtr = (FCFS_Processor*)pror;
 
 	// if the process to be killed is the runptr 
-	if (fc->GetRunPtr()->GetPID() == KS->PID) {
-		ToTRM(fc->GetRunPtr());          // terminate the process
+	if (ProcessorPtr->GetRunPtr()->GetPID() == KS->PID) 
+	{
+		TerminateProcess(ProcessorPtr->GetRunPtr());          // terminate the process
+
 		pror->SetRunptr(nullptr);
-		//fc->fromReadyToRun(KS->time);    // run the ready process( kill signal time = current time step) 
+
+		//ProcessorPtr->fromReadyToRun(KS->time);    // run the ready process( kill signal time = current time step) 
+
 		return true;
 	}
 
 	// if the process to be killed is RDY one at FCFS 
-	if (fc->KillById(KS->PID))
+	if (ProcessorPtr->KillByID(KS->PID))
 		return true;
 
 	// not RDY/RUN for FCFS -> ignore
@@ -526,7 +535,7 @@ void Scheduler::Simulate()
 		//	FCFS_Processor* processorPtr = (FCFS_Processor*) ProcessorsList[i];		//only FCFS processors
 		//	if (processorPtr)
 		//	{
-		//		killed = processorPtr->RandomKill(random);
+		//		killed = processorPtr->KillByID(random);
 		//	}
 		//}
 

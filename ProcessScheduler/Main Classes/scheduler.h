@@ -1,9 +1,9 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include "FCFS_Processor.h";
-#include "SJF_Processor.h";
-#include "RR_Processor.h";
+#include "FCFS_Processor.h"
+#include "SJF_Processor.h"
+#include "RR_Processor.h"
 #include "EDF_Processor.h"
 #include "UI.h"
 
@@ -86,6 +86,10 @@ public:
 	bool FromRUNToBLK(Processor*);
 	bool FromBLKToRDY();
 	bool TerminateProcess(Process*);
+
+	void HandleIODuration();
+	void HandleIORequest(Processor*);
+	
 
 	//Moves all processes arriving at current timestep to shortest ready queues 
 	void FromNEWtoRDY();

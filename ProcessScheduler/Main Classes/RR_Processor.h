@@ -24,7 +24,7 @@ public:
 	
 	virtual int GetRDYCount() const override;
 
-	virtual void printRDY() const override;
+	virtual void PrintRDY() const override;
 
 	virtual Process* StealProcess() override;
 };

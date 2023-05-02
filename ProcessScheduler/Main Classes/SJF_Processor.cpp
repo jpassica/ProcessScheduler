@@ -89,7 +89,7 @@ int SJF_Processor::GetRDYCount() const
 	return SJF_Ready.getCount();
 }
 
-void SJF_Processor::printRDY() const
+void SJF_Processor::PrintRDY() const
 {
 	SJF_Ready.Print();
 }

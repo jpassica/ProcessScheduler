@@ -2,11 +2,11 @@
 #define FCFS_PROCESSOR_H
 
 #include "Processor.h"
-#include "..\DS Classes\ListProcessPtrs.h"
+#include "..\DS Classes\ProcessList.h"
 
 class FCFS_Processor : public Processor
 {
-	ListProcessPtrs FCFS_Ready;
+	ProcessList FCFS_Ready;
 
 public:
 	FCFS_Processor(int ID, Scheduler* SchedulerPtr);
@@ -23,9 +23,9 @@ public:
 
 	virtual int GetRDYCount() const override;
 
-	bool RandomKill(int randomID);
+	bool KillByID(int randomID);
 
-	virtual void printRDY() const override;
+	virtual void PrintRDY() const override;
 
 	virtual Process* StealProcess() override;
 };

@@ -84,7 +84,7 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 			cout << " [EDF ]";
 
 		cout << ": " << ProcessorsList[i]->GetRDYCount() << " RDY : ";
-		ProcessorsList[i]->printRDY();
+		ProcessorsList[i]->PrintRDY();
 		cout << endl;
 	}
 	cout << "--------------------   BLK Processes  -------------------------------" << endl;
