@@ -178,10 +178,11 @@ bool Scheduler::WriteOutputFile()
 		return false;
 
 	//start writing the first line, setting a specific width for each field
-	OP_Stream << left << setw(5) << "TT" << setw(5) << "PID"
-		<< setw(5) << "AT" << setw(5) << "CT" << setw(8) <<
-		"IO_D" << setw(5) << "WT" << setw(5) << "RT" << setw(5)
-		<< "TRT" << endl;
+	OP_Stream << left << setw(5) << "TT" 
+		<< setw(5) << "PID" << setw(5) << "AT" 
+		<< setw(5) << "CT" << setw(8) << "IO_D" 
+		<< setw(5) << "WT" << setw(5) << "RT" 
+		<< setw(5) << "TRT" << endl;
 
 	//ProcessToTerminate used to dequeue from TRM, write all needed info, and then deallocate process
 	Process* deletePtr(nullptr);
