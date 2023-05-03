@@ -6,7 +6,7 @@ SJF_Processor::SJF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, Sc
 
 void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 { 
-	//if there is no running process and the ready queue is empty,
+	//Case 1: if there is no running process and the ready queue is empty,
 	//then there is nothing to do
 	if (!RunPtr && SJF_Ready.isEmpty())
 		return;
@@ -59,17 +59,13 @@ bool SJF_Processor::isReadyQueueEmpty() const
 		return false;
 }
 
-bool SJF_Processor::fromReadyToRun(int crntTimeStep)
+bool SJF_Processor::RunNextProcess(int crntTimeStep)
 {
 	if (RunPtr || CrntState == BUSY)
 		return false;
 
 	if (isReadyQueueEmpty())
 		return false;
-
-	Process* newRunPtr(nullptr);
-
-	SJF_Ready.QueueFront(newRunPtr);
 
 	SJF_Ready.Dequeue(RunPtr);
 

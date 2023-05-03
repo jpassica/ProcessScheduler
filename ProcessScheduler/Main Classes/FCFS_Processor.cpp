@@ -22,7 +22,7 @@ bool FCFS_Processor::isReadyQueueEmpty() const
 		return false;
 }
 
-bool FCFS_Processor::fromReadyToRun(int crntTimeStep)
+bool FCFS_Processor::RunNextProcess(int crntTimeStep)
 {
 	if (RunPtr || CrntState == BUSY)
 		return false;

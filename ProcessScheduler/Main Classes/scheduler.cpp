@@ -326,7 +326,7 @@ bool Scheduler::Kill(Processor* pror , KillSignal* KS) {
 
 		pror->SetRunptr(nullptr);
 
-		//ProcessorPtr->fromReadyToRun(KS->time);    // run the ready process( kill signal time = current time step) 
+		//ProcessorPtr->RunNextProcess(KS->time);    // run the ready process( kill signal time = current time step) 
 
 		return true;
 	}
@@ -477,7 +477,7 @@ void Scheduler::Simulate()
 			//HandleIORequest(ProcessorsList[i]);
 
 			//This should be removed when all ScheduleAlgo fns are ready
-			ProcessorsList[i]->fromReadyToRun(TimeStep);
+			ProcessorsList[i]->RunNextProcess(TimeStep);
 			// THIRD: if (no kill nor IO_r) then we simply complete SchedulAlgo   
 			//ProcessorsList[i]->ScheduleAlgo(TimeStep);
 		}

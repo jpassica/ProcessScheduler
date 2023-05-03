@@ -22,7 +22,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	//if there is no running process but there is a process in the ready queue, move it to RUN
 	if (!RunPtr)
 	{
-		fromReadyToRun(CrntTimeStep);
+		RunNextProcess(CrntTimeStep);
 		TimeSliceCounter++;
 		return;
 	}
@@ -33,7 +33,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
 	    TimeSliceCounter = 0;
-		if (fromReadyToRun(CrntTimeStep))
+		if (RunNextProcess(CrntTimeStep))
 			TimeSliceCounter++;
 		
     }
@@ -44,7 +44,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		AddToReadyQueue(RunPtr);
 		RunPtr = nullptr;
 		TimeSliceCounter = 0;
-		if (fromReadyToRun(CrntTimeStep)) 
+		if (RunNextProcess(CrntTimeStep)) 
 			TimeSliceCounter++;
 
 	}
@@ -72,7 +72,7 @@ bool RR_Processor::isReadyQueueEmpty() const
 		return false;
 }
 
-bool RR_Processor::fromReadyToRun(int crntTimeStep)
+bool RR_Processor::RunNextProcess(int crntTimeStep)
 {
 	if (RunPtr || CrntState == BUSY)
 		return false;

@@ -20,7 +20,7 @@ public:
 
 	virtual bool isReadyQueueEmpty() const override;
 
-	virtual bool fromReadyToRun(int crntTimeStep) override;
+	virtual bool RunNextProcess(int crntTimeStep) override;
 	
 	virtual int GetRDYCount() const override;
 

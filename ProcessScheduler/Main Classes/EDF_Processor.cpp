@@ -80,7 +80,7 @@ bool EDF_Processor::isReadyQueueEmpty() const
 		return false;
 }
 
-bool EDF_Processor::fromReadyToRun(int crntTimeStep)
+bool EDF_Processor::RunNextProcess(int crntTimeStep)
 {
 	if (RunPtr || CrntState == BUSY)
 		return false;

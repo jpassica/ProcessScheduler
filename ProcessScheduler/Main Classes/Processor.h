@@ -64,7 +64,7 @@ public:
 	virtual bool isReadyQueueEmpty() const = 0;
 
 	//moves process at top of ready queue/list to run
-	virtual bool fromReadyToRun(int crntTimeStep) = 0;
+	virtual bool RunNextProcess(int crntTimeStep) = 0;
 
 	//returns count of items in ready queue/list
 	virtual int GetRDYCount() const = 0;
