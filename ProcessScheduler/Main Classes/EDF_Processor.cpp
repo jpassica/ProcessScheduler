@@ -1,9 +1,7 @@
 #include "EDF_Processor.h"
 #include "Scheduler.h"
 
-EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr)
-{
-}
+EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr) {}
 
 void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 {
@@ -12,7 +10,7 @@ void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 	{
 		CrntState = IDLE;
 		return;
-}
+	}
 
 	//if there is no running process but there is a process in the ready queue, move it to RUN
 	if (!RunPtr)
@@ -87,10 +85,6 @@ bool EDF_Processor::fromReadyToRun(int crntTimeStep)
 
 	if (isReadyQueueEmpty())
 		return false;
-
-	Process* newRunPtr(nullptr);
-
-	EDF_Ready.QueueFront(newRunPtr);
 
 	EDF_Ready.Dequeue(RunPtr);
 
