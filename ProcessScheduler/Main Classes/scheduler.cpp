@@ -6,6 +6,8 @@ Scheduler::Scheduler()
 {
 	TimeStep = 0;
 
+	ProgramUI = new UI();
+
 	ProcessorsList = nullptr;
 
 	FCFSCount = 0;
@@ -31,7 +33,6 @@ Scheduler::Scheduler()
 	TotalResponseTime = 0;
 	TotalTurnAroundtime = 0;
 	TotalWaitingTime = 0;
-	avgUtilization = 0;
 
 	MaxIndex = 0;
 	MinIndex = 0;
@@ -39,12 +40,13 @@ Scheduler::Scheduler()
 	LQF = 0;
 	SQF = 0;
 
-	ConsumedIO_D = 0;
+	ProcessedIO_D = 0;
 }
 
 void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
 {
 	ProcessorsList = new Processor * [ProcessorsCount];
+
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		if (i < NF)
@@ -70,13 +72,10 @@ bool Scheduler::ReadInputFile(string FileName)
 
 	while (!IP_Stream.is_open())							//keep reading file names until we successfully open file
 	{
-		FileName = ProgramUI->InputFileName();
+		FileName = ProgramUI->InputFileName(1);
 		FileName += ".txt";
 		IP_Stream.open(FileName);
 	}
-
-	//if (!IP_Stream.is_open())								//if file opening is unsuccessful, abort
-	//	return false;
 		
 	if(!IP_Stream.good())									//if file is not good or corrupted, abort
 		return false;										
@@ -181,10 +180,10 @@ bool Scheduler::WriteOutputFile()
 
 	//start writing the first line, setting a specific width for each field
 	OP_Stream << left << setprecision(1) << fixed
-		<< setw(5) << "TT" << setw(5) << "PID" 
-		<< setw(5) << "AT" << setw(5) << "CT" 
-		<< setw(8) << "IO_D" << setw(5) << "WT" 
-		<< setw(5) << "RT" << setw(5) << "TRT" << endl;
+		<< setw(7) << "TT" << setw(7) << "PID" 
+		<< setw(7) << "AT" << setw(7) << "CT" 
+		<< setw(9) << "IO_D" << setw(8) << "WT" 
+		<< setw(7) << "RT" << setw(7) << "TRT" << endl;
 
 	//ProcessToTerminate used to dequeue from TRM, write all needed info, and then deallocate process
 	Process* deletePtr(nullptr);
@@ -194,14 +193,14 @@ bool Scheduler::WriteOutputFile()
 	{
 		TRM_List.Dequeue(deletePtr);
 
-		OP_Stream << setw(5) << deletePtr->GetTerminationTime()
-			<< setw(5) << deletePtr->GetPID()
-			<< setw(5) << deletePtr->GetArrivalTime()
-			<< setw(6) << deletePtr->GetCPUTime()
-			<< setw(7) << deletePtr->GetTotalIO_D()
-			<< setw(5) << deletePtr->GetWaitingTime()
-			<< setw(5) << deletePtr->GetResponseTime()
-			<< setw(5) << deletePtr->GetTurnAroundTime()
+		OP_Stream << setw(7) << deletePtr->GetTerminationTime()
+			<< setw(7) << deletePtr->GetPID()
+			<< setw(7) << deletePtr->GetArrivalTime()
+			<< setw(8) << deletePtr->GetCPUTime()
+			<< setw(8) << deletePtr->GetTotalIO_D()
+			<< setw(8) << deletePtr->GetWaitingTime()
+			<< setw(7) << deletePtr->GetResponseTime()
+			<< setw(7) << deletePtr->GetTurnAroundTime()
 			<< endl;
 		
 		TotalWaitingTime += deletePtr->GetWaitingTime();
@@ -266,30 +265,23 @@ bool Scheduler::WriteOutputFile()
 
 void Scheduler::HandleIORequest(Processor* ProcessorPtr)
 {
-	if (ProcessorPtr->GetRunPtr()) 
-	{
-		if (ProcessorPtr->GetRunPtr()->TimeForIO())
-		{
-			FromRUNToBLK(ProcessorPtr);
-		}
-	}
-	return;
+	if (ProcessorPtr->GetRunPtr() && ProcessorPtr->GetRunPtr()->TimeForIO())
+
+		BlockProcess(ProcessorPtr);
 }
 
 void Scheduler::HandleIODuration() 
 {
 	if (!BLK_List.isEmpty()) 
 	{
-		
-		if (ConsumedIO_D == BLK_List.QueueFront()->GetIO_D())
+		if (ProcessedIO_D == BLK_List.QueueFront()->GetIO_D())
 		{
-			BLK_List.QueueFront()->PopIO();
-			FromBLKToRDY();
-			ConsumedIO_D = 0;
+			BLK_List.QueueFront()->PopIO_Request();
+			ReturnBLKtoRDY();
+			ProcessedIO_D = 0;
 		}
-		ConsumedIO_D++;
+		ProcessedIO_D++;
 	}
-	return;
 }
 
 void Scheduler::Steal()
@@ -335,65 +327,81 @@ bool Scheduler::Kill(Processor* pror , KillSignal* KS) {
 	return false;
 }
 
-bool Scheduler::Kill(Processor* pror , KillSignal* KS) {
+bool Scheduler::Kill() 
+{
+	KillSignal* KillSig = nullptr;
+	KillSignalQ.Dequeue(KillSig);
 
-	// force casting to get fun which is defined at FCFS only (not overrided)
-	FCFS_Processor* ProcessorPtr = (FCFS_Processor*)pror;
+	FCFS_Processor* FCFSPtr = nullptr;
 
-	// if the process to be killed is the runptr 
-	if (ProcessorPtr->GetRunPtr()->GetPID() == KS->PID) 
+	for (size_t i = 0; i < FCFSCount; i++)
 	{
-		TerminateProcess(ProcessorPtr->GetRunPtr());          // terminate the process
+		// Force casting to access FCFS exclusive member functions
+		FCFSPtr = (FCFS_Processor*)ProcessorsList[i];
 
-		pror->SetRunptr(nullptr);
+		// if the process to be killed is the runptr 
+		if (ProcessorsList[i]->GetRunPtr()->GetPID() == KillSig->PID)
+		{
+			TerminateProcess(FCFSPtr->GetRunPtr());          // terminate the process
 
-		//ProcessorPtr->fromReadyToRun(KS->time);    // run the ready process( kill signal time = current time step) 
+			FCFSPtr->SetRunptr(nullptr);
 
-		return true;
+			KillCount++;
+
+			delete KillSig;
+			return true;
+		}
+		
+		// If the process to be killed is found in the ready list of an FCFS processor
+		if (FCFSPtr->KillByID(KillSig->PID))
+		{
+			KillCount++;
+
+			delete KillSig;
+			return true;
+		}
 	}
 
-	// if the process to be killed is RDY one at FCFS 
-	if (ProcessorPtr->KillByID(KS->PID))
-		return true;
-
-	// not RDY/RUN for FCFS -> ignore
+	// Not RDY/RUN for FCFS -> ignore
 	return false;
 }
 
-bool Scheduler::FromRUNToBLK(Processor* ProcessorPtr)
+bool Scheduler::BlockProcess(Processor* ProcessorPtr)
 {
 	//checking if there is a processor in the RUN state or not
 	if (ProcessorPtr->GetProcessorState() == IDLE)
 		return false;
 
 	//moving & updating states
-	BLK_List.Enqueue(ProcessorPtr->GetRunPtr());				//adding to BLK
-	ProcessorPtr->GetRunPtr()->ChangeProcessState(BLK);		//changing Process state to BLK
-	ProcessorPtr->SetRunptr(nullptr);						//removing the process from Runptr
+	BLK_List.Enqueue(ProcessorPtr->GetRunPtr());					//adding to BLK
+	ProcessorPtr->GetRunPtr()->ChangeProcessState(BLK);				//changing Process state to BLK
+	ProcessorPtr->SetRunptr(nullptr);								//removing the process from Runptr
 	ProcessorPtr->ChangeProcessorState(IDLE);						//changing processor state
 	return true;
 }
 
-bool Scheduler::FromBLKToRDY()
+bool Scheduler::ReturnBLKtoRDY()
 {
 	//checking if BLK_List is Empty
 	if (BLK_List.isEmpty())
 		return false;
 
 	//checking process & processor availabilty
-	Process* BLKtoRDY = nullptr;
-	BLKtoRDY = BLK_List.QueueFront();
-	if (!BLKtoRDY)
+	Process* UnBlockedProcess = nullptr;
+
+	UnBlockedProcess = BLK_List.QueueFront();
+
+	if (!UnBlockedProcess)
 		return false;
 
 	SetMinIndex();
 
-	BLK_List.Dequeue(BLKtoRDY);
+	BLK_List.Dequeue(UnBlockedProcess);
 
-	ProcessorsList[MinIndex]->AddToReadyQueue(BLKtoRDY);
+	ProcessorsList[MinIndex]->AddToReadyQueue(UnBlockedProcess);
 
 	//updating process state
-	BLKtoRDY->ChangeProcessState(RDY);
+	UnBlockedProcess->ChangeProcessState(RDY);
 	return true;
 }
 
@@ -416,6 +424,7 @@ bool Scheduler::TerminateProcess(Process* ProcessToTerminate)
 
 	TRM_List.Enqueue(ProcessToTerminate);
 	ProcessToTerminate->ChangeProcessState(TRM);
+
 	return true;
 }
 
@@ -449,121 +458,48 @@ void Scheduler::FromNEWtoRDY()
 
 void Scheduler::Simulate()
 {
-	//initializations
-	ProgramUI = new UI();
 	UI_Mode CrntMode;
-	//Process* ProcessPtr = nullptr;
 
 	string FileName = ProgramUI->InputFileName();
-	CrntMode = ProgramUI->InputInterfaceMode();
-
-	if (CrntMode == Silent)
-		ProgramUI->PrintSilentMode(0);
 
 	//calling Load function
 	bool FileOpened = ReadInputFile(FileName);
 
 	if (!FileOpened) return;
 
+	//User chooses what UI mode to run on
+	CrntMode = ProgramUI->InputInterfaceMode();
 
-	KillSignal* CurrentKS= nullptr; // for kill signal
-	bool IsKilled = false;
+	if (CrntMode == Silent)
+		ProgramUI->PrintSilentMode(0);
+
 	
-	int count = 0;							//acts as an index to detect which processor will be passed processes from the NEW_List
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
 	{
-		//ProcessPtr = nullptr;
-
-		//Moving all processes arriving at current timestep to shortest ready queues
+		//Moving new processes to ready queues
 		FromNEWtoRDY();
 
-		//Calling ScheduleAlgo of each processor
-		IsKilled = false;
-		for (int i = 0; i < ProcessorsCount; i++)
+
+		//Check if there is a kill signal at the current time step
+		while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == TimeStep)
+			Kill();
+
+
+		for (size_t i = 0; i < ProcessorsCount; i++)
 		{
+			//Calling ScheduleAlgo for each processor   
+			ProcessorsList[i]->ScheduleAlgo(TimeStep);
 
-			// FIRST : check if the current time step is a Kill Signal
-			if (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == TimeStep) {
-				KillSignalQ.Dequeue(CurrentKS); // dequeue the first at any way (killed or ignored)
 
-				// FCFS only
-				if (i < FCFSCount ) {
-					// if it is killed -> I will not use Kill fun at this time step
-					if(!IsKilled) 
-						IsKilled = Kill(ProcessorsList[i], CurrentKS);
-				}
-			}
-
-			// SECOND : we check if any process need IO_request at this time step
-			//HandleIORequest(ProcessorsList[i]);
-
-			//This should be removed when all ScheduleAlgo fns are ready
-			ProcessorsList[i]->fromReadyToRun(TimeStep);
-			// THIRD: if (no kill nor IO_r) then we simply complete SchedulAlgo   
-			//ProcessorsList[i]->ScheduleAlgo(TimeStep);
+			//Parameter-handling functions that are called each time step
+			ProcessorsList[i]->IncrementBusyOrIdleTime();
+			ProcessorsList[i]->IncrementRunningProcess();
 		}
-
-		//Moving From RUN
-		for (int i = 0; i < ProcessorsCount; i++)
-		{
-			if (ProcessorsList[i]->GetProcessorState() == BUSY)
-			{
-
-				int random = rand() % 100;
-				if (random >= 1 && random <= 15)   //probability to terminate process
-				{
-					FromRUNToBLK(ProcessorsList[i]);
-				}
-				else if (random >= 20 && random <= 30)  //probability to move to RDY
-				{
-					//ToRDY(ProcessorsList[i]->GetRunPtr(), ProcessorsList[i]);
-			
-					//this should be removed and schedulealgos should substitute
-					SetMinIndex();
-					ProcessorsList[MinIndex]->AddToReadyQueue(ProcessorsList[i]->GetRunPtr());
-					ProcessorsList[i]->GetRunPtr()->ChangeProcessState(RDY);
-					ProcessorsList[i]->SetRunptr(nullptr);
-					ProcessorsList[i]->ChangeProcessorState(IDLE);
-
-				}
-				else if (random >= 50 && random <= 60) //probability to terminate
-				{
-					if (TerminateProcess(ProcessorsList[i]->GetRunPtr()))
-					{
-						ProcessorsList[i]->ChangeProcessorState(IDLE);
-						ProcessorsList[i]->SetRunptr(nullptr);
-					}
-				}
-			}
-		}
-
-		//moving from BLK 
-		int random = rand() % 100;
-		if (random < 50 && !BLK_List.isEmpty())
-		{
-			FromBLKToRDY();
-		}
-
-
 
 		//Initiating the steal action each STL timesteps
 		if (TimeStep % STL == 0)
 			Steal();
 
-
-
-		//kill test
-		//random = rand() % ProcessesCount;				//randoming process ID
-		//bool killed = false;							    //Detects if the process is found or not
-
-		//for (int i = 0; i < FCFSCount && !killed; i++)
-		//{
-		//	FCFS_Processor* processorPtr = (FCFS_Processor*) ProcessorsList[i];		//only FCFS processors
-		//	if (processorPtr)
-		//	{
-		//		killed = processorPtr->KillByID(random);
-		//	}
-		//}
 
 		//incrementing & printing timestep
 		if (CrntMode != Silent)
@@ -573,18 +509,9 @@ void Scheduler::Simulate()
 		HandleIODuration();
 
 		TimeStep++;
-
-		for (int i = 0; i < ProcessorsCount; i++)
-		{
-			ProcessorsList[i]->IncrementBusyOrIdleTime();
-			ProcessorsList[i]->IncrementRunningProcess();
-		}
 	}
-	if(CurrentKS)
-		delete CurrentKS; // free memory
 
-	
-
+	//Generating the output file
 	WriteOutputFile();
 
 	if (CrntMode == Silent)

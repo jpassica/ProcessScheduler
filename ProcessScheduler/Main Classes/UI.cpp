@@ -25,6 +25,8 @@ UI_Mode UI::InputInterfaceMode()
 		<< ">";
 
 	cin >> ModeCode;
+
+	cout << endl;
 	
 	if (ModeCode == 1)
 		CrntMode = Interactive;
@@ -50,12 +52,18 @@ void UI::PrintSilentMode(bool StartorEnd)
 	}
 }
 
-string UI::InputFileName()
+string UI::InputFileName(bool isError)
 {
 	string FileName;
 
-	cout << "Please enter input file name: >"; 
+	if (isError)
+		cerr << "Error! Are you sure there's a file with that name?\n Please enter a valid input file name: >";
+	else
+		cout << "Please enter input file name: >";
+
 	cin >> FileName;
+
+	cout << endl;
 
 	return FileName;
 }
@@ -139,6 +147,6 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 		getchar();
 	}
 	else if (CrntMode == StepByStep)
-		Sleep(1000);
+		Sleep(0.001);
 	
 }

@@ -18,7 +18,7 @@ public:
 	virtual bool isReadyQueueEmpty() const override;
 
 	//moves process at top of ready queue/list to run
-	virtual bool fromReadyToRun(int crntTimeStep) override;
+	virtual bool RunNextProcess(int crntTimeStep) override;
 
 	//returns count of items in ready queue/list
 	virtual int GetRDYCount() const override;

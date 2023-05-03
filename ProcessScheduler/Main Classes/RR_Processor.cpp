@@ -1,13 +1,12 @@
 #include "RR_Processor.h"
 #include "scheduler.h"
-RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr), timeSlice(timeSlice)
+RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr), TimeSlice(timeSlice)
 {
 	TimeSliceCounter = 0;
 }
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-
 	pScheduler->HandleIORequest(this);
 	//pScheduler->MigrateToFCFS(this); 
 
@@ -22,57 +21,19 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	//if there is no running process but there is a process in the ready queue, move it to RUN
 	if (!RunPtr)
 	{
-		fromReadyToRun(CrntTimeStep);
+		RunNextProcess(CrntTimeStep);
 		TimeSliceCounter++;
 		return;
 	}
-	//FIRST CASE 
-	//if there is no running process and the ready queue is empty,
-	//then there is nothing to do
-	if (!RunPtr && RR_Ready.isEmpty()) {
-		TimeSliceCounter = 0;
-		return;
-	}
 
-	//SECOND CASE
-	//if there is no running process but there is a process in the ready queue, move it to RUN
-	if (!RunPtr)
+	//if the running process is done executing and is ready to move to TRM
+	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime())
 	{
-		fromReadyToRun(CrntTimeStep);
-		TimeSliceCounter++;
-		return;
-	}
-
-	//if the running process is done executing and is ready to move to TRM
-	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime()){
-
-		pScheduler->TerminateProcess(RunPtr);
+		pScheduler->TerminateProcess(RunPtr); 
 		RunPtr = nullptr;
+		CrntState = IDLE;
 	    TimeSliceCounter = 0;
-		if (fromReadyToRun(CrntTimeStep))
-			TimeSliceCounter++;
-		
-    }
-
-	//THIRD CASE
-	//if the running process is done executing and is ready to move to TRM
-	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime()){
-
-		pScheduler->ToTRM(RunPtr);
-		RunPtr = nullptr;
-	    TimeSliceCounter = 0;
-		if (fromReadyToRun(CrntTimeStep))
-			TimeSliceCounter++;
-		
-    }
-
-	//else if the running process is not done executing but has just finished it's time slice
-	//then it goes back to RDY list 
-	else if (TimeSliceCounter == timeSlice) {
-		AddToReadyQueue(RunPtr);
-		RunPtr = nullptr;
-		TimeSliceCounter = 0;
-		if (fromReadyToRun(CrntTimeStep)) 
+		if (RunNextProcess(CrntTimeStep))
 			TimeSliceCounter++;
 
 	}
@@ -87,20 +48,20 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 
 	//else if the running process is not done executing but has just finished it's time slice
 	//then it goes back to RDY list 
-	else if (TimeSliceCounter == timeSlice) {
+	else if (TimeSliceCounter == TimeSlice) 
+	{
 		AddToReadyQueue(RunPtr);
 		RunPtr = nullptr;
+		CrntState = IDLE;
 		TimeSliceCounter = 0;
-		if (fromReadyToRun(CrntTimeStep)) 
+		if (RunNextProcess(CrntTimeStep)) 
 			TimeSliceCounter++;
 
 	}
 
-	//else -> the process does not complete it's time slice 
+	//else -> the process has not completed its time slice 
 	else 
 		TimeSliceCounter++;
-	
-	return;
 }
 		
 
@@ -113,22 +74,19 @@ void RR_Processor::AddToReadyQueue(Process* pReady)
 
 bool RR_Processor::isReadyQueueEmpty() const
 {
-	if (RR_Ready.isEmpty())
-		return true;
-	else
-		return false;
+	return RR_Ready.isEmpty();
 }
 
-bool RR_Processor::fromReadyToRun(int crntTimeStep)
+bool RR_Processor::RunNextProcess(int crntTimeStep)
 {
-	if (RunPtr || CrntState == BUSY)
+	if (RunPtr)
 		return false;
 
 	if (isReadyQueueEmpty())
+	{
+		CrntState = IDLE;
 		return false;
-
-	Process* newRunPtr = RR_Ready.QueueFront();
-
+	}
 
 	RR_Ready.Dequeue(RunPtr);
 
