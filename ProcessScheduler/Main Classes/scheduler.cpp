@@ -266,7 +266,8 @@ bool Scheduler::WriteOutputFile()
 
 void Scheduler::HandleIORequest(Processor* ProcessorPtr)
 {
-	if (ProcessorPtr->GetRunPtr()) {
+	if (ProcessorPtr->GetRunPtr()) 
+	{
 		if (ProcessorPtr->GetRunPtr()->TimeForIO())
 		{
 			FromRUNToBLK(ProcessorPtr);
