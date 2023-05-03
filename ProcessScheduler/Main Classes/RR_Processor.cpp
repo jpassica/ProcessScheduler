@@ -9,21 +9,25 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
 
 	pScheduler->HandleIORequest(this);
-	//pScheduler->MigrateToFCFS(this); 
 
-	//if there is no running process and the ready queue is empty,
-	//then there is nothing to do
-	if (!RunPtr && RR_Ready.isEmpty()) {
-		TimeSliceCounter = 0;
-		CrntState = IDLE;
-		return;
-	}
-
-	//if there is no running process but there is a process in the ready queue, move it to RUN
+	//if the process request IO or there is no running process -> pick the ready process to run
 	if (!RunPtr)
 	{
+		TimeSliceCounter = 0;
 		fromReadyToRun(CrntTimeStep);
-		TimeSliceCounter++;
+	}
+
+	while (pScheduler->MigrateToSJF(this)) {
+		RunPtr = nullptr;
+		TimeSliceCounter = 0;
+		fromReadyToRun(CrntTimeStep);
+	}
+
+	//means that all processes migrate which means that ready queue is empty
+	if (!RunPtr)
+	{
+		TimeSliceCounter = 0;
+		CrntState = IDLE;
 		return;
 	}
 
@@ -33,9 +37,8 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
 	    TimeSliceCounter = 0;
-		if (fromReadyToRun(CrntTimeStep))
-			TimeSliceCounter++;
-		
+		fromReadyToRun(CrntTimeStep);
+
     }
 
 	//else if the running process is not done executing but has just finished it's time slice
@@ -44,13 +47,11 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		AddToReadyQueue(RunPtr);
 		RunPtr = nullptr;
 		TimeSliceCounter = 0;
-		if (fromReadyToRun(CrntTimeStep)) 
-			TimeSliceCounter++;
-
+		fromReadyToRun(CrntTimeStep);
 	}
 
-	//else -> the process does not complete it's time slice 
-	else 
+	//else if there is a running process -> counter++
+	if(RunPtr)
 		TimeSliceCounter++;
 	
 	return;

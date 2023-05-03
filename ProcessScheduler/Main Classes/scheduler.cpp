@@ -292,6 +292,25 @@ void Scheduler::HandleIODuration()
 	return;
 }
 
+
+bool Scheduler::MigrateToSJF(Processor* Pror) {
+    // if there is no running process to migrate 
+	if (!Pror->GetRunPtr())
+		return false;
+
+	if (Pror->GetRunPtr()->GetRemainingCPUTime() < RTF) {
+		SetMinIndex(1); // Set index of shortest SJF ready queue
+		Process* MigratedProcess = Pror->GetRunPtr();
+		ProcessorsList[MinIndex]->AddToReadyQueue(MigratedProcess);
+
+		//updating process state
+		MigratedProcess->ChangeProcessState(RDY);
+		return true;
+	}
+
+	return false;
+}
+
 void Scheduler::Steal()
 {
 	//Setting the indices of the processors with the longest and shortest finish times
@@ -627,13 +646,23 @@ double Scheduler::CalcBeforeDeadlinePercentage() const
 	return (double)100 * CompletedBeforeDeadlineCount / ProcessesCount;
 }
 
-void Scheduler::SetMinIndex() 
+void Scheduler::SetMinIndex(int x)
 {
-	//Initializing the index of the processor with the smallest finish time
+
 	MinIndex = 0;
+	int start = 1, end= ProcessorsCount;
+	
+	//Initializing the index of the processor with the smallest finish time
+	if (x == 1) { //shortest SJF ready queue
+		start = (MinIndex = FCFSCount) + 1;
+		end = FCFSCount + SJFCount;
+	}
+	else if (x == 2) // shortest RR ready queue
+		start = (MinIndex = FCFSCount + SJFCount) + 1;
+
 
 	//Checking which processor has the smallest expected finish time
-	for (size_t i = 1; i < ProcessorsCount; i++)
+	for (size_t i = start; i < end; i++)
 	{
 		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
 			MinIndex = i;

@@ -91,6 +91,7 @@ public:
 
 	void HandleIODuration();
 	void HandleIORequest(Processor*);
+	bool MigrateToSJF(Processor*);
 	
 
 	//Moves all processes arriving at current timestep to shortest ready queues 
@@ -114,7 +115,7 @@ public:
 
 
 	//Sets the index of the processor with the smallest finish time
-	void SetMinIndex();
+	void SetMinIndex(int x=0);
 
 	//Sets the index of the processor with the biggest finish time
 	void SetMaxIndex();
