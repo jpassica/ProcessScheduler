@@ -74,9 +74,9 @@ int FCFS_Processor::GetRDYCount() const
 	return FCFS_Ready.getCount();
 }
 
-bool FCFS_Processor::KillByID(int randomID)
+bool FCFS_Processor::KillByID(int ID)
 {
-	int position = FCFS_Ready.SearchByID(randomID);
+	int position = FCFS_Ready.SearchByID(ID);
 
 	if (position)
 	{

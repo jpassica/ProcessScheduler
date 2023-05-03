@@ -1,9 +1,7 @@
 #include "EDF_Processor.h"
 #include "Scheduler.h"
 
-EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr)
-{
-}
+EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr) {}
 
 void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 {
