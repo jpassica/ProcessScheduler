@@ -25,7 +25,7 @@ public:
 	void PrintSilentMode(bool StartorEnd);
 
 	//Takes the file name as input from the user
-	string InputFileName();
+	string InputFileName(bool isError = 0);
 
 	//Main function for printing info each time step
 	void TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 

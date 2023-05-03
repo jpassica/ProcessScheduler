@@ -6,42 +6,26 @@ SJF_Processor::SJF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, Sc
 
 void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 { 
-	//Case 1: if there is no running process and the ready queue is empty,
-	//then there is nothing to do
-	if (!RunPtr && SJF_Ready.isEmpty())
-		return;
+	//Case 1: if there is no running process and the ready queue is empty, there is nothing to do for now
 
-	//if there is no running process but there is a process in the ready queue, move it to RUN
-	if (!RunPtr)
+	//Case 2: if there is no running process but there is a process in the ready queue, move it to RUN
+	if (!RunPtr && !SJF_Ready.isEmpty())
 	{
-		SJF_Ready.Dequeue(RunPtr);
-		RunPtr->ChangeProcessState(RUN);
-
-		FinishTime -= RunPtr->GetRemainingCPUTime();
-
-		if (RunPtr->isFirstExecution())
-			RunPtr->SetResponseTime(CrntTimeStep);
-		return;
+		RunNextProcess(CrntTimeStep);
 	}
 
-	//if the running process is done executing and is ready to move to TRM
-	if (RunPtr && !RunPtr->GetRemainingCPUTime())
+	//Case 3: if the running process is done executing and is ready to move to TRM
+	else if (RunPtr && !RunPtr->GetRemainingCPUTime())
 	{
 		pScheduler->TerminateProcess(RunPtr);
-
-		//adding the next process to run
-		if (!SJF_Ready.isEmpty())
-		{
-			SJF_Ready.Dequeue(RunPtr);
-			RunPtr->ChangeProcessState(RUN);
-
-			if (RunPtr->isFirstExecution())
-				RunPtr->SetResponseTime(CrntTimeStep);
-		}
-		else
-			RunPtr = nullptr;
+		RunPtr = nullptr;
+		CrntState = IDLE;
+		RunNextProcess(CrntTimeStep);
 	}
-		//if the running process is not done executing, then there is nothing to do for now
+
+	//Case4: if the running process is not done executing, then there is nothing to do for now
+
+	//IO & others
 }
 
 void SJF_Processor::AddToReadyQueue(Process* pReady)
@@ -53,10 +37,7 @@ void SJF_Processor::AddToReadyQueue(Process* pReady)
 
 bool SJF_Processor::isReadyQueueEmpty() const
 {
-	if (SJF_Ready.isEmpty())
-		return true;
-	else
-		return false;
+	return SJF_Ready.isEmpty();
 }
 
 bool SJF_Processor::RunNextProcess(int crntTimeStep)

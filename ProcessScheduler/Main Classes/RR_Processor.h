@@ -5,7 +5,7 @@
 
 class RR_Processor : public Processor
 {
-	int timeSlice;
+	int TimeSlice;
 	int TimeSliceCounter;
 	Queue<Process*> RR_Ready;
 

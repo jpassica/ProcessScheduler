@@ -85,8 +85,8 @@ public:
 	void Fork(Process*);
 	
 	//process moving
-	bool FromRUNToBLK(Processor*);
-	bool FromBLKToRDY();
+	bool BlockProcess(Processor*);
+	bool ReturnProcessToRDY();
 	bool TerminateProcess(Process*);
 
 	void HandleIODuration();

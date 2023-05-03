@@ -8,59 +8,39 @@ EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, Sc
 void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 {
 	//If there is no running process and the ready list is empty, there is nothing to do for now
-	if (!RunPtr && EDF_Ready.isEmpty())
-	{
-		CrntState = IDLE;
-		return;
-	}
 
 	//if there is no running process but there is a process in the ready queue, move it to RUN
-	if (!RunPtr)
+	if (!RunPtr && !EDF_Ready.isEmpty())
 	{
-		EDF_Ready.Dequeue(RunPtr);
-		RunPtr->ChangeProcessState(RUN);
-
-		FinishTime -= RunPtr->GetRemainingCPUTime();
-
-		if (RunPtr->isFirstExecution())
-			RunPtr->SetResponseTime(CrntTimeStep);
-
-		CrntState = BUSY;
-
+		RunNextProcess(CrntTimeStep);
 		return;
 	}
 
 	//If there is a running process but there arrives a new one with a sooner deadline,
 	//move that one to run instead
 
-	Process* SoonerDeadline = nullptr;
-	EDF_Ready.QueueFront(SoonerDeadline);
-
-	if (RunPtr && SoonerDeadline && SoonerDeadline->GetDeadline() < RunPtr->GetDeadline())
+	/*if (!EDF_Ready.isEmpty() && RunPtr)
 	{
-		RunPtr->ChangeProcessState(RDY);
-		EDF_Ready.Enqueue(RunPtr, RunPtr->GetDeadline());
+		Process* SoonerDeadline = nullptr;
+		EDF_Ready.QueueFront(SoonerDeadline);
 
-		RunPtr = SoonerDeadline;
-		RunPtr->ChangeProcessState(RUN);
-	}
+		if (SoonerDeadline->GetDeadline() < RunPtr->GetDeadline())
+		{
+			RunPtr->ChangeProcessState(RDY);
+			EDF_Ready.Enqueue(RunPtr, RunPtr->GetDeadline());
+
+			RunPtr->ChangeProcessState(RUN);
+			RunPtr = SoonerDeadline;
+		}
+	}*/
 
 	//if the running process is done executing and is ready to move to TRM
 	if (RunPtr && !RunPtr->GetRemainingCPUTime())
 	{
 		pScheduler->TerminateProcess(RunPtr);
-
-		//adding the next process to run
-		if (!EDF_Ready.isEmpty())
-		{
-			EDF_Ready.Dequeue(RunPtr);
-			RunPtr->ChangeProcessState(RUN);
-
-			if (RunPtr->isFirstExecution())
-				RunPtr->SetResponseTime(CrntTimeStep);
-		}
-		else
-			RunPtr = nullptr;
+		RunPtr = nullptr;
+		CrntState = IDLE;
+		RunNextProcess(CrntTimeStep);
 	}
 	//if the running process is not done executing, then there is nothing to do for now
 }
@@ -74,10 +54,7 @@ void EDF_Processor::AddToReadyQueue(Process* pReady)
 
 bool EDF_Processor::isReadyQueueEmpty() const
 {
-	if (EDF_Ready.isEmpty())
-		return true;
-	else
-		return false;
+	return EDF_Ready.isEmpty();
 }
 
 bool EDF_Processor::RunNextProcess(int crntTimeStep)
@@ -87,10 +64,6 @@ bool EDF_Processor::RunNextProcess(int crntTimeStep)
 
 	if (isReadyQueueEmpty())
 		return false;
-
-	Process* newRunPtr(nullptr);
-
-	EDF_Ready.QueueFront(newRunPtr);
 
 	EDF_Ready.Dequeue(RunPtr);
 

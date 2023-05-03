@@ -1,14 +1,13 @@
 #include "RR_Processor.h"
 #include "scheduler.h"
-RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr), timeSlice(timeSlice)
+RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr), TimeSlice(timeSlice)
 {
 	TimeSliceCounter = 0;
 }
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-
-	pScheduler->HandleIORequest(this);
+	//pScheduler->HandleIORequest(this);
 	//pScheduler->MigrateToFCFS(this); 
 
 	//if there is no running process and the ready queue is empty,
@@ -28,10 +27,11 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	}
 
 	//if the running process is done executing and is ready to move to TRM
-	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime()){
-
-		pScheduler->TerminateProcess(RunPtr);
+	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime())
+	{
+		pScheduler->TerminateProcess(RunPtr); 
 		RunPtr = nullptr;
+		CrntState = IDLE;
 	    TimeSliceCounter = 0;
 		if (RunNextProcess(CrntTimeStep))
 			TimeSliceCounter++;
@@ -40,20 +40,20 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 
 	//else if the running process is not done executing but has just finished it's time slice
 	//then it goes back to RDY list 
-	else if (TimeSliceCounter == timeSlice) {
+	else if (TimeSliceCounter == TimeSlice) 
+	{
 		AddToReadyQueue(RunPtr);
 		RunPtr = nullptr;
+		CrntState = IDLE;
 		TimeSliceCounter = 0;
 		if (RunNextProcess(CrntTimeStep)) 
 			TimeSliceCounter++;
 
 	}
 
-	//else -> the process does not complete it's time slice 
+	//else -> the process has not completed its time slice 
 	else 
 		TimeSliceCounter++;
-	
-	return;
 }
 		
 
@@ -66,10 +66,7 @@ void RR_Processor::AddToReadyQueue(Process* pReady)
 
 bool RR_Processor::isReadyQueueEmpty() const
 {
-	if (RR_Ready.isEmpty())
-		return true;
-	else
-		return false;
+	return RR_Ready.isEmpty();
 }
 
 bool RR_Processor::RunNextProcess(int crntTimeStep)
@@ -79,9 +76,6 @@ bool RR_Processor::RunNextProcess(int crntTimeStep)
 
 	if (isReadyQueueEmpty())
 		return false;
-
-	Process* newRunPtr = RR_Ready.QueueFront();
-
 
 	RR_Ready.Dequeue(RunPtr);
 
