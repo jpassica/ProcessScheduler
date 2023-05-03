@@ -22,7 +22,7 @@ public:
 	//ctor receives ID from the scheduler
 	Processor(int ID, Scheduler* SchedulerPtr);
 
-	//each processor has its own version of this function
+	//Responsible for regulating the movement of running processes
 	virtual void ScheduleAlgo(int) = 0;
 
 	//outputs Processor's ID

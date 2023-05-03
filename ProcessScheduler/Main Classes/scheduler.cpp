@@ -33,7 +33,6 @@ Scheduler::Scheduler()
 	TotalResponseTime = 0;
 	TotalTurnAroundtime = 0;
 	TotalWaitingTime = 0;
-	avgUtilization = 0;
 
 	MaxIndex = 0;
 	MinIndex = 0;
@@ -41,12 +40,13 @@ Scheduler::Scheduler()
 	LQF = 0;
 	SQF = 0;
 
-	ConsumedIO_D = 0;
+	ProcessedIO_D = 0;
 }
 
 void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
 {
 	ProcessorsList = new Processor * [ProcessorsCount];
+
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		if (i < NF)
@@ -265,30 +265,23 @@ bool Scheduler::WriteOutputFile()
 
 void Scheduler::HandleIORequest(Processor* ProcessorPtr)
 {
-	if (ProcessorPtr->GetRunPtr()) 
-	{
-		if (ProcessorPtr->GetRunPtr()->TimeForIO())
-		{
-			BlockProcess(ProcessorPtr);
-		}
-	}
-	return;
+	if (ProcessorPtr->GetRunPtr() && ProcessorPtr->GetRunPtr()->TimeForIO())
+
+		BlockProcess(ProcessorPtr);
 }
 
 void Scheduler::HandleIODuration() 
 {
 	if (!BLK_List.isEmpty()) 
 	{
-		
-		if (ConsumedIO_D == BLK_List.QueueFront()->GetIO_D())
+		if (ProcessedIO_D == BLK_List.QueueFront()->GetIO_D())
 		{
-			BLK_List.QueueFront()->PopIO();
-			ReturnProcessToRDY();
-			ConsumedIO_D = 0;
+			BLK_List.QueueFront()->PopIO_Request();
+			ReturnBLKtoRDY();
+			ProcessedIO_D = 0;
 		}
-		ConsumedIO_D++;
+		ProcessedIO_D++;
 	}
-	return;
 }
 
 void Scheduler::Steal()
@@ -313,28 +306,42 @@ void Scheduler::Steal()
 	}
 }
 
-bool Scheduler::Kill(Processor* pror , KillSignal* KS) {
+bool Scheduler::Kill() 
+{
+	KillSignal* KillSig = nullptr;
+	KillSignalQ.Dequeue(KillSig);
 
-	// force casting to get fun which is defined at FCFS only (not overrided)
-	FCFS_Processor* ProcessorPtr = (FCFS_Processor*)pror;
+	FCFS_Processor* FCFSPtr = nullptr;
 
-	// if the process to be killed is the runptr 
-	if (ProcessorPtr->GetRunPtr()->GetPID() == KS->PID) 
+	for (size_t i = 0; i < FCFSCount; i++)
 	{
-		TerminateProcess(ProcessorPtr->GetRunPtr());          // terminate the process
+		// Force casting to access FCFS exclusive member functions
+		FCFSPtr = (FCFS_Processor*)ProcessorsList[i];
 
-		pror->SetRunptr(nullptr);
+		// if the process to be killed is the runptr 
+		if (ProcessorsList[i]->GetRunPtr()->GetPID() == KillSig->PID)
+		{
+			TerminateProcess(FCFSPtr->GetRunPtr());          // terminate the process
 
-		//ProcessorPtr->RunNextProcess(KS->time);    // run the ready process( kill signal time = current time step) 
+			FCFSPtr->SetRunptr(nullptr);
 
-		return true;
+			KillCount++;
+
+			delete KillSig;
+			return true;
+		}
+		
+		// If the process to be killed is found in the ready list of an FCFS processor
+		if (FCFSPtr->KillByID(KillSig->PID))
+		{
+			KillCount++;
+
+			delete KillSig;
+			return true;
+		}
 	}
 
-	// if the process to be killed is RDY one at FCFS 
-	if (ProcessorPtr->KillByID(KS->PID))
-		return true;
-
-	// not RDY/RUN for FCFS -> ignore
+	// Not RDY/RUN for FCFS -> ignore
 	return false;
 }
 
@@ -345,33 +352,35 @@ bool Scheduler::BlockProcess(Processor* ProcessorPtr)
 		return false;
 
 	//moving & updating states
-	BLK_List.Enqueue(ProcessorPtr->GetRunPtr());				//adding to BLK
-	ProcessorPtr->GetRunPtr()->ChangeProcessState(BLK);		//changing Process state to BLK
-	ProcessorPtr->SetRunptr(nullptr);						//removing the process from Runptr
+	BLK_List.Enqueue(ProcessorPtr->GetRunPtr());					//adding to BLK
+	ProcessorPtr->GetRunPtr()->ChangeProcessState(BLK);				//changing Process state to BLK
+	ProcessorPtr->SetRunptr(nullptr);								//removing the process from Runptr
 	ProcessorPtr->ChangeProcessorState(IDLE);						//changing processor state
 	return true;
 }
 
-bool Scheduler::ReturnProcessToRDY()
+bool Scheduler::ReturnBLKtoRDY()
 {
 	//checking if BLK_List is Empty
 	if (BLK_List.isEmpty())
 		return false;
 
 	//checking process & processor availabilty
-	Process* BLKtoRDY = nullptr;
-	BLKtoRDY = BLK_List.QueueFront();
-	if (!BLKtoRDY)
+	Process* UnBlockedProcess = nullptr;
+
+	UnBlockedProcess = BLK_List.QueueFront();
+
+	if (!UnBlockedProcess)
 		return false;
 
 	SetMinIndex();
 
-	BLK_List.Dequeue(BLKtoRDY);
+	BLK_List.Dequeue(UnBlockedProcess);
 
-	ProcessorsList[MinIndex]->AddToReadyQueue(BLKtoRDY);
+	ProcessorsList[MinIndex]->AddToReadyQueue(UnBlockedProcess);
 
 	//updating process state
-	BLKtoRDY->ChangeProcessState(RDY);
+	UnBlockedProcess->ChangeProcessState(RDY);
 	return true;
 }
 
@@ -443,45 +452,25 @@ void Scheduler::Simulate()
 	if (CrntMode == Silent)
 		ProgramUI->PrintSilentMode(0);
 
-
-	KillSignal* CurrentKS= nullptr; // for kill signal
-	bool IsKilled = false;
 	
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
 	{
-		//ProcessPtr = nullptr;
-
-		//Moving all processes arriving at current timestep to shortest ready queues
+		//Moving new processes to ready queues
 		FromNEWtoRDY();
 
-		//Calling ScheduleAlgo of each processor
-		IsKilled = false;
-		for (int i = 0; i < ProcessorsCount; i++)
+
+		//Check if there is a kill signal at the current time step
+		while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == TimeStep)
+			Kill();
+
+
+		for (size_t i = 0; i < ProcessorsCount; i++)
 		{
-
-			// FIRST : check if the current time step is a Kill Signal
-			//if (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == TimeStep) {
-			//	KillSignalQ.Dequeue(CurrentKS); // dequeue the first at any way (killed or ignored)
-
-			//	// FCFS only
-			//	if (i < FCFSCount ) {
-			//		// if it is killed -> I will not use Kill fun at this time step
-			//		if(!IsKilled) 
-			//			IsKilled = Kill(ProcessorsList[i], CurrentKS);
-			//	}
-			//}
-
-			// SECOND : we check if any process need IO_request at this time step
-			//HandleIORequest(ProcessorsList[i]);
-
-			//This should be removed when all ScheduleAlgo fns are ready
-			//ProcessorsList[i]->RunNextProcess(TimeStep);
-			// THIRD: if (no kill nor IO_r) then we simply complete SchedulAlgo   
+			//Calling ScheduleAlgo for each processor   
 			ProcessorsList[i]->ScheduleAlgo(TimeStep);
 
 
-
-			//Parameter-handling functions that should be called each time step
+			//Parameter-handling functions that are called each time step
 			ProcessorsList[i]->IncrementBusyOrIdleTime();
 			ProcessorsList[i]->IncrementRunningProcess();
 		}
@@ -496,13 +485,12 @@ void Scheduler::Simulate()
 			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
 		
 		// Handle IO_Duration in BLK list each time step
-		/*HandleIODuration();*/
+		HandleIODuration();
 
 		TimeStep++;
 	}
-	/*if(CurrentKS)
-		delete CurrentKS;*/ // free memory
 
+	//Generating the output file
 	WriteOutputFile();
 
 	if (CrntMode == Silent)

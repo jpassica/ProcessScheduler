@@ -17,11 +17,11 @@ struct KillSignal {
 	}
 };
 
-struct IO_Pairs {
+struct IO_Request {
 	int IO_R;
 	int IO_D;
 
-	IO_Pairs(int IO_r, int IO_d) 
+	IO_Request(int IO_r, int IO_d) 
 	{
 		IO_R = IO_r;
 		IO_D = IO_d;

@@ -7,6 +7,8 @@ EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, Sc
 
 void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 {
+	pScheduler->HandleIORequest(this);
+
 	//If there is no running process and the ready list is empty, there is nothing to do for now
 
 	//if there is no running process but there is a process in the ready queue, move it to RUN

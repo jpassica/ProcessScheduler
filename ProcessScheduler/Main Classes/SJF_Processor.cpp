@@ -6,6 +6,7 @@ SJF_Processor::SJF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, Sc
 
 void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 { 
+	pScheduler->HandleIORequest(this);
 	//Case 1: if there is no running process and the ready queue is empty, there is nothing to do for now
 
 	//Case 2: if there is no running process but there is a process in the ready queue, move it to RUN
@@ -42,11 +43,14 @@ bool SJF_Processor::isReadyQueueEmpty() const
 
 bool SJF_Processor::RunNextProcess(int crntTimeStep)
 {
-	if (RunPtr || CrntState == BUSY)
+	if (RunPtr)
 		return false;
 
 	if (isReadyQueueEmpty())
+	{
+		CrntState = IDLE;
 		return false;
+	}
 
 	SJF_Ready.Dequeue(RunPtr);
 

@@ -40,7 +40,6 @@ private:
 	int TotalWaitingTime;
 	int TotalResponseTime;
 	int TotalTurnAroundtime;	
-	int avgUtilization;
 
 	int RTFCount;						//no. of migrated processes due to RTF
 	int MaxWCount;						//no. of migrated processes due to MaxW
@@ -59,7 +58,7 @@ private:
 	int SQF;
 	int LQF;
 
-	int ConsumedIO_D;
+	int ProcessedIO_D;
 
 	//Pointer to the User Interface that will work throughout the simulation
 	UI* ProgramUI;
@@ -80,13 +79,13 @@ public:
 	//process operations
 	void Migrate(Process*);
 	void Steal();
-	//void Kill(Process*);
-	bool Kill(Processor*, KillSignal*);
+	
+	bool Kill();
 	void Fork(Process*);
 	
 	//process moving
 	bool BlockProcess(Processor*);
-	bool ReturnProcessToRDY();
+	bool ReturnBLKtoRDY();
 	bool TerminateProcess(Process*);
 
 	void HandleIODuration();
@@ -96,7 +95,7 @@ public:
 	//Moves all processes arriving at current timestep to shortest ready queues 
 	void FromNEWtoRDY();
 
-	//simulation function
+	//The main function that for running the simulation
 	void Simulate();
 
 	//statistics functions

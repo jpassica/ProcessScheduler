@@ -5,6 +5,8 @@ FCFS_Processor::FCFS_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, 
 
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
+	pScheduler->HandleIORequest(this);
+
 	//Case 1: if there is no running process and the ready list is empty, there is nothing to do for now
 
 	//Case 2: if there is no running process but there is a process in the ready list, move it to RUN
@@ -41,11 +43,14 @@ bool FCFS_Processor::isReadyQueueEmpty() const
 
 bool FCFS_Processor::RunNextProcess(int crntTimeStep)
 {
-	if (RunPtr || CrntState == BUSY)
+	if (RunPtr)
 		return false;
 
 	if (isReadyQueueEmpty())
+	{
+		CrntState = IDLE;
 		return false;
+	}
 
 	Process* newRunPtr = FCFS_Ready.getEntry(1);
 
@@ -82,7 +87,6 @@ bool FCFS_Processor::KillByID(int randomID)
 			FCFS_Ready.remove(position);
 			
 			FinishTime -= killedProcess->GetRemainingCPUTime();
-
 
 			return true;
 		}

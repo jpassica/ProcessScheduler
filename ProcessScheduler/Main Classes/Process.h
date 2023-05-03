@@ -20,12 +20,12 @@ private:
 
 	int IO_N;
 	int totalIO_D;
-	Queue<IO_Pairs*> IO_PairsQ;
+	Queue<IO_Request*> IO_RequestQ;
 
 	ProcessState CrntState;
 
 	int ProcessedTime;
-	Process* child;
+	Process* ChildPtr;
 
 	//to put down the response time
 	bool firstTimeExecution;
@@ -67,7 +67,7 @@ public:
 	void ChangeProcessState(ProcessState NewState);
 
 	bool TimeForIO();
-	void PopIO();
+	void PopIO_Request();
 
 
 	//Increments the ProcessedTime of the process currently being executed
@@ -75,6 +75,4 @@ public:
 
 	//returns true if this the process had not received the CPU before
 	bool isFirstExecution() const;
-
-	~Process();
 };

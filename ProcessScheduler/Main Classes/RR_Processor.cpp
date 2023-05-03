@@ -7,7 +7,7 @@ RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Pro
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//pScheduler->HandleIORequest(this);
+	pScheduler->HandleIORequest(this);
 	//pScheduler->MigrateToFCFS(this); 
 
 	//if there is no running process and the ready queue is empty,
@@ -71,11 +71,14 @@ bool RR_Processor::isReadyQueueEmpty() const
 
 bool RR_Processor::RunNextProcess(int crntTimeStep)
 {
-	if (RunPtr || CrntState == BUSY)
+	if (RunPtr)
 		return false;
 
 	if (isReadyQueueEmpty())
+	{
+		CrntState = IDLE;
 		return false;
+	}
 
 	RR_Ready.Dequeue(RunPtr);
 
