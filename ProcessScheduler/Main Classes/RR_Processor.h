@@ -5,7 +5,7 @@
 
 class RR_Processor : public Processor
 {
-	int timeSlice;
+	int TimeSlice;
 	int TimeSliceCounter;
 	Queue<Process*> RR_Ready;
 
@@ -20,7 +20,7 @@ public:
 
 	virtual bool isReadyQueueEmpty() const override;
 
-	virtual bool fromReadyToRun(int crntTimeStep) override;
+	virtual bool RunNextProcess(int crntTimeStep) override;
 	
 	virtual int GetRDYCount() const override;
 

@@ -11,7 +11,7 @@ Process::Process(int ID, int AT, int CT, int DL, int IO_N)
 	ResponseTime = 0;
 	totalIO_D = 0;
 	ProcessedTime = 0;
-	child = nullptr;
+	ChildPtr = nullptr;
 	firstTimeExecution = 1;
 }
 
@@ -21,9 +21,9 @@ ostream& operator<<(ostream& out, const Process* P)
 	return out;
 }
 
-void Process::Setchild(Process* c)
+void Process::Setchild(Process* ForkedProcess)
 {
-	child = c;
+	ChildPtr = ForkedProcess;
 }
 
 //Set the response time as FCPU is the time when the process is ready to be processed at first time
@@ -41,9 +41,9 @@ void Process::SetResponseTime(int FCPU)
 
 void Process::AddIORequest(int IO_R, int IO_D)
 {
-	IO_Pairs* newRequest = new IO_Pairs(IO_R, IO_D);
+	IO_Request* newRequest = new IO_Request(IO_R, IO_D);
 
-	IO_PairsQ.Enqueue(newRequest);
+	IO_RequestQ.Enqueue(newRequest);
 
 	totalIO_D += IO_D;
 }
@@ -57,10 +57,11 @@ void Process::SetTerminationTime(int TT)
 {
 	TerminationTime = TT;
 	TurnAroundTime = TerminationTime - ArrivalTime;
-	WaitingTime = TurnAroundTime - CPUTime;
+	WaitingTime = TurnAroundTime - ProcessedTime;
 }
 
-int Process::GetPID() const {
+int Process::GetPID() const 
+{
 	return PID;
 }
 
@@ -106,7 +107,7 @@ ProcessState Process::GetProcessState() const
 
 Process* Process::GetChild() const
 {
-	return child;
+	return ChildPtr;
 }
 
 int Process::GetProcessedTime() const
@@ -121,7 +122,7 @@ int Process::GetRemainingCPUTime() const
 
 int Process::GetIO_D()
 {
-	return IO_PairsQ.QueueFront()->IO_D;
+	return IO_RequestQ.QueueFront()->IO_D;
 }
 
 void Process::ChangeProcessState(ProcessState NewState)
@@ -131,10 +132,9 @@ void Process::ChangeProcessState(ProcessState NewState)
 
 bool Process::TimeForIO()
 {
-	if (!IO_PairsQ.isEmpty())
+	if (!IO_RequestQ.isEmpty())
 	{
-		
-		if (ProcessedTime == IO_PairsQ.QueueFront()->IO_R)
+		if (ProcessedTime == IO_RequestQ.QueueFront()->IO_R)
 		{
 			return true;
 		}
@@ -142,9 +142,11 @@ bool Process::TimeForIO()
 	return false;
 }
 
-void Process::PopIO() {
-	IO_Pairs* dummy;
-	IO_PairsQ.Dequeue(dummy);
+void Process::PopIO_Request() 
+{
+	IO_Request* CompletedIO_Request;
+	IO_RequestQ.Dequeue(CompletedIO_Request);
+	delete CompletedIO_Request;
 }
 
 void Process::ExecuteProcess()
@@ -155,9 +157,6 @@ void Process::ExecuteProcess()
 bool Process::isFirstExecution() const
 {
 	return firstTimeExecution;
-}
-
-Process::~Process() {
 }
 
 
