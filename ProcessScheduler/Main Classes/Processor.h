@@ -60,6 +60,9 @@ public:
 	//Returns crnt processor state
 	ProcessorState GetProcessorState();
 
+	//Increments BusyTime || IdleTime based on current state
+	void IncrementBusyOrIdleTime();
+
 	//Returns true if the processor is currently running a process
 	bool isExecutingProcess() const;
 

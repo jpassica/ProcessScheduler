@@ -65,12 +65,8 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		TimeSliceCounter++;
 		RunPtr->ExecuteProcess();
 	}
-		
-	//Incrementing BusyTime || IdleTime based on current state
-	if (CrntState == IDLE)
-		IdleTime++;
-	else
-		BusyTime++;
+
+	IncrementBusyOrIdleTime();
 }
 		
 

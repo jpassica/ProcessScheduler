@@ -157,4 +157,14 @@ bool Process::isFirstExecution() const
 	return firstTimeExecution;
 }
 
+Process::~Process()
+{
+	IO_Request* DeleteIO_Request = nullptr;
+	while (!IO_RequestQ.isEmpty())
+	{
+		IO_RequestQ.Dequeue(DeleteIO_Request);
+		delete DeleteIO_Request;
+	}
+}
+
 

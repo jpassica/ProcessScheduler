@@ -33,6 +33,14 @@ ProcessorState Processor::GetProcessorState()
 	return CrntState;
 }
 
+void Processor::IncrementBusyOrIdleTime()
+{
+	if (CrntState == IDLE)
+		IdleTime++;
+	else
+		BusyTime++;
+}
+
 bool Processor::isExecutingProcess() const
 {
 	return RunPtr;

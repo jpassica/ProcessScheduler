@@ -43,7 +43,7 @@ Scheduler::Scheduler()
 	ProcessedIO_D = 0;
 }
 
-void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
+void Scheduler::AllocateProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
 {
 	ProcessorsList = new Processor * [ProcessorsCount];
 
@@ -92,7 +92,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	ProcessorsCount = FCFSCount + SJFCount + RRCount + EDFCount;
 
 	//creating the processors according to the read data
-	setProcessors(FCFSCount, SJFCount, RRCount, EDFCount, RRtimeSlice);
+	AllocateProcessors(FCFSCount, SJFCount, RRCount, EDFCount, RRtimeSlice);
 
 	//variables to be read for each process and sent to ctor
 	int AT(0), PID(0), CT(0), DL(0), IO_N(0), IO_R(0), IO_D(0);
@@ -416,15 +416,9 @@ void Scheduler::Simulate()
 		//Moving new processes to ready queues
 		MoveNEWtoRDY();
 
-
-		//Check if there is a kill signal at the current time step
-		//while (!Processor::KillSignalQ.isEmpty() && Processor::KillSignalQ.QueueFront()->time == TimeStep)
-			//Kill();
-
-
 		for (size_t i = 0; i < ProcessorsCount; i++)
 		{
-			//Calling ScheduleAlgo for each processor   
+			//Calling ScheduleAlgo of each processor   
 			ProcessorsList[i]->ScheduleAlgo(TimeStep);
 		}
 
@@ -432,13 +426,12 @@ void Scheduler::Simulate()
 		if (TimeStep % STL == 0)
 			Steal();
 
+		//Handle IO_Duration in BLK list each time step
+		HandleIODuration();
 
 		//Incrementing & printing timestep
 		if (CrntMode != Silent)
 			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
-		
-		//Handle IO_Duration in BLK list each time step
-		HandleIODuration();
 
 		TimeStep++;
 	}
@@ -554,4 +547,23 @@ double Scheduler::CalcKillPercentage() const
 double Scheduler::CalcBeforeDeadlinePercentage() const
 {
 	return (double)100 * CompletedBeforeDeadlineCount / ProcessesCount;
+}
+
+Scheduler::~Scheduler()
+{
+	//Deallocating dynamically allocated objects
+	for (size_t i = 0; i < ProcessorsCount; i++)
+	{
+		delete ProcessorsList[i];
+	}
+	delete[] ProcessorsList;
+	delete ProgramUI;
+
+	KillSignal* DeleteKillSig = nullptr;
+
+	while (!Processor::KillSignalQ.isEmpty())
+	{
+		Processor::KillSignalQ.Dequeue(DeleteKillSig);
+		delete DeleteKillSig;
+	}
 }

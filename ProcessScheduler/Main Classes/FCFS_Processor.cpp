@@ -37,11 +37,7 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunPtr->ExecuteProcess();
 	}
 
-	//Incrementing BusyTime || IdleTime based on current state
-	if (CrntState == IDLE)
-		IdleTime++;
-	else
-		BusyTime++;
+	IncrementBusyOrIdleTime();
 }
 
 void FCFS_Processor::AddToReadyQueue(Process* pReady)

@@ -36,11 +36,7 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunPtr->ExecuteProcess();
 	}
 
-	//Incrementing BusyTime || IdleTime based on current state
-	if (CrntState == IDLE)
-		IdleTime++;
-	else
-		BusyTime++;
+	IncrementBusyOrIdleTime();
 }
 
 void SJF_Processor::AddToReadyQueue(Process* pReady)

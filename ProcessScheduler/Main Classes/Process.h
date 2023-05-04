@@ -74,4 +74,6 @@ public:
 
 	//returns true if this the process had not received the CPU before
 	bool isFirstExecution() const;
+
+	~Process();
 };

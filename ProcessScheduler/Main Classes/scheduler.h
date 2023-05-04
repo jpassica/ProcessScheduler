@@ -63,7 +63,7 @@ private:
 	//Pointer to the User Interface that will work throughout the simulation
 	UI* ProgramUI;
 
-	void setProcessors(int, int, int, int, int);  //used locally when input is loaded from the file
+	void AllocateProcessors(int, int, int, int, int);  //used locally when input is loaded from the file
 
 public:
 	Scheduler();
@@ -121,6 +121,8 @@ public:
 	double CalcForkingPercentage() const;
 	double CalcKillPercentage() const;
 	double CalcBeforeDeadlinePercentage() const;
+
+	~Scheduler();
 };
 
 #endif
