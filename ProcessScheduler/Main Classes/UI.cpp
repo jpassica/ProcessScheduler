@@ -4,14 +4,14 @@ using namespace std;
 
 string UI::ReadLine()
 {
-	string s;
-	getline(cin, s);
-	return s;
+	string Line;
+	getline(cin, Line);
+	return Line;
 }
 
-void UI::WriteLine(string s)
+void UI::WriteLine(string Line)
 {
-	cout << s << endl;
+	cout << Line << endl;
 }
 
 UI_Mode UI::InputInterfaceMode()
@@ -22,7 +22,7 @@ UI_Mode UI::InputInterfaceMode()
 		<< "1. Interactive Mode\n"
 		<< "2. StepByStep Mode\n"
 		<< "3. Silent Mode\n"
-		<< ">";
+		<< "> ";
 
 	cin >> ModeCode;
 
@@ -48,6 +48,7 @@ void UI::PrintSilentMode(bool StartorEnd)
 	}
 	else		//if StartorEnd = 1, this means we are at the end
 	{
+		Sleep(500);
 		cout << "Simulation ended, output file created!\n\n";
 	}
 }
@@ -59,7 +60,7 @@ string UI::InputFileName(bool isError)
 	if (isError)
 		cerr << "Error! Are you sure there's a file with that name?\n Please enter a valid input file name: >";
 	else
-		cout << "Please enter input file name: >";
+		cout << "Please enter input file name: > ";
 
 	cin >> FileName;
 
@@ -139,7 +140,7 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 
 	if (CrntMode == Interactive)
 	{
-		cout << "Press Any Key To Move To Next Step\n";
+		cout << "Press Enter Key To Move To Next Step\n";
 
 		if (!timeStep)
 			getchar();

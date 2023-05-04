@@ -6,21 +6,20 @@ SJF_Processor::SJF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, Sc
 
 void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 { 
+	//First, check if there is a IO Request to be handles at the current time step
 	pScheduler->HandleIORequest(this);
+
 	//Case 1: if there is no running process and the ready queue is empty, there is nothing to do for now
 
 	//Case 2: if there is no running process but there is a process in the ready queue, move it to RUN
 	if (!RunPtr && !SJF_Ready.isEmpty())
-	{
 		RunNextProcess(CrntTimeStep);
-	}
 
 	//Case 3: if the running process is done executing and is ready to move to TRM
 	else if (RunPtr && !RunPtr->GetRemainingCPUTime())
 	{
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
-		CrntState = IDLE;
 		RunNextProcess(CrntTimeStep);
 	}
 
@@ -32,6 +31,8 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 void SJF_Processor::AddToReadyQueue(Process* pReady)
 {
 	SJF_Ready.Enqueue(pReady, pReady->GetCPUTime());
+
+	pReady->ChangeProcessState(RDY);
 
 	FinishTime += pReady->GetRemainingCPUTime();
 }

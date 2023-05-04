@@ -19,42 +19,41 @@ protected:
 	int FinishTime;							//Estimated finish time of all processes in the ready queue/list
 
 public:
-	//ctor receives ID from the scheduler
 	Processor(int ID, Scheduler* SchedulerPtr);
 
-	//Responsible for regulating the movement of running processes
+	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) = 0;
 
-	//outputs Processor's ID
+	//Outputs Processor's ID
 	friend ostream& operator<<(ostream&, const Processor&);  
 
-	//calculates and returns pLoad %
+	//Calculates and returns pLoad %
 	double CalcPLoad(int TotalTRT) const;			
 
-	//calculates and returns pUtil %
+	//Calculates and returns pUtil %
 	double CalcPUtil() const;			
 
 	//Increments the ProcessedTime of the running process
 	//it should be called each time step
 	void IncrementRunningProcess();		
 
-	//This function keeps track of BusyTime and IdleTime
+	//Keeps track of BusyTime and IdleTime
 	//it should be called each time step
 	void IncrementBusyOrIdleTime();
 
 	//Changes current state from idle to busy and vice versa
 	void ChangeProcessorState(ProcessorState NextState);
 
-	//returns processor ID
+	//Returns processor ID
 	int getID() const;
 
 	//sets runnning processo to a passed process
 	void SetRunptr(Process*);
 
-	//returns crnt processor state
+	//Returns crnt processor state
 	ProcessorState GetProcessorState();
 
-	//returns run ptr
+	//Returns run ptr
 	Process* GetRunPtr();
 
 	//this function is overriden in each processor class

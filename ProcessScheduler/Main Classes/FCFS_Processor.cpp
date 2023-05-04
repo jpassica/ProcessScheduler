@@ -5,22 +5,20 @@ FCFS_Processor::FCFS_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, 
 
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
+	//First, check if there is a IO Request to be handles at the current time step
 	pScheduler->HandleIORequest(this);
 
 	//Case 1: if there is no running process and the ready list is empty, there is nothing to do for now
 
 	//Case 2: if there is no running process but there is a process in the ready list, move it to RUN
 	if (!RunPtr && !FCFS_Ready.isEmpty())
-	{
 		RunNextProcess(CrntTimeStep);
-	}
 
 	//Case 3: if the running process is done executing and is ready to move to TRM
 	else if (RunPtr && !RunPtr->GetRemainingCPUTime())
 	{
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
-		CrntState = IDLE;
 		RunNextProcess(CrntTimeStep);
 	}
 
@@ -32,6 +30,8 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 void FCFS_Processor::AddToReadyQueue(Process* pReady)
 {
 	FCFS_Ready.insert(FCFS_Ready.getCount() + 1, pReady);
+
+	pReady->ChangeProcessState(RDY);
 
 	FinishTime += pReady->GetRemainingCPUTime();
 }
@@ -82,16 +82,13 @@ bool FCFS_Processor::KillByID(int ID)
 	{
 		Process* killedProcess = FCFS_Ready.getEntry(position);
 
-		if (pScheduler->TerminateProcess(killedProcess))
-		{
-			FCFS_Ready.remove(position);
-			
-			FinishTime -= killedProcess->GetRemainingCPUTime();
+		pScheduler->TerminateProcess(killedProcess);
 
-			return true;
-		}
-		else
-			return false;
+		FCFS_Ready.remove(position);
+			
+		FinishTime -= killedProcess->GetRemainingCPUTime();
+
+		return true;
 	}
 	else
 		return false;

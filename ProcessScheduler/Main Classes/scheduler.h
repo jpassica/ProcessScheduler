@@ -67,39 +67,46 @@ private:
 
 public:
 	Scheduler();
-	
-	//getters 
 
-	//function responsible for reading input file
+	//Reads input file, allocates processes & processors
 	bool ReadInputFile(string filename);
 
-	//function resposible for generating output file
-	bool WriteOutputFile();
+	//Generates output file and writes all statistics
+	void WriteOutputFile();
 
 	//process operations
 	void Migrate(Process*);
 	void Steal();
 	
-	bool Kill();
+	void Kill();
 	void Fork(Process*);
 	
 	//process moving
-	bool BlockProcess(Processor*);
-	bool ReturnBLKtoRDY();
-	bool TerminateProcess(Process*);
+	void BlockProcess(Processor*);
+	void UnBlockProcess();
+	void TerminateProcess(Process*);
 
 	void HandleIODuration();
 	void HandleIORequest(Processor*);
 	bool MigrateToSJF(Processor*);
 	
 
-	//Moves all processes arriving at current timestep to shortest ready queues 
-	void FromNEWtoRDY();
+	//Moves all processes arriving at timestep to shortest ready queues 
+	void MoveNEWtoRDY();
 
-	//The main function that for running the simulation
+	//The main function that runs the simulation
 	void Simulate();
 
-	//statistics functions
+	//Sets the index of the processor with the smallest finish time
+	void SetMinIndex(int x = 0);
+
+	//Sets the index of the processor with the biggest finish time
+	void SetMaxIndex();
+
+	//Calculates and returns the steal limit
+	int CalcStealLimit();
+
+	//Statistics calculation functions
 	double CalcAvgUtilization() const;
 	double CalcAvgTRT() const;
 	double CalcAvgWT() const;
@@ -111,16 +118,6 @@ public:
 	double CalcForkingPercentage() const;
 	double CalcKillPercentage() const;
 	double CalcBeforeDeadlinePercentage() const;
-
-
-	//Sets the index of the processor with the smallest finish time
-	void SetMinIndex(int x=0);
-
-	//Sets the index of the processor with the biggest finish time
-	void SetMaxIndex();
-
-	//Calculates and returns the steal limit
-	int CalcStealLimit();
 };
 
 #endif

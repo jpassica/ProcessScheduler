@@ -7,20 +7,22 @@ RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Pro
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
+	//First, check if there is a IO Request to be handles at the current time step
 	pScheduler->HandleIORequest(this);
 
 	//if the process request IO or there is no running process -> pick the ready process to run
 	if (!RunPtr)
 	{
 		TimeSliceCounter = 0;
-		fromReadyToRun(CrntTimeStep);
+		RunNextProcess(CrntTimeStep);
 	}
 
-	while (pScheduler->MigrateToSJF(this)) {
+	/*while (pScheduler->MigrateToSJF(this)) 
+	{
 		RunPtr = nullptr;
 		TimeSliceCounter = 0;
-		fromReadyToRun(CrntTimeStep);
-	}
+		RunNextProcess(CrntTimeStep);
+	}*/
 
 	//means that all processes migrate which means that ready queue is empty
 	if (!RunPtr)
@@ -37,7 +39,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunPtr = nullptr;
 		CrntState = IDLE;
 	    TimeSliceCounter = 0;
-		fromReadyToRun(CrntTimeStep);
+		RunNextProcess(CrntTimeStep);
 
     }
 
@@ -49,7 +51,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunPtr = nullptr;
 		CrntState = IDLE;
 		TimeSliceCounter = 0;
-		fromReadyToRun(CrntTimeStep);
+		RunNextProcess(CrntTimeStep);
 	}
 
 	//else if there is a running process -> counter++
@@ -61,6 +63,8 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 void RR_Processor::AddToReadyQueue(Process* pReady)
 {
 	RR_Ready.Enqueue(pReady);
+
+	pReady->ChangeProcessState(RDY);
 
 	FinishTime += pReady->GetRemainingCPUTime();
 }

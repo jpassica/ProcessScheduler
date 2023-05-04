@@ -9,9 +9,10 @@ class EDF_Processor : public Processor
 public:
 	EDF_Processor(int ID, Scheduler* SchedulerPtr);
 
+	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) override;
 
-	//this function is overriden in each processor class
+	//Adds passed process to back of ready queue
 	virtual void AddToReadyQueue(Process* pReady) override;
 
 	//returns true if ready queue/list is empty

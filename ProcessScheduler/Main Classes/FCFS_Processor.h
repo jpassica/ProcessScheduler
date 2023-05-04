@@ -11,7 +11,7 @@ class FCFS_Processor : public Processor
 public:
 	FCFS_Processor(int ID, Scheduler* SchedulerPtr);
 
-	//Picks the next process to run according to 'first come first serve'
+	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) override;
 
 	//adds the passed process to the FCFS_Ready
