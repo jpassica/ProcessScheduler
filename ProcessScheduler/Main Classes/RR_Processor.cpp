@@ -38,32 +38,26 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 
 	}
 
-	//else -> the process does not complete it's time slice 
-	else 
-		TimeSliceCounter++;
-	
-	return;
-}
-		
-
 	//else if the running process is not done executing but has just finished it's time slice
 	//then it goes back to RDY list 
-	else if (TimeSliceCounter == TimeSlice) 
+	else if (TimeSliceCounter == TimeSlice)
 	{
 		AddToReadyQueue(RunPtr);
 		RunPtr = nullptr;
 		CrntState = IDLE;
 		TimeSliceCounter = 0;
-		if (RunNextProcess(CrntTimeStep)) 
+		if (RunNextProcess(CrntTimeStep))
 			TimeSliceCounter++;
 
 	}
 
 	//else -> the process has not completed its time slice 
-	else 
+	else
 		TimeSliceCounter++;
+	return;
 }
 		
+
 
 void RR_Processor::AddToReadyQueue(Process* pReady)
 {

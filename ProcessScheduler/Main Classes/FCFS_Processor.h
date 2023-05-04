@@ -28,6 +28,7 @@ public:
 	virtual void PrintRDY() const override;
 
 	virtual Process* StealProcess() override;
+	bool SearchProcess(int) const;
 };
 
 #endif

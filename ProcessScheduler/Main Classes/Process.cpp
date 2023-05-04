@@ -1,7 +1,7 @@
 #include "Process.h"
 
 //Process Constructor
-Process::Process(int ID, int AT, int CT, int DL, int IO_N) 
+Process::Process(int ID, int AT, int CT, int DL, int IO_N)
 	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), IO_N(IO_N), CrntState(NEW)
 {
 	//initializing all data members
@@ -12,22 +12,28 @@ Process::Process(int ID, int AT, int CT, int DL, int IO_N)
 	totalIO_D = 0;
 	ProcessedTime = 0;
 	ChildPtr = nullptr;
+	ParentPtr = nullptr;
 	firstTimeExecution = 1;
 }
 
-ostream& operator<<(ostream& out, const Process* P) 
+ostream& operator<<(ostream& out, const Process* P)
 {
 	out << P->PID;
 	return out;
 }
 
-void Process::Setchild(Process* ForkedProcess)
+void Process::SetChild(Process* ForkedProcess)
 {
 	ChildPtr = ForkedProcess;
 }
 
+void Process::SetParent(Process* Ptr)
+{
+	ParentPtr = Ptr;
+}
+
 //Set the response time as FCPU is the time when the process is ready to be processed at first time
-void Process::SetResponseTime(int FCPU) 
+void Process::SetResponseTime(int FCPU)
 {
 	ResponseTime = FCPU - ArrivalTime;
 
@@ -53,14 +59,14 @@ int Process::GetCPUTime() const
 	return CPUTime;
 }
 
-void Process::SetTerminationTime(int TT) 
+void Process::SetTerminationTime(int TT)
 {
 	TerminationTime = TT;
 	TurnAroundTime = TerminationTime - ArrivalTime;
 	WaitingTime = TurnAroundTime - ProcessedTime;
 }
 
-int Process::GetPID() const 
+int Process::GetPID() const
 {
 	return PID;
 }
@@ -110,6 +116,11 @@ Process* Process::GetChild() const
 	return ChildPtr;
 }
 
+Process* Process::GetParent() const
+{
+	return ParentPtr;
+}
+
 int Process::GetProcessedTime() const
 {
 	return ProcessedTime;
@@ -142,7 +153,7 @@ bool Process::TimeForIO()
 	return false;
 }
 
-void Process::PopIO_Request() 
+void Process::PopIO_Request()
 {
 	IO_Request* CompletedIO_Request;
 	IO_RequestQ.Dequeue(CompletedIO_Request);
@@ -158,5 +169,19 @@ bool Process::isFirstExecution() const
 {
 	return firstTimeExecution;
 }
+
+bool Process::IsChild() const
+{
+	if (ParentPtr)
+		return true;
+	return false;
+}
+
+bool Process::IsParent() const
+{
+	return (ChildPtr);
+}
+
+
 
 

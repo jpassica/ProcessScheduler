@@ -85,7 +85,7 @@ bool FCFS_Processor::KillByID(int randomID)
 		if (pScheduler->TerminateProcess(killedProcess))
 		{
 			FCFS_Ready.remove(position);
-			
+
 			FinishTime -= killedProcess->GetRemainingCPUTime();
 
 			return true;
@@ -111,4 +111,11 @@ Process* FCFS_Processor::StealProcess()
 	FinishTime -= StolenProcess->GetRemainingCPUTime();
 
 	return StolenProcess;
+}
+
+bool FCFS_Processor::SearchProcess(int PID) const
+{
+	if (FCFS_Ready.SearchByID(PID))
+		return true;
+	return false;
 }

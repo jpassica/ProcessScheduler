@@ -26,10 +26,10 @@ private:
 
 	int ProcessedTime;
 	Process* ChildPtr;
+	Process* ParentPtr;
 
 	//to put down the response time
 	bool firstTimeExecution;
-
 public:
 	//Non-default ctor
 	Process(int ID, int AT, int CT, int DL, int IO_N);
@@ -39,7 +39,8 @@ public:
 
 
 	//Setter functions
-	void Setchild(Process*);
+	void SetChild(Process*);
+	void SetParent(Process*);
 	void SetTerminationTime(int n);
 	void SetResponseTime(int n);
 
@@ -59,6 +60,7 @@ public:
 	int GetTotalIO_D() const;
 	ProcessState GetProcessState() const;
 	Process* GetChild() const;
+	Process* GetParent() const;
 
 	int GetProcessedTime() const;
 	int GetRemainingCPUTime() const;
@@ -75,4 +77,6 @@ public:
 
 	//returns true if this the process had not received the CPU before
 	bool isFirstExecution() const;
+	bool IsChild() const;
+	bool IsParent() const;
 };

@@ -77,6 +77,7 @@ public:
 	
 	//Steals a process from the top of the RDY queue/list
 	virtual Process* StealProcess() = 0;
+
 };
 
 #endif

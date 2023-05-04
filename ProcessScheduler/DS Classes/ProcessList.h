@@ -5,7 +5,7 @@
 class ProcessList : public List<Process*>
 {
 public:
-	int SearchByID(int PID)
+	int SearchByID(int PID) const
 	{
 		if (!headPtr)
 			return 0;

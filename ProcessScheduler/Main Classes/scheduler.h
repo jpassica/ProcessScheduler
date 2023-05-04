@@ -54,9 +54,14 @@ private:
 	int MinIndex;
 	int MaxIndex;
 
+	//Child Processes can only be Processed by FCFS Processors
+	int ShortestFCFSIndex;
+	int LongestFCFSIndex;
+
 	//Largest and smallest finish time between all the processors
 	int SQF;
 	int LQF;
+
 
 	int ProcessedIO_D;
 
@@ -65,6 +70,8 @@ private:
 
 	void setProcessors(int, int, int, int, int);  //used locally when input is loaded from the file
 
+	//returns the processor that the passed Process is currently in
+	FCFS_Processor* GetFCFS_ProcessorPtrTo(Process*);
 public:
 	Scheduler();
 	
@@ -81,8 +88,9 @@ public:
 	void Steal();
 	
 	bool Kill();
-	void Fork(Process*);
-	
+	bool Fork(Process*);
+	bool KillOrphan(Process*);
+
 	//process moving
 	bool BlockProcess(Processor*);
 	bool ReturnBLKtoRDY();
@@ -94,6 +102,9 @@ public:
 
 	//Moves all processes arriving at current timestep to shortest ready queues 
 	void FromNEWtoRDY();
+
+	//Moves Child processes to Ready 
+	void MoveChildToReady(Process*);
 
 	//The main function that for running the simulation
 	void Simulate();
@@ -117,6 +128,10 @@ public:
 
 	//Sets the index of the processor with the biggest finish time
 	void SetMaxIndex();
+
+	//Updates the index of the shortest & Longest FCFS Processor
+	void UpdateShortestFCFSIndex();
+	void UpdateLongestFCFSIndex();
 
 	//Calculates and returns the steal limit
 	int CalcStealLimit();
