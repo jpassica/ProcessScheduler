@@ -10,6 +10,18 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	pScheduler->HandleIORequest(this);
 	//pScheduler->MigrateToFCFS(this); 
 
+	//if the running process is done executing and is ready to move to TRM
+	if (RunPtr && RunPtr->GetProcessedTime() == RunPtr->GetCPUTime())
+	{
+		pScheduler->TerminateProcess(RunPtr);
+		RunPtr = nullptr;
+		CrntState = IDLE;
+		TimeSliceCounter = 0;
+		if (RunNextProcess(CrntTimeStep))
+			TimeSliceCounter++;
+
+	}
+
 	//if there is no running process and the ready queue is empty,
 	//then there is nothing to do
 	if (!RunPtr && RR_Ready.isEmpty()) {
@@ -26,17 +38,6 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		return;
 	}
 
-	//if the running process is done executing and is ready to move to TRM
-	if (RunPtr->GetProcessedTime() == RunPtr->GetCPUTime())
-	{
-		pScheduler->TerminateProcess(RunPtr); 
-		RunPtr = nullptr;
-		CrntState = IDLE;
-	    TimeSliceCounter = 0;
-		if (RunNextProcess(CrntTimeStep))
-			TimeSliceCounter++;
-
-	}
 
 	//else if the running process is not done executing but has just finished it's time slice
 	//then it goes back to RDY list 

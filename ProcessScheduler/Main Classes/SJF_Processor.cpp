@@ -9,20 +9,21 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 	pScheduler->HandleIORequest(this);
 	//Case 1: if there is no running process and the ready queue is empty, there is nothing to do for now
 
-	//Case 2: if there is no running process but there is a process in the ready queue, move it to RUN
-	if (!RunPtr && !SJF_Ready.isEmpty())
-	{
-		RunNextProcess(CrntTimeStep);
-	}
-
-	//Case 3: if the running process is done executing and is ready to move to TRM
-	else if (RunPtr && !RunPtr->GetRemainingCPUTime())
+	//Case 2: if the running process is done executing and is ready to move to TRM
+	if (RunPtr && RunPtr->GetRemainingCPUTime() == 0)
 	{
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
 		CrntState = IDLE;
 		RunNextProcess(CrntTimeStep);
 	}
+
+	//Case 3: if there is no running process but there is a process in the ready queue, move it to RUN
+	else if (!RunPtr && !SJF_Ready.isEmpty())
+	{
+		RunNextProcess(CrntTimeStep);
+	}
+
 
 	//Case4: if the running process is not done executing, then there is nothing to do for now
 

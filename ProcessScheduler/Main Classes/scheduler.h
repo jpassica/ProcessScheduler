@@ -83,7 +83,7 @@ public:
 	//function responsible for reading input file
 	bool ReadInputFile(string filename);
 
-	//function resposible for generating output file
+	//function responsible for generating output file
 	bool WriteOutputFile();
 
 	//process operations

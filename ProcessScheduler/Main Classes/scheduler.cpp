@@ -316,6 +316,7 @@ bool Scheduler::MigrateToRR(Processor* MigrationLoc)
 	{
 		UpdateShortestRRIndex();
 		ProcessorsList[ShortestRRIndex]->AddToReadyQueue(ProcessToMigrate);
+		ProcessToMigrate->ChangeProcessState(RDY);
 		MigrationLoc->SetRunptr(nullptr);
 		MigrationLoc->ChangeProcessorState(IDLE);
 		cout << "Migration To RR is done" <<"\n";

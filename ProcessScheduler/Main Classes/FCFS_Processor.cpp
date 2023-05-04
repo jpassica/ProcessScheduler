@@ -6,6 +6,20 @@ FCFS_Processor::FCFS_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, 
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
 	pScheduler->HandleIORequest(this);
+	//Case 1: if there is no running process and the ready list is empty, there is nothing to do for now
+	// 
+	//Case 2: if the running process is done executing and is ready to move to TRM
+	if (RunPtr && RunPtr->GetRemainingCPUTime() <= 0)
+	{
+		pScheduler->TerminateProcess(RunPtr);
+		RunPtr = nullptr;
+		CrntState = IDLE;
+		RunNextProcess(CrntTimeStep);
+	}
+
+	//Case 3: if there is no running process but there is a process in the ready list, move it to RUN
+	else if (!RunPtr && !FCFS_Ready.isEmpty())
+		RunNextProcess(CrntTimeStep);
 
 	//Migration case
 	if (RunPtr)
@@ -14,22 +28,6 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 		pScheduler->MigrateToRR(this);
 	}
 
-	//Case 1: if there is no running process and the ready list is empty, there is nothing to do for now
-
-	//Case 2: if there is no running process but there is a process in the ready list, move it to RUN
-	if (!RunPtr && !FCFS_Ready.isEmpty())
-	{
-		RunNextProcess(CrntTimeStep);
-	}
-
-	//Case 3: if the running process is done executing and is ready to move to TRM
-	else if (RunPtr && !RunPtr->GetRemainingCPUTime())
-	{
-		pScheduler->TerminateProcess(RunPtr);
-		RunPtr = nullptr;
-		CrntState = IDLE;
-		RunNextProcess(CrntTimeStep);
-	}
 
 	//Case4: if the running process is not done executing, then there is nothing to do for now
 
