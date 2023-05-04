@@ -11,7 +11,7 @@ class SJF_Processor : public Processor
 public:
 	SJF_Processor(int ID, Scheduler* SchedulerPtr);
 
-	//Picks the next process to run according to 'shortest job first'
+	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) override;
 
 	//adds passed process to SJF_Ready

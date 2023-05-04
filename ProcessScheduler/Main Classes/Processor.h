@@ -8,54 +8,21 @@ class Scheduler;
 
 class Processor
 {
-private:
-	int ID;
-	int BusyTime, IdleTime;
-	
 protected:
+	int ID;
+	ProcessorState CrntState;				//idle vs. busy
+	int BusyTime, IdleTime;					//Total time the processor was busy/idle
 	Process* RunPtr;						//Ptr to the running process
 	Scheduler* pScheduler;					//Ptr to Scheduler class
-	ProcessorState CrntState;				//Current state: idle vs. busy
 	int FinishTime;							//Estimated finish time of all processes in the ready queue/list
 
 public:
-	//ctor receives ID from the scheduler
+	static Queue<KillSignal*> KillSignalQ;
+
 	Processor(int ID, Scheduler* SchedulerPtr);
 
-	//Responsible for regulating the movement of running processes
+	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) = 0;
-
-	//outputs Processor's ID
-	friend ostream& operator<<(ostream&, const Processor&);  
-
-	//calculates and returns pLoad %
-	double CalcPLoad(int TotalTRT) const;			
-
-	//calculates and returns pUtil %
-	double CalcPUtil() const;			
-
-	//Increments the ProcessedTime of the running process
-	//it should be called each time step
-	void IncrementRunningProcess();		
-
-	//This function keeps track of BusyTime and IdleTime
-	//it should be called each time step
-	void IncrementBusyOrIdleTime();
-
-	//Changes current state from idle to busy and vice versa
-	void ChangeProcessorState(ProcessorState NextState);
-
-	//returns processor ID
-	int getID() const;
-
-	//sets runnning processo to a passed process
-	void SetRunptr(Process*);
-
-	//returns crnt processor state
-	ProcessorState GetProcessorState();
-
-	//returns run ptr
-	Process* GetRunPtr();
 
 	//this function is overriden in each processor class
 	virtual void AddToReadyQueue(Process* pReady) = 0;
@@ -69,15 +36,41 @@ public:
 	//returns count of items in ready queue/list
 	virtual int GetRDYCount() const = 0;
 
-	//returns expected finish time of all processes in the ready queue/list
-	int GetFinishTime() const;
-
 	//Calls print function of ready queue/list
 	virtual void PrintRDY() const = 0;
-	
+
 	//Steals a process from the top of the RDY queue/list
 	virtual Process* StealProcess() = 0;
 
+	//Outputs Processor's ID
+	friend ostream& operator<<(ostream&, const Processor&);  
+
+	//Calculates and returns pLoad %
+	double CalcPLoad(int TotalTRT) const;			
+
+	//Calculates and returns pUtil %
+	double CalcPUtil() const;				
+
+	//Changes current state from idle to busy and vice versa
+	void ChangeProcessorState(ProcessorState NextState);
+
+	//Returns processor ID
+	int GetID() const;
+
+	//Returns crnt processor state
+	ProcessorState GetProcessorState();
+
+	//Increments BusyTime || IdleTime based on current state
+	void IncrementBusyOrIdleTime();
+
+	//Returns true if the processor is currently running a process
+	bool isExecutingProcess() const;
+
+	//Returns ID of the currently running process
+	int GetRunningProcessID() const;
+
+	//returns expected finish time of all processes in the ready queue/list
+	int GetFinishTime() const;
 };
 
 #endif

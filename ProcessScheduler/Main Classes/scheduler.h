@@ -48,7 +48,7 @@ private:
 	int KillCount;						//no. of kills
 	int CompletedBeforeDeadlineCount;
 
-	Queue<KillSignal*> KillSignalQ;
+	//Queue<KillSignal*> KillSignalQ;
 
 	//Indices of the processors with the smallest & biggest finish time
 	int MinIndex;
@@ -71,7 +71,7 @@ private:
 	//Pointer to the User Interface that will work throughout the simulation
 	UI* ProgramUI;
 
-	void setProcessors(int, int, int, int, int);  //used locally when input is loaded from the file
+	void AllocateProcessors(int, int, int, int, int);  //used locally when input is loaded from the file
 
 	//returns the processor that the passed Process is currently in
 	FCFS_Processor* GetFCFS_ProcessorPtrTo(Process*);
@@ -83,9 +83,17 @@ public:
 	//function responsible for reading input file
 	bool ReadInputFile(string filename);
 
+	//Reads input file, sets data, allocates processes & processors
+	bool ReadInputFile(string);
+
+	//Generates output file and writes all statistics
+	void WriteOutputFile();
+
+	//------------- Process operations -------------
 	//function responsible for generating output file
 	bool WriteOutputFile();
 
+	//Steals processes from the longest queue and gives it to the shortest
 	//process operations
 	bool MigrateToRR(Processor*);
 	void Steal();
@@ -99,20 +107,42 @@ public:
 	bool ReturnBLKtoRDY();
 	bool TerminateProcess(Process*);
 
-	void HandleIODuration();
-	void HandleIORequest(Processor*);
+
+	//Called by FCFS processors when they execute a kill signal
+	void IncrementKillCount();
+
+	//Forks a child process
+	void Fork(Process*);
+
 	
+	void HandleIODuration();
+	bool MigrateToSJF(Process*);
+	
+	//Process moving functions
+	void BlockProcess(Process*);
+	void UnBlockProcess();
+	void TerminateProcess(Process*);
 
-	//Moves all processes arriving at current timestep to shortest ready queues 
-	void FromNEWtoRDY();
+	//Moves all processes arriving at timestep to shortest ready queues 
+	void MoveNEWtoRDY();
 
+	//The main function that runs the simulation
 	//Moves Child processes to Ready 
 	void MoveChildToReady(Process*);
 
 	//The main function that for running the simulation
 	void Simulate();
 
-	//statistics functions
+	//Sets the index of the processor with the smallest finish time
+	void SetMinIndex(int x = 0);
+
+	//Sets the index of the processor with the biggest finish time
+	void SetMaxIndex();
+
+	//Calculates and returns the steal limit
+	int CalcStealLimit();
+
+	//Statistics calculation functions
 	double CalcAvgUtilization() const;
 	double CalcAvgTRT() const;
 	double CalcAvgWT() const;
@@ -141,6 +171,7 @@ public:
 
 	//Calculates and returns the steal limit
 	int CalcStealLimit();
+	~Scheduler();
 };
 
 #endif

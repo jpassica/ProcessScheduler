@@ -7,9 +7,17 @@ RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Pro
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	pScheduler->HandleIORequest(this);
-	//pScheduler->MigrateToFCFS(this); 
+	//First, check if there is a IO Request to be handled at the current time step
+	if (RunPtr && RunPtr->TimeForIO())
+	{
+		pScheduler->BlockProcess(RunPtr);
+		RunPtr = nullptr;
+		CrntState = IDLE;
+	}
 
+	//if the process request IO or there is no running process -> pick the ready process to run
+	if (!RunPtr)
+	{
 	//if the running process is done executing and is ready to move to TRM
 	if (RunPtr && RunPtr->GetProcessedTime() == RunPtr->GetCPUTime())
 	{
@@ -26,15 +34,21 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	//then there is nothing to do
 	if (!RunPtr && RR_Ready.isEmpty()) {
 		TimeSliceCounter = 0;
-		CrntState = IDLE;
-		return;
+		RunNextProcess(CrntTimeStep);
 	}
 
-	//if there is no running process but there is a process in the ready queue, move it to RUN
+	/*while (pScheduler->MigrateToSJF(RunPtr)) 
+	{
+		RunPtr = nullptr;
+		TimeSliceCounter = 0;
+		RunNextProcess(CrntTimeStep);
+	}*/
+
+	//means that all processes migrate which means that ready queue is empty
 	if (!RunPtr)
 	{
-		RunNextProcess(CrntTimeStep);
-		TimeSliceCounter++;
+		TimeSliceCounter = 0;
+		CrntState = IDLE;
 		return;
 	}
 
@@ -47,11 +61,20 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunPtr = nullptr;
 		CrntState = IDLE;
 		TimeSliceCounter = 0;
+		RunNextProcess(CrntTimeStep);
+	}
+
+	//else if there is a running process -> counter++
+	if (RunPtr)
+	{
+		TimeSliceCounter++;
+		RunPtr->ExecuteProcess();
 		if (RunNextProcess(CrntTimeStep))
 			TimeSliceCounter++;
 
 	}
 
+	IncrementBusyOrIdleTime();
 	//else -> the process has not completed its time slice 
 	else
 		TimeSliceCounter++;
@@ -63,6 +86,8 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 void RR_Processor::AddToReadyQueue(Process* pReady)
 {
 	RR_Ready.Enqueue(pReady);
+
+	pReady->ChangeProcessState(RDY);
 
 	FinishTime += pReady->GetRemainingCPUTime();
 }

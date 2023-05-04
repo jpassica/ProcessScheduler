@@ -31,7 +31,7 @@ private:
 	Process* ChildPtr;
 	Process* ParentPtr;
 
-	//to put down the response time
+	//To mark the response time
 	bool firstTimeExecution;
 
 public:
@@ -53,7 +53,7 @@ public:
 
 	//Getter functions
 	int GetCPUTime() const;
-	int GetPID() const;
+	int GetID() const;
 	int GetArrivalTime() const;
 	int GetTurnAroundTime() const;
 	int GetResponseTime() const;
@@ -73,14 +73,15 @@ public:
 	void ChangeProcessState(ProcessState NewState);
 
 	bool TimeForIO();
-	void PopIO_Request();
-
+	void DeleteIO_Request();
 
 	//Increments the ProcessedTime of the process currently being executed
 	void ExecuteProcess();
 
 	//returns true if this the process had not received the CPU before
 	bool isFirstExecution() const;
+
+	~Process();
 	bool IsChild() const;
 	bool IsParent() const;
 
