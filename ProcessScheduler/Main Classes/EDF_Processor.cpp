@@ -48,6 +48,17 @@ void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 	}
 
 	//if the running process is not done executing, then there is nothing to do for now
+
+	if (RunPtr)
+	{
+		RunPtr->ExecuteProcess();
+	}
+
+	//Incrementing BusyTime || IdleTime based on current state
+	if (CrntState == IDLE)
+		IdleTime++;
+	else
+		BusyTime++;
 }
 
 void EDF_Processor::AddToReadyQueue(Process* pReady)

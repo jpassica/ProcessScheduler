@@ -60,7 +60,7 @@ void Process::SetTerminationTime(int TT)
 	WaitingTime = TurnAroundTime - ProcessedTime;
 }
 
-int Process::GetPID() const 
+int Process::GetID() const 
 {
 	return PID;
 }

@@ -157,6 +157,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="OutputFileA.txt" />
+    <Text Include="OutputFileB.txt" />
+    <Text Include="OutputFileC.txt" />
     <Text Include="TestCaseC.txt" />
     <Text Include="TestCaseA.txt" />
     <Text Include="TestCaseB.txt" />

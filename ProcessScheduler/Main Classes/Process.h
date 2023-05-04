@@ -48,7 +48,7 @@ public:
 
 	//Getter functions
 	int GetCPUTime() const;
-	int GetPID() const;
+	int GetID() const;
 	int GetArrivalTime() const;
 	int GetTurnAroundTime() const;
 	int GetResponseTime() const;
@@ -68,7 +68,6 @@ public:
 
 	bool TimeForIO();
 	void DeleteIO_Request();
-
 
 	//Increments the ProcessedTime of the process currently being executed
 	void ExecuteProcess();

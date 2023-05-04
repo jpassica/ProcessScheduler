@@ -152,13 +152,15 @@ bool Scheduler::ReadInputFile(string FileName)
 
 	//reading each kill signal's data until there is no more data
 	int time(0), ID(0);
+	KillSignal* NewKillSignal = nullptr;
+
 	while (!IP_Stream.eof())
 	{
 		IP_Stream >> time >> PID;
 
-		KillSignal* newKillSignal = new KillSignal(time, PID);
+		NewKillSignal = new KillSignal(time, PID);
 
-		KillSignalQ.Enqueue(newKillSignal);
+		Processor::KillSignalQ.Enqueue(NewKillSignal);
 	}
 
 	IP_Stream.close();
@@ -171,7 +173,7 @@ void Scheduler::WriteOutputFile()
 {
 	//Creating output stream object and opening file for writing
 	ofstream OP_Stream;
-	string fileName = "OutputFileB.txt";
+	string fileName = "OutputFileC.txt";
 	OP_Stream.open(fileName);
 
 	//If there is any problem with the file, abort
@@ -193,7 +195,7 @@ void Scheduler::WriteOutputFile()
 		TRM_List.Dequeue(deletePtr);
 
 		OP_Stream << setw(7) << deletePtr->GetTerminationTime()
-			<< setw(7) << deletePtr->GetPID()
+			<< setw(7) << deletePtr->GetID()
 			<< setw(7) << deletePtr->GetArrivalTime()
 			<< setw(8) << deletePtr->GetCPUTime()
 			<< setw(8) << deletePtr->GetTotalIO_D()
@@ -313,42 +315,9 @@ void Scheduler::Steal()
 	}
 }
 
-void Scheduler::Kill() 
+void Scheduler::IncrementKillCount()
 {
-	KillSignal* KillSig = nullptr;
-	KillSignalQ.Dequeue(KillSig);
-
-	FCFS_Processor* FCFSPtr = nullptr;
-
-	for (size_t i = 0; i < FCFSCount; i++)
-	{
-		// Force casting to access FCFS exclusive member functions
-		FCFSPtr = (FCFS_Processor*)ProcessorsList[i];
-
-		// if the process to be killed is the runptr 
-		if (ProcessorsList[i]->GetRunPtr() && ProcessorsList[i]->GetRunPtr()->GetPID() == KillSig->PID)
-		{
-			TerminateProcess(FCFSPtr->GetRunPtr());          // terminate the process
-
-			FCFSPtr->SetRunptr(nullptr);
-
-			KillCount++;
-			delete KillSig;
-
-			return;
-		}
-		
-		// If the process to be killed is found in the ready list of an FCFS processor
-		if (FCFSPtr->KillByID(KillSig->PID))
-		{
-			KillCount++;
-			delete KillSig;
-
-			return;
-		}
-	}
-
-	// Not RDY/RUN for FCFS -> ignore
+	KillCount++;
 }
 
 void Scheduler::BlockProcess(Process* ProcessPtr)
@@ -449,19 +418,14 @@ void Scheduler::Simulate()
 
 
 		//Check if there is a kill signal at the current time step
-		while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == TimeStep)
-			Kill();
+		//while (!Processor::KillSignalQ.isEmpty() && Processor::KillSignalQ.QueueFront()->time == TimeStep)
+			//Kill();
 
 
 		for (size_t i = 0; i < ProcessorsCount; i++)
 		{
 			//Calling ScheduleAlgo for each processor   
 			ProcessorsList[i]->ScheduleAlgo(TimeStep);
-
-
-			//Parameter-handling functions that are called each time step
-			ProcessorsList[i]->IncrementBusyOrIdleTime();
-			ProcessorsList[i]->IncrementRunningProcess();
 		}
 
 		//Initiating the steal action each STL timesteps
@@ -469,11 +433,11 @@ void Scheduler::Simulate()
 			Steal();
 
 
-		//incrementing & printing timestep
+		//Incrementing & printing timestep
 		if (CrntMode != Silent)
 			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
 		
-		// Handle IO_Duration in BLK list each time step
+		//Handle IO_Duration in BLK list each time step
 		HandleIODuration();
 
 		TimeStep++;

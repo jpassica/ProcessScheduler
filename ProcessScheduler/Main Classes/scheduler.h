@@ -48,7 +48,7 @@ private:
 	int KillCount;						//no. of kills
 	int CompletedBeforeDeadlineCount;
 
-	Queue<KillSignal*> KillSignalQ;
+	//Queue<KillSignal*> KillSignalQ;
 
 	//Indices of the processors with the smallest & biggest finish time
 	int MinIndex;
@@ -79,8 +79,8 @@ public:
 	//Steals processes from the longest queue and gives it to the shortest
 	void Steal();
 
-	//Kills processes if they receive a kill signal at current time step & are scheduled by FCFS
-	void Kill();
+	//Called by FCFS processors when they execute a kill signal
+	void IncrementKillCount();
 
 	//Forks a child process
 	void Fork(Process*);

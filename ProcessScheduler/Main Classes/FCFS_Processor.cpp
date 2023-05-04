@@ -5,6 +5,9 @@ FCFS_Processor::FCFS_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, 
 
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
+	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == CrntTimeStep)
+		Kill();
+
 	//First, check if there is a IO Request to be handled at the current time step
 	if (RunPtr && RunPtr->TimeForIO())
 	{
@@ -29,7 +32,16 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 
 	//Case4: if the running process is not done executing, then there is nothing to do for now
 
-	//IO, killsigs & others
+	if (RunPtr)
+	{
+		RunPtr->ExecuteProcess();
+	}
+
+	//Incrementing BusyTime || IdleTime based on current state
+	if (CrntState == IDLE)
+		IdleTime++;
+	else
+		BusyTime++;
 }
 
 void FCFS_Processor::AddToReadyQueue(Process* pReady)
@@ -113,4 +125,35 @@ Process* FCFS_Processor::StealProcess()
 	FinishTime -= StolenProcess->GetRemainingCPUTime();
 
 	return StolenProcess;
+}
+
+void FCFS_Processor::Kill()
+{
+	KillSignal* KillSig = nullptr;
+	KillSignalQ.Dequeue(KillSig);
+
+	// if the process to be killed is the runptr 
+	if (RunPtr && RunPtr->GetID() == KillSig->PID)
+	{
+		pScheduler->TerminateProcess(RunPtr);          // terminate the process
+
+		RunPtr = nullptr;
+
+		pScheduler->IncrementKillCount();
+
+		delete KillSig;
+
+		return;
+	}
+
+	// If the process to be killed is found in the ready list of an FCFS processor
+	if (KillByID(KillSig->PID))
+	{
+		pScheduler->IncrementKillCount();
+		delete KillSig;
+
+		return;
+	}
+
+	// Not RDY/RUN for FCFS -> ignore
 }

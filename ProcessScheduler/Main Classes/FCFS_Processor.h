@@ -28,6 +28,9 @@ public:
 	virtual void PrintRDY() const override;
 
 	virtual Process* StealProcess() override;
+
+	//Kills processes if they receive a kill signal at current time step
+	void Kill();
 };
 
 #endif

@@ -8,17 +8,17 @@ class Scheduler;
 
 class Processor
 {
-private:
-	int ID;
-	int BusyTime, IdleTime;
-	
 protected:
+	int ID;
+	ProcessorState CrntState;				//idle vs. busy
+	int BusyTime, IdleTime;					//Total time the processor was busy/idle
 	Process* RunPtr;						//Ptr to the running process
 	Scheduler* pScheduler;					//Ptr to Scheduler class
-	ProcessorState CrntState;				//Current state: idle vs. busy
 	int FinishTime;							//Estimated finish time of all processes in the ready queue/list
 
 public:
+	static Queue<KillSignal*> KillSignalQ;
+
 	Processor(int ID, Scheduler* SchedulerPtr);
 
 	//Handles moving processes to and from RUN state
@@ -49,30 +49,22 @@ public:
 	double CalcPLoad(int TotalTRT) const;			
 
 	//Calculates and returns pUtil %
-	double CalcPUtil() const;			
-
-	//Increments the ProcessedTime of the running process
-	//it should be called each time step
-	void IncrementRunningProcess();		
-
-	//Keeps track of BusyTime and IdleTime
-	//it should be called each time step
-	void IncrementBusyOrIdleTime();
+	double CalcPUtil() const;				
 
 	//Changes current state from idle to busy and vice versa
 	void ChangeProcessorState(ProcessorState NextState);
 
 	//Returns processor ID
-	int getID() const;
-
-	//sets runnning processo to a passed process
-	void SetRunptr(Process*);
+	int GetID() const;
 
 	//Returns crnt processor state
 	ProcessorState GetProcessorState();
 
-	//Returns run ptr
-	Process* GetRunPtr();
+	//Returns true if the processor is currently running a process
+	bool isExecutingProcess() const;
+
+	//Returns ID of the currently running process
+	int GetRunningProcessID() const;
 
 	//returns expected finish time of all processes in the ready queue/list
 	int GetFinishTime() const;

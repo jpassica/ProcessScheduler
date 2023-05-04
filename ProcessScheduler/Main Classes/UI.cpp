@@ -78,7 +78,7 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 	cout << "--------------------   RDY Processes  -------------------------------" << endl;  
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
-		int ProcessorID = ProcessorsList[i]->getID();
+		int ProcessorID = ProcessorsList[i]->GetID();
 		
 		cout << "Processor " << ProcessorID;
 
@@ -104,28 +104,27 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 
 	cout << "--------------------   RUN Processes  -------------------------------" << endl;
 	
-	//calculating no. of RunningProcess processes
+	//Counting no. of running processes
 	int RunningCount = 0;
+
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
-		Process* RunningProcess = ProcessorsList[i]->GetRunPtr();
-		if (RunningProcess)
+		if (ProcessorsList[i]->isExecutingProcess())
 			RunningCount++;
 	}
 
 	cout << RunningCount << " RUN: ";
 	
-	//printing RunningProcess processes by getting the RunPtr in each processor
-	bool Found = false;		//used to detect first output to adjust format 
+	//Printing RunningProcess processes by getting the RunPtr in each processor
+	//Used to detect first output to adjust format 
+
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
-		Process* RunningProcess = ProcessorsList[i]->GetRunPtr();
-		if (RunningProcess)
+		if (ProcessorsList[i]->isExecutingProcess())
 		{
-			if (Found)
+			if (i)
 				cout << ", ";
-			cout << RunningProcess->GetPID() << "(P" << ProcessorsList[i]->getID() << ")";
-			Found = true;
+			cout << ProcessorsList[i]->GetRunningProcessID() << "(P" << ProcessorsList[i]->GetID() << ")";
 		}
 	}
 	cout << endl;
