@@ -132,7 +132,7 @@ bool Scheduler::ReadInputFile(string FileName)
 		if (IO_N)
 			IP_Stream >> IO_st;
 
-		newProcess = new Process(PID, AT, CT, DL, IO_N);
+		newProcess = new Process(PID, AT, CT, DL, IO_N , this);
 
 		//iterator for reading the IO requests string
 		int StIndex(1);
@@ -304,16 +304,24 @@ void Scheduler::HandleIODuration()
 	}
 }
 
-void Scheduler::Migrate()
+bool Scheduler::MigrateToRR(Processor* MigrationLoc)
 {
-	for (int i = 0; i < FCFSCount; i++)
+	//If there is no RR processors
+	if (!RRCount)
+		return false;
+
+	Process* ProcessToMigrate = MigrationLoc->GetRunPtr();
+
+	if (!ProcessToMigrate->IsChild() && ProcessToMigrate->GetWaitingTime() > MaxW)
 	{
-		Process* ProcessToMigrate= ProcessorsList[i]->GetRunPtr();
-		if (!ProcessToMigrate->IsChild() && ProcessToMigrate->GetWaitingTime() > MaxW)
-		{
-			//To be completed
-		}
+		UpdateShortestRRIndex();
+		ProcessorsList[ShortestRRIndex]->AddToReadyQueue(ProcessToMigrate);
+		MigrationLoc->SetRunptr(nullptr);
+		MigrationLoc->ChangeProcessorState(IDLE);
+		cout << "Migration To RR is done" <<"\n";
+		return true;
 	}
+	return false;
 }
 
 void Scheduler::Steal()
@@ -322,7 +330,7 @@ void Scheduler::Steal()
 	SetMinIndex();
 	SetMaxIndex();
 	UpdateShortestFCFSIndex();
-
+	
 	//Calculating the steal limit
 	int StealLimit = CalcStealLimit();
 
@@ -339,8 +347,11 @@ void Scheduler::Steal()
 				return;
 		}
 		else
+		{
 			ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
-
+			if (MinIndex == MaxIndex)
+				break;
+		}
 		StealCount++;
 
 		//Recalculating the steal limit
@@ -404,7 +415,7 @@ bool Scheduler::Fork(Process* ProcessPtr)
 	int ChildIO_N = 0;									//Child Process can never ask for I/O
 
 	//creating Child process
-	Process* Child = new Process(ChildID, ChildAT, ChildCT, ChildDL, ChildIO_N);
+	Process* Child = new Process(ChildID, ChildAT, ChildCT, ChildDL, ChildIO_N , this);
 	ProcessPtr->SetChild(Child);
 	Child->SetParent(ProcessPtr);
 	MoveChildToReady(Child);
@@ -720,6 +731,19 @@ void Scheduler::UpdateLongestFCFSIndex()
 	{
 		if (ProcessorsList[i]->GetFinishTime() > ProcessorsList[LongestFCFSIndex]->GetFinishTime())
 			LongestFCFSIndex = i;
+	}
+}
+
+void Scheduler::UpdateShortestRRIndex()
+{
+	//Initializing the index of the processor with the smallest finish time
+	ShortestRRIndex = FCFSCount + SJFCount;
+
+	//Checking which processor has the smallest expected finish time
+	for (size_t i = FCFSCount+SJFCount+1; i < ProcessorsCount; i++)
+	{
+		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[ShortestRRIndex]->GetFinishTime())
+			ShortestRRIndex = i;
 	}
 }
 

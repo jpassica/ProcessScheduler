@@ -1,8 +1,8 @@
 #include "Process.h"
-
+#include "Scheduler.h"
 //Process Constructor
-Process::Process(int ID, int AT, int CT, int DL, int IO_N)
-	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), IO_N(IO_N), CrntState(NEW)
+Process::Process(int ID, int AT, int CT, int DL, int IO_N , Scheduler* SchPtr)
+	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), IO_N(IO_N), CrntState(NEW) , SchedulerPtr(SchPtr)
 {
 	//initializing all data members
 	TerminationTime = 0;
@@ -180,6 +180,11 @@ bool Process::IsChild() const
 bool Process::IsParent() const
 {
 	return (ChildPtr);
+}
+
+void Process::UpdateTotalWaitingTime()
+{
+	WaitingTime = (SchedulerPtr->GetTimeStep()-ArrivalTime)-ProcessedTime;
 }
 
 

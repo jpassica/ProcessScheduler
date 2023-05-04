@@ -58,6 +58,9 @@ private:
 	int ShortestFCFSIndex;
 	int LongestFCFSIndex;
 
+	//Used in migration
+	int ShortestRRIndex;
+
 	//Largest and smallest finish time between all the processors
 	int SQF;
 	int LQF;
@@ -76,7 +79,7 @@ public:
 	Scheduler();
 	
 	//getters 
-
+	int GetTimeStep();
 	//function responsible for reading input file
 	bool ReadInputFile(string filename);
 
@@ -84,7 +87,7 @@ public:
 	bool WriteOutputFile();
 
 	//process operations
-	void Migrate(Process*);
+	bool MigrateToRR(Processor*);
 	void Steal();
 	
 	bool Kill();
@@ -132,6 +135,9 @@ public:
 	//Updates the index of the shortest & Longest FCFS Processor
 	void UpdateShortestFCFSIndex();
 	void UpdateLongestFCFSIndex();
+
+	//
+	void UpdateShortestRRIndex();
 
 	//Calculates and returns the steal limit
 	int CalcStealLimit();

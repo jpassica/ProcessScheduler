@@ -7,6 +7,13 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
 	pScheduler->HandleIORequest(this);
 
+	//Migration case
+	if (RunPtr)
+	{
+		RunPtr->UpdateTotalWaitingTime();			//updating TotalWaitingTime which is used in migration
+		pScheduler->MigrateToRR(this);
+	}
+
 	//Case 1: if there is no running process and the ready list is empty, there is nothing to do for now
 
 	//Case 2: if there is no running process but there is a process in the ready list, move it to RUN
@@ -119,3 +126,5 @@ bool FCFS_Processor::SearchProcess(int PID) const
 		return true;
 	return false;
 }
+
+

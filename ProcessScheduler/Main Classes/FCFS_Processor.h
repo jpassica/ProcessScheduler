@@ -29,6 +29,7 @@ public:
 
 	virtual Process* StealProcess() override;
 	bool SearchProcess(int) const;
+
 };
 
 #endif

@@ -4,9 +4,12 @@
 #include "..\DS Classes\Queue.h"
 using namespace std;
 
+class Scheduler;
+
 class Process {
 private:
 
+	Scheduler* SchedulerPtr;
 	//Main parameters
 	const int PID;
 	int ArrivalTime;
@@ -30,9 +33,10 @@ private:
 
 	//to put down the response time
 	bool firstTimeExecution;
+
 public:
-	//Non-default ctor
-	Process(int ID, int AT, int CT, int DL, int IO_N);
+	//Non-default constructor
+	Process(int ID, int AT, int CT, int DL, int IO_N , Scheduler*);
 
 	//Overoaded insertion operator
 	friend ostream& operator<<(ostream&, const Process*);
@@ -79,4 +83,8 @@ public:
 	bool isFirstExecution() const;
 	bool IsChild() const;
 	bool IsParent() const;
+
+
+	void UpdateTotalWaitingTime();
+
 };
