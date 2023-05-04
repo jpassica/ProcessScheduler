@@ -104,28 +104,28 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 
 	cout << "--------------------   RUN Processes  -------------------------------" << endl;
 	
-	//calculating no. of running processes
-	int runningCount = 0;
+	//calculating no. of RunningProcess processes
+	int RunningCount = 0;
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
-		Process* running = ProcessorsList[i]->GetRunPtr();
-		if (running)
-			runningCount++;
+		Process* RunningProcess = ProcessorsList[i]->GetRunPtr();
+		if (RunningProcess)
+			RunningCount++;
 	}
 
-	cout << runningCount << " RUN: ";
+	cout << RunningCount << " RUN: ";
 	
-	//printing running processes by getting the RunPtr in each processor
-	bool found = false;		//used to detect first output to adjust format 
+	//printing RunningProcess processes by getting the RunPtr in each processor
+	bool Found = false;		//used to detect first output to adjust format 
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
-		Process* running = ProcessorsList[i]->GetRunPtr();
-		if (running)
+		Process* RunningProcess = ProcessorsList[i]->GetRunPtr();
+		if (RunningProcess)
 		{
-			if (found)
+			if (Found)
 				cout << ", ";
-			cout << running->GetPID() << "(P" << ProcessorsList[i]->getID() << ")";
-			found = true;
+			cout << RunningProcess->GetPID() << "(P" << ProcessorsList[i]->getID() << ")";
+			Found = true;
 		}
 	}
 	cout << endl;

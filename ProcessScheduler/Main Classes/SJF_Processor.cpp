@@ -6,8 +6,13 @@ SJF_Processor::SJF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, Sc
 
 void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 { 
-	//First, check if there is a IO Request to be handles at the current time step
-	pScheduler->HandleIORequest(this);
+	//First, check if there is a IO Request to be handled at the current time step
+	if (RunPtr && RunPtr->TimeForIO())
+	{
+		pScheduler->BlockProcess(RunPtr);
+		RunPtr = nullptr;
+		CrntState = IDLE;
+	}
 
 	//Case 1: if there is no running process and the ready queue is empty, there is nothing to do for now
 

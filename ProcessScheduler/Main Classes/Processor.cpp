@@ -37,7 +37,7 @@ void Processor::ChangeProcessorState(ProcessorState NextState)
 	CrntState = NextState;
 }
 
-int Processor::getID() const
+int Processor::GetID() const
 {
 	return ID;
 }

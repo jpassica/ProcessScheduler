@@ -27,7 +27,7 @@ private:
 	int ProcessedTime;
 	Process* ChildPtr;
 
-	//to put down the response time
+	//To mark the response time
 	bool firstTimeExecution;
 
 public:
@@ -67,7 +67,7 @@ public:
 	void ChangeProcessState(ProcessState NewState);
 
 	bool TimeForIO();
-	void PopIO_Request();
+	void DeleteIO_Request();
 
 
 	//Increments the ProcessedTime of the process currently being executed

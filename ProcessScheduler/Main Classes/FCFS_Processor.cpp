@@ -5,8 +5,13 @@ FCFS_Processor::FCFS_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, 
 
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//First, check if there is a IO Request to be handles at the current time step
-	pScheduler->HandleIORequest(this);
+	//First, check if there is a IO Request to be handled at the current time step
+	if (RunPtr && RunPtr->TimeForIO())
+	{
+		pScheduler->BlockProcess(RunPtr);
+		RunPtr = nullptr;
+		CrntState = IDLE;
+	}
 
 	//Case 1: if there is no running process and the ready list is empty, there is nothing to do for now
 

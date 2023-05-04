@@ -24,6 +24,24 @@ public:
 	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) = 0;
 
+	//this function is overriden in each processor class
+	virtual void AddToReadyQueue(Process* pReady) = 0;
+
+	//returns true if ready queue/list is empty
+	virtual bool isReadyQueueEmpty() const = 0;
+
+	//moves process at top of ready queue/list to run
+	virtual bool RunNextProcess(int crntTimeStep) = 0;
+
+	//returns count of items in ready queue/list
+	virtual int GetRDYCount() const = 0;
+
+	//Calls print function of ready queue/list
+	virtual void PrintRDY() const = 0;
+
+	//Steals a process from the top of the RDY queue/list
+	virtual Process* StealProcess() = 0;
+
 	//Outputs Processor's ID
 	friend ostream& operator<<(ostream&, const Processor&);  
 
@@ -56,26 +74,8 @@ public:
 	//Returns run ptr
 	Process* GetRunPtr();
 
-	//this function is overriden in each processor class
-	virtual void AddToReadyQueue(Process* pReady) = 0;
-
-	//returns true if ready queue/list is empty
-	virtual bool isReadyQueueEmpty() const = 0;
-
-	//moves process at top of ready queue/list to run
-	virtual bool RunNextProcess(int crntTimeStep) = 0;
-
-	//returns count of items in ready queue/list
-	virtual int GetRDYCount() const = 0;
-
 	//returns expected finish time of all processes in the ready queue/list
 	int GetFinishTime() const;
-
-	//Calls print function of ready queue/list
-	virtual void PrintRDY() const = 0;
-	
-	//Steals a process from the top of the RDY queue/list
-	virtual Process* StealProcess() = 0;
 };
 
 #endif

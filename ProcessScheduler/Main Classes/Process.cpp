@@ -132,17 +132,15 @@ void Process::ChangeProcessState(ProcessState NewState)
 
 bool Process::TimeForIO()
 {
-	if (!IO_RequestQ.isEmpty())
+	if (!IO_RequestQ.isEmpty() && ProcessedTime == IO_RequestQ.QueueFront()->IO_R)
 	{
-		if (ProcessedTime == IO_RequestQ.QueueFront()->IO_R)
-		{
-			return true;
-		}
+		return true;
 	}
-	return false;
+	else
+		return false;
 }
 
-void Process::PopIO_Request() 
+void Process::DeleteIO_Request() 
 {
 	IO_Request* CompletedIO_Request;
 	IO_RequestQ.Dequeue(CompletedIO_Request);

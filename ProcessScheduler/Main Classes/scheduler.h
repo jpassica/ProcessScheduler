@@ -68,28 +68,31 @@ private:
 public:
 	Scheduler();
 
-	//Reads input file, allocates processes & processors
-	bool ReadInputFile(string filename);
+	//Reads input file, sets data, allocates processes & processors
+	bool ReadInputFile(string);
 
 	//Generates output file and writes all statistics
 	void WriteOutputFile();
 
-	//process operations
-	void Migrate(Process*);
+	//------------- Process operations -------------
+
+	//Steals processes from the longest queue and gives it to the shortest
 	void Steal();
-	
+
+	//Kills processes if they receive a kill signal at current time step & are scheduled by FCFS
 	void Kill();
+
+	//Forks a child process
 	void Fork(Process*);
+
 	
-	//process moving
-	void BlockProcess(Processor*);
+	void HandleIODuration();
+	bool MigrateToSJF(Process*);
+	
+	//Process moving functions
+	void BlockProcess(Process*);
 	void UnBlockProcess();
 	void TerminateProcess(Process*);
-
-	void HandleIODuration();
-	void HandleIORequest(Processor*);
-	bool MigrateToSJF(Processor*);
-	
 
 	//Moves all processes arriving at timestep to shortest ready queues 
 	void MoveNEWtoRDY();

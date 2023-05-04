@@ -7,8 +7,13 @@ RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Pro
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//First, check if there is a IO Request to be handles at the current time step
-	pScheduler->HandleIORequest(this);
+	//First, check if there is a IO Request to be handled at the current time step
+	if (RunPtr && RunPtr->TimeForIO())
+	{
+		pScheduler->BlockProcess(RunPtr);
+		RunPtr = nullptr;
+		CrntState = IDLE;
+	}
 
 	//if the process request IO or there is no running process -> pick the ready process to run
 	if (!RunPtr)
@@ -17,7 +22,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunNextProcess(CrntTimeStep);
 	}
 
-	/*while (pScheduler->MigrateToSJF(this)) 
+	/*while (pScheduler->MigrateToSJF(RunPtr)) 
 	{
 		RunPtr = nullptr;
 		TimeSliceCounter = 0;

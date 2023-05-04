@@ -257,20 +257,13 @@ void Scheduler::WriteOutputFile()
 	OP_Stream.close();
 }
 
-void Scheduler::HandleIORequest(Processor* ProcessorPtr)
-{
-	if (ProcessorPtr->GetRunPtr() && ProcessorPtr->GetRunPtr()->TimeForIO())
-
-		BlockProcess(ProcessorPtr);
-}
-
 void Scheduler::HandleIODuration() 
 {
 	if (!BLK_List.isEmpty()) 
 	{
 		if (ProcessedIO_D == BLK_List.QueueFront()->GetIO_D())
 		{
-			BLK_List.QueueFront()->PopIO_Request();
+			BLK_List.QueueFront()->DeleteIO_Request();
 			UnBlockProcess();
 			ProcessedIO_D = 0;
 		}
@@ -278,16 +271,16 @@ void Scheduler::HandleIODuration()
 	}
 }
 
-bool Scheduler::MigrateToSJF(Processor* ProcessorPtr) 
+bool Scheduler::MigrateToSJF(Process* MigratingProcess) 
 {
     // if there is no running process to migrate 
-	if (!ProcessorPtr->GetRunPtr())
+	if (!MigratingProcess)
 		return false;
 
-	if (ProcessorPtr->GetRunPtr()->GetRemainingCPUTime() < RTF) 
+	if (MigratingProcess->GetRemainingCPUTime() < RTF) 
 	{
 		SetMinIndex(1); // Set index of shortest SJF ready queue
-		Process* MigratedProcess = ProcessorPtr->GetRunPtr();
+		Process* MigratedProcess = MigratingProcess;
 		ProcessorsList[MinIndex]->AddToReadyQueue(MigratedProcess);
 
 		//updating process state
@@ -358,16 +351,12 @@ void Scheduler::Kill()
 	// Not RDY/RUN for FCFS -> ignore
 }
 
-void Scheduler::BlockProcess(Processor* ProcessorPtr)
+void Scheduler::BlockProcess(Process* ProcessPtr)
 {
 	//Moving process to BLK_List and updating status
-	BLK_List.Enqueue(ProcessorPtr->GetRunPtr());					//adding to BLK
+	BLK_List.Enqueue(ProcessPtr);					
 
-	ProcessorPtr->GetRunPtr()->ChangeProcessState(BLK);				//changing Process state to BLK
-
-	ProcessorPtr->SetRunptr(nullptr);								//removing the process from Runptr
-
-	ProcessorPtr->ChangeProcessorState(IDLE);						//changing processor state
+	ProcessPtr->ChangeProcessState(BLK);			
 }
 
 void Scheduler::UnBlockProcess()
