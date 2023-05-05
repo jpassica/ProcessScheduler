@@ -12,7 +12,7 @@ class Scheduler
 private:
 	int TimeStep;
 
-	//processors lists(dynamic allocation)
+	//List of all processors in the system
 	Processor** ProcessorsList;
 
 	//Processor counters
@@ -21,7 +21,6 @@ private:
 	int RRCount;
 	int EDFCount;
 	int ProcessorsCount;
-
 
 	//Process lists
 	Queue<Process*> NEW_List;
@@ -33,7 +32,6 @@ private:
 	int RTF;  
 	int MaxW; 
 	int STL;
-	int ForkProb;
 	int RRtimeSlice;
 	
 	//statistics variables
@@ -50,8 +48,10 @@ private:
 
 	//Queue<KillSignal*> KillSignalQ;
 
-	//Indices of the processors with the smallest & biggest finish time
+	//Index of the processor with the shortest expected finish time
 	int MinIndex;
+
+	//Index of the processor with the longest expected finish time
 	int MaxIndex;
 
 	//Child Processes can only be Processed by FCFS Processors
@@ -71,17 +71,10 @@ private:
 	//Pointer to the User Interface that will work throughout the simulation
 	UI* ProgramUI;
 
-	void AllocateProcessors(int, int, int, int, int);  //used locally when input is loaded from the file
+	void AllocateProcessors(int, int, int, int, int, int);  //used locally when input is loaded from the file
 
-	//returns the processor that the passed Process is currently in
-	FCFS_Processor* GetFCFS_ProcessorPtrTo(Process*);
 public:
 	Scheduler();
-	
-	//getters 
-	int GetTimeStep();
-	//function responsible for reading input file
-	bool ReadInputFile(string filename);
 
 	//Reads input file, sets data, allocates processes & processors
 	bool ReadInputFile(string);
@@ -90,33 +83,20 @@ public:
 	void WriteOutputFile();
 
 	//------------- Process operations -------------
-	//function responsible for generating output file
-	bool WriteOutputFile();
 
 	//Steals processes from the longest queue and gives it to the shortest
-	//process operations
-	bool MigrateToRR(Processor*);
 	void Steal();
-	
-	bool Kill();
-	bool Fork(Process*);
-	bool KillOrphan(Process*);
 
-	//process moving
-	bool BlockProcess(Processor*);
-	bool ReturnBLKtoRDY();
-	bool TerminateProcess(Process*);
-
-
-	//Called by FCFS processors when they execute a kill signal
-	void IncrementKillCount();
+	//Migration functions
+	bool MigrateFromFCFStoRR(Process*);
+	bool MigrateFromRRtoSJF(Process*);
 
 	//Forks a child process
-	void Fork(Process*);
+	bool Fork(Process*);
 
-	
+	void KillOrphan(Process*);
+
 	void HandleIODuration();
-	bool MigrateToSJF(Process*);
 	
 	//Process moving functions
 	void BlockProcess(Process*);
@@ -126,21 +106,23 @@ public:
 	//Moves all processes arriving at timestep to shortest ready queues 
 	void MoveNEWtoRDY();
 
-	//The main function that runs the simulation
 	//Moves Child processes to Ready 
 	void MoveChildToReady(Process*);
 
-	//The main function that for running the simulation
+	//The main function that runs the simulation	
 	void Simulate();
 
 	//Sets the index of the processor with the smallest finish time
-	void SetMinIndex(int x = 0);
+	void SetMinIndex(int RangeSelect = 0);
 
 	//Sets the index of the processor with the biggest finish time
-	void SetMaxIndex();
+	void SetMaxIndex(int RangeSelect = 0);
 
 	//Calculates and returns the steal limit
 	int CalcStealLimit();
+
+	//Called by FCFS processors when they execute a kill signal
+	void IncrementKillCount();
 
 	//Statistics calculation functions
 	double CalcAvgUtilization() const;
@@ -155,22 +137,6 @@ public:
 	double CalcKillPercentage() const;
 	double CalcBeforeDeadlinePercentage() const;
 
-
-	//Sets the index of the processor with the smallest finish time
-	void SetMinIndex();
-
-	//Sets the index of the processor with the biggest finish time
-	void SetMaxIndex();
-
-	//Updates the index of the shortest & Longest FCFS Processor
-	void UpdateShortestFCFSIndex();
-	void UpdateLongestFCFSIndex();
-
-	//
-	void UpdateShortestRRIndex();
-
-	//Calculates and returns the steal limit
-	int CalcStealLimit();
 	~Scheduler();
 };
 

@@ -18,19 +18,9 @@ double Processor::CalcPUtil() const
 	return ((double)BusyTime / (BusyTime + IdleTime)) * 100;
 }
 
-void Processor::ChangeProcessorState(ProcessorState NextState)
-{
-	CrntState = NextState;
-}
-
 int Processor::GetID() const
 {
 	return ID;
-}
-
-ProcessorState Processor::GetProcessorState()
-{
-	return CrntState;
 }
 
 void Processor::IncrementBusyOrIdleTime()
@@ -64,5 +54,3 @@ int Processor::GetFinishTime() const
 {
 	return FinishTime;
 }
-
-Queue<KillSignal*> Processor::KillSignalQ;

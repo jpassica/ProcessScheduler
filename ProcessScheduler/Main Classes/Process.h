@@ -6,10 +6,9 @@ using namespace std;
 
 class Scheduler;
 
-class Process {
+class Process 
+{
 private:
-
-	Scheduler* SchedulerPtr;
 	//Main parameters
 	const int PID;
 	int ArrivalTime;
@@ -21,7 +20,6 @@ private:
 
 	int Deadline;
 
-	int IO_N;
 	int totalIO_D;
 	Queue<IO_Request*> IO_RequestQ;
 
@@ -32,24 +30,23 @@ private:
 	Process* ParentPtr;
 
 	//To mark the response time
-	bool firstTimeExecution;
+	bool FirstTimeExecution;
 
 public:
 	//Non-default constructor
-	Process(int ID, int AT, int CT, int DL, int IO_N , Scheduler*);
+	Process(int ID, int AT, int CT, int DL);
 
 	//Overoaded insertion operator
 	friend ostream& operator<<(ostream&, const Process*);
 
-
 	//Setter functions
 	void SetChild(Process*);
 	void SetParent(Process*);
-	void SetTerminationTime(int n);
-	void SetResponseTime(int n);
+	void SetTerminationTime(int);
+	void SetResponseTime(int);
 
 	//Takes data and creates IO request and adds it to queue
-	void AddIORequest(int IO_R, int IO_D);
+	void AddIORequest(int, int);
 
 	//Getter functions
 	int GetCPUTime() const;
@@ -70,7 +67,7 @@ public:
 	int GetRemainingCPUTime() const;
 
 	int GetIO_D();
-	void ChangeProcessState(ProcessState NewState);
+	void ChangeProcessState(ProcessState);
 
 	bool TimeForIO();
 	void DeleteIO_Request();
@@ -81,11 +78,16 @@ public:
 	//returns true if this the process had not received the CPU before
 	bool isFirstExecution() const;
 
-	~Process();
 	bool IsChild() const;
 	bool IsParent() const;
 
+	//Cuts off connection between process and its parent
+	void SeparateFromParent();
 
-	void UpdateTotalWaitingTime();
+	//Cuts off connection between process and its child
+	void SeparateFromChild();
 
+	void UpdateWaitingTime(int);
+
+	~Process();
 };

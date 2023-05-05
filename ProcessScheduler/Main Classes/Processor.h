@@ -17,8 +17,6 @@ protected:
 	int FinishTime;							//Estimated finish time of all processes in the ready queue/list
 
 public:
-	static Queue<KillSignal*> KillSignalQ;
-
 	Processor(int ID, Scheduler* SchedulerPtr);
 
 	//Handles moving processes to and from RUN state
@@ -51,14 +49,8 @@ public:
 	//Calculates and returns pUtil %
 	double CalcPUtil() const;				
 
-	//Changes current state from idle to busy and vice versa
-	void ChangeProcessorState(ProcessorState NextState);
-
 	//Returns processor ID
 	int GetID() const;
-
-	//Returns crnt processor state
-	ProcessorState GetProcessorState();
 
 	//Increments BusyTime || IdleTime based on current state
 	void IncrementBusyOrIdleTime();

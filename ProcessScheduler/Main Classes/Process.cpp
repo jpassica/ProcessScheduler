@@ -1,8 +1,8 @@
 #include "Process.h"
-#include "Scheduler.h"
-//Process Constructor
-Process::Process(int ID, int AT, int CT, int DL, int IO_N , Scheduler* SchPtr)
-	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), IO_N(IO_N), CrntState(NEW) , SchedulerPtr(SchPtr)
+
+
+Process::Process(int ID, int AT, int CT, int DL)
+	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), CrntState(NEW)
 {
 	//initializing all data members
 	TerminationTime = 0;
@@ -13,7 +13,7 @@ Process::Process(int ID, int AT, int CT, int DL, int IO_N , Scheduler* SchPtr)
 	ProcessedTime = 0;
 	ChildPtr = nullptr;
 	ParentPtr = nullptr;
-	firstTimeExecution = 1;
+	FirstTimeExecution = 1;
 }
 
 ostream& operator<<(ostream& out, const Process* P)
@@ -42,7 +42,7 @@ void Process::SetResponseTime(int FCPU)
 	//the function changes this data member to false 
 	//to stop the processors from overrwriting the RT
 
-	firstTimeExecution = 0;
+	FirstTimeExecution = 0;
 }
 
 void Process::AddIORequest(int IO_R, int IO_D)
@@ -165,27 +165,41 @@ void Process::ExecuteProcess()
 
 bool Process::isFirstExecution() const
 {
-	return firstTimeExecution;
+	return FirstTimeExecution;
 }
 
 bool Process::IsChild() const
 {
-	if (ParentPtr)
-		return true;
-	return false;
+	return ParentPtr;
 }
 
 bool Process::IsParent() const
 {
-	return (ChildPtr);
+	return ChildPtr;
 }
 
-void Process::UpdateTotalWaitingTime()
+void Process::SeparateFromParent()
 {
-	WaitingTime = (SchedulerPtr->GetTimeStep()-ArrivalTime)-ProcessedTime;
+	if (ParentPtr)
+	{
+		ParentPtr->ChildPtr = nullptr;
+		ParentPtr = nullptr;
+	}
 }
 
+void Process::SeparateFromChild()
+{
+	if (ChildPtr)
+	{
+		ChildPtr->ParentPtr = nullptr;
+		ChildPtr = nullptr;
+	}
+}
 
+void Process::UpdateWaitingTime(int CrntTimeStep)
+{
+	WaitingTime = CrntTimeStep - ProcessedTime - ArrivalTime;
+}
 
 Process::~Process()
 {

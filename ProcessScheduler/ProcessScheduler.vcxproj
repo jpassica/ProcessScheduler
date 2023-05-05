@@ -156,6 +156,7 @@
     <ClInclude Include="Main Classes\UI.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="OutputFile.txt" />
     <Text Include="OutputFileA.txt" />
     <Text Include="OutputFileB.txt" />
     <Text Include="OutputFileC.txt" />

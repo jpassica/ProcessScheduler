@@ -23,7 +23,7 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunPtr = nullptr;
 		CrntState = IDLE;
 		RunNextProcess(CrntTimeStep);
-
+	}
 	//Case 3: if there is no running process but there is a process in the ready queue, move it to RUN
 	else if (!RunPtr && !SJF_Ready.isEmpty())
 	{

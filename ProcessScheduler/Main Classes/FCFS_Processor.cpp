@@ -1,10 +1,18 @@
 ﻿#include "FCFS_Processor.h"
 #include "Scheduler.h"
 
-FCFS_Processor::FCFS_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr) {}
+FCFS_Processor::FCFS_Processor(int ID, int ForkProb, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr), ForkProbability(ForkProb) {}
 
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
+	//Checking probability for forking
+	if (RunPtr)
+	{
+		int Random = rand() % 100;
+		if (Random <= ForkProbability)
+			pScheduler->Fork(RunPtr);
+	}
+
 	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == CrntTimeStep)
 		Kill();
 
@@ -13,30 +21,34 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 	{
 		pScheduler->BlockProcess(RunPtr);
 		RunPtr = nullptr;
-		CrntState = IDLE;
+		CrntState = IDLE;//apply this in other places too?
 	}
 
 	//Case 1: if there is no running process and the ready list is empty, there is nothing to do for now
-	// 
+
 	//Case 2: if the running process is done executing and is ready to move to TRM
 	if (RunPtr && RunPtr->GetRemainingCPUTime() <= 0)
 	{
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
-		CrntState = IDLE;
 		RunNextProcess(CrntTimeStep);
+	}
 
 	//Case 3: if there is no running process but there is a process in the ready list, move it to RUN
+
 	else if (!RunPtr && !FCFS_Ready.isEmpty())
 		RunNextProcess(CrntTimeStep);
 
 	//Migration case
 	if (RunPtr)
 	{
-		RunPtr->UpdateTotalWaitingTime();			//updating TotalWaitingTime which is used in migration
-		pScheduler->MigrateToRR(this);
+		RunPtr->UpdateWaitingTime(CrntTimeStep);			//updating TotalWaitingTime which is used in migration
+		if (pScheduler->MigrateFromFCFStoRR(RunPtr))
+		{
+			RunPtr = nullptr;
+			CrntState = IDLE;
+		}
 	}
-
 
 	//Case4: if the running process is not done executing, then there is nothing to do for now
 
@@ -131,15 +143,6 @@ Process* FCFS_Processor::StealProcess()
 	return StolenProcess;
 }
 
-bool FCFS_Processor::SearchProcess(int PID) const
-{
-	if (FCFS_Ready.SearchByID(PID))
-		return true;
-	return false;
-}
-
-
-
 void FCFS_Processor::Kill()
 {
 	KillSignal* KillSig = nullptr;
@@ -170,3 +173,23 @@ void FCFS_Processor::Kill()
 
 	// Not RDY/RUN for FCFS -> ignore
 }
+
+bool FCFS_Processor::KillOrphan(int ID)
+{
+	//If the orphan is the running process
+	if (RunPtr && RunPtr->GetID() == ID)
+	{
+		pScheduler->TerminateProcess(RunPtr);
+		RunPtr = nullptr;
+		CrntState = IDLE;
+
+		return true;
+	}
+	else if (KillByID(ID))			//If the orphan is in the ready list
+		return true;
+	
+	//If orphan is not found anywhere
+	return false;
+}
+
+Queue<KillSignal*> FCFS_Processor::KillSignalQ;
