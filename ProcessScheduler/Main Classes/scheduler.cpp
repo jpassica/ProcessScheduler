@@ -18,8 +18,8 @@ Scheduler::Scheduler()
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
 
-	RTFCount = 0;
-	MaxWCount = 0;
+	RTFMigrationCount = 0;
+	MaxWMigrationCount = 0;
 	StealCount = 0;
 	ForkCount = 0;
 	KillCount = 0;
@@ -35,10 +35,6 @@ Scheduler::Scheduler()
 
 	MaxIndex = 0;
 	MinIndex = 0;
-	ShortestFCFSIndex = 0;
-
-	LQF = 0;
-	SQF = 0;
 
 	ProcessedIO_D = 0;
 }
@@ -277,19 +273,22 @@ void Scheduler::HandleIODuration()
 
 bool Scheduler::MigrateFromFCFStoRR(Process* MigratingProcess)
 {
-	//If there is no RR processors
-	if (!RRCount)
+	// If there is no process to migrate 
+    // Or if there are no processors to migrate to
+	if (!MigratingProcess || !RRCount)
 		return false;
+
+	MigratingProcess->UpdateWaitingTime(TimeStep);
 
 	if (!MigratingProcess->IsChild() && MigratingProcess->GetWaitingTime() > MaxW)
 	{
-		SetMinIndex(3);
+		SetMinIndex(3);				// Set MinIndex to index of RR processor with shortest ready queue
 
 		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
 
 		MigratingProcess->ChangeProcessState(RDY);
 
-		cout << "Migration To RR is done" <<"\n";
+		MaxWMigrationCount++;
 
 		return true;
 	}
@@ -298,17 +297,21 @@ bool Scheduler::MigrateFromFCFStoRR(Process* MigratingProcess)
 
 bool Scheduler::MigrateFromRRtoSJF(Process* MigratingProcess) 
 {
-    // if there is no running process to migrate 
-	if (!MigratingProcess)
+    // If there is no process to migrate 
+	// Or if there are no processors to migrate to
+	if (!MigratingProcess || !SJFCount)
 		return false;
 
 	if (MigratingProcess->GetRemainingCPUTime() < RTF) 
 	{
-		SetMinIndex(1); // Set index of shortest SJF ready queue
+		SetMinIndex(2);				// Set MinIndex to index of SJF processor with shortest ready queue
+
 		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
 
-		//updating process state
 		MigratingProcess->ChangeProcessState(RDY);
+
+		RTFMigrationCount++; 
+
 		return true;
 	}
 	return false;
@@ -332,16 +335,10 @@ void Scheduler::Steal()
 		{
 			SetMinIndex(1);
 
-			if (MinIndex == MaxIndex)
-				return;
-
 			ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
 		}
 		else
 		{
-			if (MinIndex == MaxIndex)
-				return;
-
 			ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
 		}
 		StealCount++;
@@ -364,29 +361,31 @@ void Scheduler::BlockProcess(Process* ProcessPtr)
 	ProcessPtr->ChangeProcessState(BLK);			
 }
 
-bool Scheduler::Fork(Process* ProcessPtr)
+void Scheduler::Fork(Process* ParentProcess)
 {
 	//checking that the process hasn't forked yet
-	if (!ProcessPtr || ProcessPtr->IsParent())
-		return false;
+	if (ParentProcess->IsParent())
+		return;
 
 	//Initializing the child Process's data members
 	int ChildID = ++ProcessesCount;
 	int ChildAT = TimeStep;
-	int ChildCT = ProcessPtr->GetRemainingCPUTime();
-	int ChildDL = ProcessPtr->GetDeadline();			
+	int ChildCT = ParentProcess->GetRemainingCPUTime();
+	int ChildDL = ParentProcess->GetDeadline();			
 
 	//creating Child process
 	Process* Child = new Process(ChildID, ChildAT, ChildCT, ChildDL);
 
-	ProcessPtr->SetChild(Child);
-	Child->SetParent(ProcessPtr);
+	ParentProcess->SetChild(Child);
+	Child->SetParent(ParentProcess);
 
-	MoveChildToReady(Child);
+	SetMinIndex(1);
+
+	ProcessorsList[MinIndex]->AddToReadyQueue(Child);
+
+	Child->ChangeProcessState(RDY);
 
 	ForkCount++;
-
-	cout << "Forking Done, Child with ID= " << ProcessesCount << endl;
 }
 
 void Scheduler::KillOrphan(Process* OrphanProcess)
@@ -423,24 +422,24 @@ void Scheduler::UnBlockProcess()
 
 void Scheduler::TerminateProcess(Process* ProcessToTerminate)
 {
-	//checking Forking 
-	if (ProcessToTerminate->IsParent())
-		KillOrphan(ProcessToTerminate->GetChild());
-
-	//checking if the terminated process is a child
-	if (ProcessToTerminate->IsChild())
-		ProcessToTerminate->SeparateFromParent();
-	
 	//Moving to TRM & changing states
 	ProcessToTerminate->SetTerminationTime(TimeStep);
+
+	TRM_List.Enqueue(ProcessToTerminate);
+
+	ProcessToTerminate->ChangeProcessState(TRM);
 
 	//If the process was completed before its expected deadline
 	if (TimeStep < ProcessToTerminate->GetDeadline())
 		CompletedBeforeDeadlineCount++;
 
-	TRM_List.Enqueue(ProcessToTerminate);
+	//Checking if the terminated process has a child
+	if (ProcessToTerminate->IsParent())
+		KillOrphan(ProcessToTerminate->GetChild());
 
-	ProcessToTerminate->ChangeProcessState(TRM);
+	//Checking if the terminated process is a child
+	if (ProcessToTerminate->IsChild())
+		ProcessToTerminate->SeparateFromParent();
 }
 
 void Scheduler::MoveNEWtoRDY()
@@ -469,17 +468,6 @@ void Scheduler::MoveNEWtoRDY()
 		else
 			NewProcessPtr = nullptr;
 	}
-}
-
-void Scheduler::MoveChildToReady(Process* ProcessPtr)
-{
-	SetMinIndex(1);
-
-	ProcessorsList[MinIndex]->AddToReadyQueue(ProcessPtr);
-
-	ProcessPtr->ChangeProcessState(RDY);
-
-	cout << "Child safely moved to Ready" << endl;
 }
 
 void Scheduler::Simulate()
@@ -518,7 +506,7 @@ void Scheduler::Simulate()
 
 		//Incrementing & printing timestep
 		if (CrntMode != Silent)
-			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
+			ProgramUI->PrintTimeStep(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
 
 		TimeStep++;
 	}
@@ -529,7 +517,6 @@ void Scheduler::Simulate()
 	if (CrntMode == Silent)
 		ProgramUI->PrintSilentMode(1);
 }
-
 
 void Scheduler::SetMinIndex(int RangeSelect)
 {
@@ -591,8 +578,8 @@ void Scheduler::SetMaxIndex(int RangeSelect)
 
 int Scheduler::CalcStealLimit()
 {
-	SQF = ProcessorsList[MinIndex]->GetFinishTime();
-	LQF = ProcessorsList[MaxIndex]->GetFinishTime();
+	int SQF = ProcessorsList[MinIndex]->GetFinishTime();
+	int LQF = ProcessorsList[MaxIndex]->GetFinishTime();
 
 	if (!LQF)
 		return 0;
@@ -631,12 +618,12 @@ double Scheduler::CalcAvgRT() const
 
 double Scheduler::CalcRTFMigrationPercentage() const
 {
-	return (double)100 * RTFCount / ProcessesCount;
+	return (double)100 * RTFMigrationCount / ProcessesCount;
 }
 
 double Scheduler::CalcMaxWMigrationPercentage() const
 {
-	return (double)100 * MaxWCount / ProcessesCount;
+	return (double)100 * MaxWMigrationCount / ProcessesCount;
 }
 
 double Scheduler::CalcStealPercentage() const

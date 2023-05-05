@@ -69,7 +69,7 @@ string UI::InputFileName(bool isError)
 	return FileName;
 }
 
-void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
+void UI::PrintTimeStep(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
 	Processor** ProcessorsList, int NF, int NS, int NR, int NE, int timeStep)
 {
 	int ProcessorsCount = NF + NS + NR + NE;
@@ -118,13 +118,16 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 	//Printing RunningProcess processes by getting the RunPtr in each processor
 	//Used to detect first output to adjust format 
 
+	bool Found = 0;
+
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		if (ProcessorsList[i]->isExecutingProcess())
 		{
-			if (i)
+			if (Found)
 				cout << ", ";
 			cout << ProcessorsList[i]->GetRunningProcessID() << "(P" << ProcessorsList[i]->GetID() << ")";
+			Found = 1;
 		}
 	}
 	cout << endl;
@@ -147,6 +150,6 @@ void UI::TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM
 		getchar();
 	}
 	else if (CrntMode == StepByStep)
-		Sleep(0.001);
+		Sleep(1000);
 	
 }

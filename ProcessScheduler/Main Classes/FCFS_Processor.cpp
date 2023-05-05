@@ -5,7 +5,7 @@ FCFS_Processor::FCFS_Processor(int ID, int ForkProb, Scheduler* SchedulerPtr) : 
 
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//Checking probability for forking
+	//Forking
 	if (RunPtr)
 	{
 		int Random = rand() % 100;
@@ -13,15 +13,16 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 			pScheduler->Fork(RunPtr);
 	}
 
+	//Kill signals
 	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == CrntTimeStep)
 		Kill();
 
-	//First, check if there is a IO Request to be handled at the current time step
+	//IO requests
 	if (RunPtr && RunPtr->TimeForIO())
 	{
 		pScheduler->BlockProcess(RunPtr);
 		RunPtr = nullptr;
-		CrntState = IDLE;//apply this in other places too?
+		CrntState = IDLE;							
 	}
 
 	//Case 1: if there is no running process and the ready list is empty, there is nothing to do for now
@@ -39,15 +40,11 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 	else if (!RunPtr && !FCFS_Ready.isEmpty())
 		RunNextProcess(CrntTimeStep);
 
-	//Migration case
-	if (RunPtr)
+	//Migration case	
+	while (RunPtr && pScheduler->MigrateFromFCFStoRR(RunPtr))
 	{
-		RunPtr->UpdateWaitingTime(CrntTimeStep);			//updating TotalWaitingTime which is used in migration
-		if (pScheduler->MigrateFromFCFStoRR(RunPtr))
-		{
-			RunPtr = nullptr;
-			CrntState = IDLE;
-		}
+		RunPtr = nullptr;
+		RunNextProcess(CrntTimeStep);
 	}
 
 	//Case4: if the running process is not done executing, then there is nothing to do for now

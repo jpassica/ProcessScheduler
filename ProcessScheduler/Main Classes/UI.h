@@ -27,6 +27,6 @@ public:
 	string InputFileName(bool isError = 0);
 
 	//Main function for printing info each time step
-	void TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
+	void PrintTimeStep(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
 		Processor** ProcessorsList, int NF, int NS, int NR, int NE, int TimeStep);
 };	

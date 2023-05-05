@@ -28,25 +28,23 @@ private:
 	Queue<Process*> TRM_List;    
 	int ProcessesCount;
 
-	//input values
+	//Operation parameters
 	int RTF;  
 	int MaxW; 
 	int STL;
 	int RRtimeSlice;
 	
-	//statistics variables
+	//Statistics counters
 	int TotalWaitingTime;
 	int TotalResponseTime;
 	int TotalTurnAroundtime;	
 
-	int RTFCount;						//no. of migrated processes due to RTF
-	int MaxWCount;						//no. of migrated processes due to MaxW
+	int RTFMigrationCount;				//no. of migrated processes due to RTF
+	int MaxWMigrationCount;				//no. of migrated processes due to MaxW
 	int StealCount;						//no of stolen processes
 	int ForkCount;						//no. of forking instances
 	int KillCount;						//no. of kills
-	int CompletedBeforeDeadlineCount;
-
-	//Queue<KillSignal*> KillSignalQ;
+	int CompletedBeforeDeadlineCount;	//no. of processes finished before their deadline
 
 	//Index of the processor with the shortest expected finish time
 	int MinIndex;
@@ -54,24 +52,13 @@ private:
 	//Index of the processor with the longest expected finish time
 	int MaxIndex;
 
-	//Child Processes can only be Processed by FCFS Processors
-	int ShortestFCFSIndex;
-	int LongestFCFSIndex;
-
-	//Used in migration
-	int ShortestRRIndex;
-
-	//Largest and smallest finish time between all the processors
-	int SQF;
-	int LQF;
-
-
 	int ProcessedIO_D;
 
 	//Pointer to the User Interface that will work throughout the simulation
 	UI* ProgramUI;
 
-	void AllocateProcessors(int, int, int, int, int, int);  //used locally when input is loaded from the file
+	//Used locally when input is loaded from the file
+	void AllocateProcessors(int, int, int, int, int, int);  
 
 public:
 	Scheduler();
@@ -92,7 +79,7 @@ public:
 	bool MigrateFromRRtoSJF(Process*);
 
 	//Forks a child process
-	bool Fork(Process*);
+	void Fork(Process*);
 
 	void KillOrphan(Process*);
 
@@ -105,9 +92,6 @@ public:
 
 	//Moves all processes arriving at timestep to shortest ready queues 
 	void MoveNEWtoRDY();
-
-	//Moves Child processes to Ready 
-	void MoveChildToReady(Process*);
 
 	//The main function that runs the simulation	
 	void Simulate();
