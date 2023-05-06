@@ -171,7 +171,7 @@ void Scheduler::WriteOutputFile()
 {
 	//Creating output stream object and opening file for writing
 	ofstream OP_Stream;
-	string fileName = "OutputFileC.txt";
+	string fileName = "OutputFileD.txt";
 	OP_Stream.open(fileName);
 
 	//If there is any problem with the file, abort

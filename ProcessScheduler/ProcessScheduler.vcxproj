@@ -159,9 +159,11 @@
     <Text Include="OutputFileA.txt" />
     <Text Include="OutputFileB.txt" />
     <Text Include="OutputFileC.txt" />
+    <Text Include="OutputFileD.txt" />
     <Text Include="TestCaseC.txt" />
     <Text Include="TestCaseA.txt" />
     <Text Include="TestCaseB.txt" />
+    <Text Include="TestCaseD.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
