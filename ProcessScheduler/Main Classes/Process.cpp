@@ -1,6 +1,5 @@
 #include "Process.h"
 
-
 Process::Process(int ID, int AT, int CT, int DL)
 	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), CrntState(NEW)
 {
@@ -32,13 +31,13 @@ void Process::SetParent(Process* Ptr)
 	ParentPtr = Ptr;
 }
 
-//Set the response time as FCPU is the time when the process is ready to be processed at first time
+//Set the response Time as FCPU is the Time when the process is ready to be processed at first Time
 void Process::SetResponseTime(int FCPU)
 {
 	ResponseTime = FCPU - ArrivalTime;
 
 	//since this function will only be used once for each process
-	//which is when it is being executed for the first time,
+	//which is when it is being executed for the first Time,
 	//the function changes this data member to false 
 	//to stop the processors from overrwriting the RT
 

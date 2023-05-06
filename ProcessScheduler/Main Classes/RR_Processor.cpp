@@ -1,5 +1,6 @@
 #include "RR_Processor.h"
 #include "scheduler.h"
+
 RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr), TimeSlice(timeSlice)
 {
 	TimeSliceCounter = 0;
@@ -7,7 +8,7 @@ RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Pro
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//First, check if there is an IO Request to be handled at the current time step
+	//First, check if there is an IO Request to be handled at the current Time step
 	if (RunPtr && RunPtr->TimeForIO())
 	{
 		pScheduler->BlockProcess(RunPtr);
@@ -46,7 +47,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		CrntState = IDLE;
 	}
 
-	//If the running process is not done executing but has just finished its time slice
+	//If the running process is not done executing but has just finished its Time slice
 	//then it goes back to RDY list 
 	else if (TimeSliceCounter == TimeSlice) 
 	{

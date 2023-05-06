@@ -455,10 +455,10 @@ void Scheduler::MoveNEWtoRDY()
 	{
 		NEW_List.Dequeue(NewProcessPtr);
 
-		//Setting the index of the processor with the smallest expected finish time
+		//Setting the index of the processor with the smallest expected finish Time
 		SetMinIndex();
 
-		//Adding the process to the RDY queue of the processor with the smallest finish time
+		//Adding the process to the RDY queue of the processor with the smallest finish Time
 		ProcessorsList[MinIndex]->AddToReadyQueue(NewProcessPtr);
 
 		NewProcessPtr->ChangeProcessState(RDY);
@@ -501,7 +501,7 @@ void Scheduler::Simulate()
 		if (TimeStep % STL == 0)
 			Steal();
 
-		//Handle IO_Duration in BLK list each time step
+		//Handle IO_Duration in BLK list each Time step
 		HandleIODuration();
 
 		//Incrementing & printing timestep
@@ -545,7 +545,7 @@ void Scheduler::SetMinIndex(int RangeSelect)
 		End = FCFSCount + SJFCount + RRCount;
 	}
 
-	//Checking which processor has the smallest expected finish time (within given range)
+	//Checking which processor has the smallest expected finish Time (within given range)
 	for (size_t i = Start; i < End; i++)
 	{
 		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
@@ -568,7 +568,7 @@ void Scheduler::SetMaxIndex(int RangeSelect)
 		End = FCFSCount;
 	}
 
-	//Checking which processor has the biggest expected finish time
+	//Checking which processor has the biggest expected finish Time
 	for (size_t i = Start; i < End; i++)
 	{
 		if (ProcessorsList[i]->GetFinishTime() > ProcessorsList[MaxIndex]->GetFinishTime())
@@ -654,6 +654,7 @@ Scheduler::~Scheduler()
 		delete ProcessorsList[i];
 	}
 	delete[] ProcessorsList;
+
 	delete ProgramUI;
 
 	KillSignal* DeleteKillSig = nullptr;

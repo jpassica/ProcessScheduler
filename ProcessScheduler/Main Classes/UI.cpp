@@ -48,7 +48,7 @@ void UI::PrintSilentMode(bool StartorEnd)
 	}
 	else		//if StartorEnd = 1, this means we are at the end
 	{
-		Sleep(500);
+		Sleep(350);
 		cout << "Simulation ended, output file created!\n\n";
 	}
 }

@@ -21,12 +21,11 @@ public:
 	UI_Mode InputInterfaceMode();
 
 	//Prints the needed info in silent mode
-	void PrintSilentMode(bool StartorEnd);
+	void PrintSilentMode(bool);
 
 	//Takes the file name as input from the user
 	string InputFileName(bool isError = 0);
 
-	//Main function for printing info each time step
-	void PrintTimeStep(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
-		Processor** ProcessorsList, int NF, int NS, int NR, int NE, int TimeStep);
+	//Main function for printing info each Time step
+	void PrintTimeStep(const Queue<Process*>&, const Queue<Process*>&, Processor**, int, int, int, int, int);
 };	

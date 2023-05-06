@@ -32,8 +32,8 @@ public:
 
 	virtual Process* StealProcess() override;
 
-	//Kills processes if they receive a kill signal at current time step
-	void Kill();
+	//Kills processes if they receive a kill signal at current Time step
+	bool KillBySig();
 
 	bool KillOrphan(int);
 };

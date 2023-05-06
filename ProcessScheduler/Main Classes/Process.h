@@ -1,8 +1,7 @@
 #pragma once
-#include <iostream>
+
 #include "..\Defs.h"
 #include "..\DS Classes\Queue.h"
-using namespace std;
 
 class Scheduler;
 
@@ -29,7 +28,7 @@ private:
 	Process* ChildPtr;
 	Process* ParentPtr;
 
-	//To mark the response time
+	//To mark the response Time
 	bool FirstTimeExecution;
 
 public:

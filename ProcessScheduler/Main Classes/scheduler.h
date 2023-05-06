@@ -46,10 +46,10 @@ private:
 	int KillCount;						//no. of kills
 	int CompletedBeforeDeadlineCount;	//no. of processes finished before their deadline
 
-	//Index of the processor with the shortest expected finish time
+	//Index of the processor with the shortest expected finish Time
 	int MinIndex;
 
-	//Index of the processor with the longest expected finish time
+	//Index of the processor with the longest expected finish Time
 	int MaxIndex;
 
 	int ProcessedIO_D;
@@ -96,10 +96,10 @@ public:
 	//The main function that runs the simulation	
 	void Simulate();
 
-	//Sets the index of the processor with the smallest finish time
+	//Sets the index of the processor with the smallest finish Time
 	void SetMinIndex(int RangeSelect = 0);
 
-	//Sets the index of the processor with the biggest finish time
+	//Sets the index of the processor with the biggest finish Time
 	void SetMaxIndex(int RangeSelect = 0);
 
 	//Calculates and returns the steal limit

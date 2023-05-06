@@ -7,12 +7,12 @@ enum ProcessorState { IDLE, BUSY };
 enum UI_Mode { Interactive, StepByStep, Silent };
 
 struct KillSignal {
-	int time;
+	int Time;
 	int PID;
 
 	KillSignal(int t, int ID)
 	{
-		time = t;
+		Time = t;
 		PID = ID;
 	}
 };
