@@ -11,7 +11,8 @@ Process::Process(int ID, int AT, int CT, int DL, int IO_N , Scheduler* SchPtr)
 	ResponseTime = 0;
 	totalIO_D = 0;
 	ProcessedTime = 0;
-	ChildPtr = nullptr;
+	LeftChildPtr = nullptr;
+	RightChildPtr = nullptr;
 	ParentPtr = nullptr;
 	firstTimeExecution = 1;
 }
@@ -22,9 +23,14 @@ ostream& operator<<(ostream& out, const Process* P)
 	return out;
 }
 
-void Process::SetChild(Process* ForkedProcess)
+void Process::SetLeftChild(Process* ForkedProcess)
 {
-	ChildPtr = ForkedProcess;
+	LeftChildPtr = ForkedProcess;
+}
+
+void Process::SetRightChild(Process* Ptr)
+{
+	RightChildPtr = Ptr;
 }
 
 void Process::SetParent(Process* Ptr)
@@ -111,9 +117,14 @@ ProcessState Process::GetProcessState() const
 	return CrntState;
 }
 
-Process* Process::GetChild() const
+Process* Process::GetLeftChild() const
 {
-	return ChildPtr;
+	return LeftChildPtr;
+}
+
+Process* Process::GetRightChild() const
+{
+	return RightChildPtr;
 }
 
 Process* Process::GetParent() const
@@ -179,7 +190,21 @@ bool Process::IsChild() const
 
 bool Process::IsParent() const
 {
-	return (ChildPtr);
+	return (LeftChildPtr||RightChildPtr);
+}
+
+bool Process::IsLeft() const
+{
+	if(!ParentPtr)
+		return false;
+	return (ParentPtr->GetLeftChild());
+}
+
+bool Process::TsRight() const
+{
+	if (!ParentPtr)
+		return false;
+	return (ParentPtr->GetRightChild());
 }
 
 void Process::UpdateTotalWaitingTime()

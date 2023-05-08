@@ -28,7 +28,10 @@ private:
 	ProcessState CrntState;
 
 	int ProcessedTime;
-	Process* ChildPtr;
+
+	//Left & right child pointers to form forking tree 
+	Process* LeftChildPtr;
+	Process* RightChildPtr;
 	Process* ParentPtr;
 
 	//to put down the response time
@@ -43,7 +46,9 @@ public:
 
 
 	//Setter functions
-	void SetChild(Process*);
+	void SetLeftChild(Process*);
+	void SetRightChild(Process*);
+
 	void SetParent(Process*);
 	void SetTerminationTime(int n);
 	void SetResponseTime(int n);
@@ -63,7 +68,8 @@ public:
 
 	int GetTotalIO_D() const;
 	ProcessState GetProcessState() const;
-	Process* GetChild() const;
+	Process* GetLeftChild() const;
+	Process* GetRightChild() const;
 	Process* GetParent() const;
 
 	int GetProcessedTime() const;
@@ -84,6 +90,9 @@ public:
 	bool IsChild() const;
 	bool IsParent() const;
 
+	//detects if the child is in the left or right pointer of the parent
+	bool IsLeft() const;
+	bool TsRight() const;
 
 	void UpdateTotalWaitingTime();
 
