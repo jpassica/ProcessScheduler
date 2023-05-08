@@ -7,62 +7,69 @@ RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Pro
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	pScheduler->HandleIORequest(this);
-	//pScheduler->MigrateToFCFS(this); 
+	//First, check if there is an IO Request to be handled at the current time step
+	if (RunPtr && RunPtr->TimeForIO())
+	{
+		pScheduler->BlockProcess(RunPtr);
+		RunPtr = nullptr;
+		CrntState = IDLE;
+	}
+	
+	//if there is no running process -> pick the next process to run
+	if (!RunPtr)
+	{
+		TimeSliceCounter = 0;
+		RunNextProcess(CrntTimeStep);
+	}
 
 	//if the running process is done executing and is ready to move to TRM
-	if (RunPtr && RunPtr->GetProcessedTime() == RunPtr->GetCPUTime())
+	else if (RunPtr && RunPtr->GetProcessedTime() == RunPtr->GetCPUTime()) 
 	{
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
-		CrntState = IDLE;
 		TimeSliceCounter = 0;
-		if (RunNextProcess(CrntTimeStep))
-			TimeSliceCounter++;
-
+		RunNextProcess(CrntTimeStep);
 	}
 
-	//if there is no running process and the ready queue is empty,
-	//then there is nothing to do
-	if (!RunPtr && RR_Ready.isEmpty()) {
+	//Migration
+	while (pScheduler->MigrateFromRRtoSJF(RunPtr)) 
+	{
+		RunPtr = nullptr;
 		TimeSliceCounter = 0;
-		CrntState = IDLE;
-		return;
+		RunNextProcess(CrntTimeStep);
 	}
 
-	//if there is no running process but there is a process in the ready queue, move it to RUN
+	//If the ready queue has become empty after migration
 	if (!RunPtr)
 	{
-		RunNextProcess(CrntTimeStep);
-		TimeSliceCounter++;
-		return;
+		TimeSliceCounter = 0;
+		CrntState = IDLE;
 	}
 
-
-	//else if the running process is not done executing but has just finished it's time slice
+	//If the running process is not done executing but has just finished its time slice
 	//then it goes back to RDY list 
-	else if (TimeSliceCounter == TimeSlice)
+	else if (TimeSliceCounter == TimeSlice) 
 	{
 		AddToReadyQueue(RunPtr);
 		RunPtr = nullptr;
-		CrntState = IDLE;
 		TimeSliceCounter = 0;
-		if (RunNextProcess(CrntTimeStep))
-			TimeSliceCounter++;
-
+		RunNextProcess(CrntTimeStep);
 	}
 
-	//else -> the process has not completed its time slice 
-	else
+	//else if there is a running process -> counter++
+	if (RunPtr)
+	{
 		TimeSliceCounter++;
-	return;
+		RunPtr->ExecuteProcess();
+	}
+	IncrementBusyOrIdleTime();
 }
 		
-
-
 void RR_Processor::AddToReadyQueue(Process* pReady)
 {
 	RR_Ready.Enqueue(pReady);
+
+	pReady->ChangeProcessState(RDY);
 
 	FinishTime += pReady->GetRemainingCPUTime();
 }
@@ -116,3 +123,4 @@ Process* RR_Processor::StealProcess()
 
 	return StolenProcess;
 }
+

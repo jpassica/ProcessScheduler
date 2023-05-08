@@ -32,8 +32,8 @@ Scheduler::Scheduler()
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
 
-	RTFCount = 0;
-	MaxWCount = 0;
+	RTFMigrationCount = 0;
+	MaxWMigrationCount = 0;
 	StealCount = 0;
 	ForkCount = 0;
 	KillCount = 0;
@@ -41,7 +41,6 @@ Scheduler::Scheduler()
 
 	RTF = 0;
 	STL = 0;
-	ForkProb = 0;
 	MaxW = 0;
 
 	TotalResponseTime = 0;
@@ -50,22 +49,18 @@ Scheduler::Scheduler()
 
 	MaxIndex = 0;
 	MinIndex = 0;
-	ShortestFCFSIndex = 0;
-
-	LQF = 0;
-	SQF = 0;
 
 	ProcessedIO_D = 0;
 }
 
-void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
+void Scheduler::AllocateProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice, int ForkProbability)
 {
 	ProcessorsList = new Processor * [ProcessorsCount];
 
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		if (i < NF)
-			ProcessorsList[i] = new FCFS_Processor(i + 1, this);
+			ProcessorsList[i] = new FCFS_Processor(i + 1, ForkProbability, this);
 
 		else if (i >= NF && i < NF + NS)
 			ProcessorsList[i] = new SJF_Processor(i + 1, this);
@@ -76,11 +71,6 @@ void Scheduler::setProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice)
 		else
 			ProcessorsList[i] = new EDF_Processor(i + 1, this);
 	}
-}
-
-int Scheduler::GetTimeStep()
-{
-	return TimeStep;
 }
 
 bool Scheduler::ReadInputFile(string FileName)
@@ -102,6 +92,8 @@ bool Scheduler::ReadInputFile(string FileName)
 
 	//now we can safely read from file
 
+	int ForkProb(0);
+
 	//reading the main parameters
 	IP_Stream >> FCFSCount >> SJFCount >> RRCount >> EDFCount;
 	IP_Stream >> RRtimeSlice;
@@ -112,7 +104,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	ProcessorsCount = FCFSCount + SJFCount + RRCount + EDFCount;
 
 	//creating the processors according to the read data
-	setProcessors(FCFSCount, SJFCount, RRCount, EDFCount, RRtimeSlice);
+	AllocateProcessors(FCFSCount, SJFCount, RRCount, EDFCount, RRtimeSlice, ForkProb);
 
 	//variables to be read for each process and sent to ctor
 	int AT(0), PID(0), CT(0), DL(0), IO_N(0), IO_R(0), IO_D(0);
@@ -132,14 +124,14 @@ bool Scheduler::ReadInputFile(string FileName)
 		if (IO_N)
 			IP_Stream >> IO_st;
 
-		newProcess = new Process(PID, AT, CT, DL, IO_N, this);
+		newProcess = new Process(PID, AT, CT, DL);
 
 		//iterator for reading the IO requests string
 		int StIndex(1);
 
 		for (size_t j = 0; j < IO_N; j++)
 		{
-			//start from 1st digit
+			//Start from 1st digit
 
 			while (IO_st[StIndex] != ',')
 			{
@@ -172,13 +164,15 @@ bool Scheduler::ReadInputFile(string FileName)
 
 	//reading each kill signal's data until there is no more data
 	int time(0), ID(0);
+	KillSignal* NewKillSignal = nullptr;
+
 	while (!IP_Stream.eof())
 	{
 		IP_Stream >> time >> PID;
 
-		KillSignal* newKillSignal = new KillSignal(time, PID);
+		NewKillSignal = new KillSignal(time, PID);
 
-		KillSignalQ.Enqueue(newKillSignal);
+		FCFS_Processor::KillSignalQ.Enqueue(NewKillSignal);
 	}
 
 	IP_Stream.close();
@@ -187,34 +181,33 @@ bool Scheduler::ReadInputFile(string FileName)
 	return true;
 }
 
-bool Scheduler::WriteOutputFile()
+void Scheduler::WriteOutputFile()
 {
-	//creating output stream object and opening file for writing
+	//Creating output stream object and opening file for writing
 	ofstream OP_Stream;
-	string fileName = "OutputFile.txt";
+	string fileName = "OutputFileC.txt";
 	OP_Stream.open(fileName);
 
-	//if there is any problem with the file, abort
+	//If there is any problem with the file, abort
 	if (!OP_Stream || !OP_Stream.good())
-		return false;
+		return;
 
-	//start writing the first line, setting a specific width for each field
+	//Starting to write the first line, setting a specific width for each field
 	OP_Stream << left << setprecision(1) << fixed
 		<< setw(7) << "TT" << setw(7) << "PID"
 		<< setw(7) << "AT" << setw(7) << "CT"
 		<< setw(9) << "IO_D" << setw(8) << "WT"
 		<< setw(7) << "RT" << setw(7) << "TRT" << endl;
 
-	//ProcessToTerminate used to dequeue from TRM, write all needed info, and then deallocate process
+	//Pointer used to dequeue from TRM, write all needed info, and then deallocate process object
 	Process* deletePtr(nullptr);
 
-	//
 	for (size_t i = 0; i < ProcessesCount && !TRM_List.isEmpty(); i++)
 	{
 		TRM_List.Dequeue(deletePtr);
 
 		OP_Stream << setw(7) << deletePtr->GetTerminationTime()
-			<< setw(7) << deletePtr->GetPID()
+			<< setw(7) << deletePtr->GetID()
 			<< setw(7) << deletePtr->GetArrivalTime()
 			<< setw(8) << deletePtr->GetCPUTime()
 			<< setw(8) << deletePtr->GetTotalIO_D()
@@ -235,18 +228,15 @@ bool Scheduler::WriteOutputFile()
 		<< "Avg RT = " << CalcAvgRT() << ",     "
 		<< "Avg TRT = " << CalcAvgTRT() << endl;
 
-	if (!ProcessesCount) return false;
+	//To prevent any instance of division by zero
+	if (!ProcessesCount) return;
 
 
 	OP_Stream << "Migration%:     RTF= " << CalcRTFMigrationPercentage()
 		<< "%,     MaxW= " << CalcMaxWMigrationPercentage() << "%\n"
-
 		<< "Work Steal%: " << CalcStealPercentage() << "%\n"
-
-		<< "Forked Process: " << CalcForkingPercentage() << "%\n"
-
-		<< "Killed Process: " << CalcKillPercentage() << "%\n"
-
+		<< "Forked Processes: " << CalcForkingPercentage() << "%\n"
+		<< "Killed Processes: " << CalcKillPercentage() << "%\n"
 		<< "Processes Completed Before Deadline: " << CalcBeforeDeadlinePercentage() << "%\n\n";
 
 
@@ -258,7 +248,7 @@ bool Scheduler::WriteOutputFile()
 
 	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
-		OP_Stream << "p" << i + 1 << "= " <<
+		OP_Stream << "p" << i + 1 << " = " << 
 			ProcessorsList[i]->CalcPLoad(TotalTurnAroundtime) << "%";
 
 		if (i != ProcessorsCount)
@@ -269,7 +259,7 @@ bool Scheduler::WriteOutputFile()
 
 	for (size_t i = 0; i < ProcessorsCount; i++)
 	{
-		OP_Stream << "p" << i + 1 << "= " <<
+		OP_Stream << "p" << i + 1 << " = " <<
 			ProcessorsList[i]->CalcPUtil() << "%";
 
 		if (i != ProcessorsCount)
@@ -279,47 +269,63 @@ bool Scheduler::WriteOutputFile()
 	OP_Stream << endl << "Avg utilization = " << CalcAvgUtilization() << "%";
 
 	OP_Stream.close();
-
-	return true;
 }
 
-void Scheduler::HandleIORequest(Processor* ProcessorPtr)
-{
-	if (ProcessorPtr->GetRunPtr() && ProcessorPtr->GetRunPtr()->TimeForIO())
-
-		BlockProcess(ProcessorPtr);
-}
-
-void Scheduler::HandleIODuration()
+void Scheduler::HandleIODuration() 
 {
 	if (!BLK_List.isEmpty())
 	{
 		if (ProcessedIO_D == BLK_List.QueueFront()->GetIO_D())
 		{
-			BLK_List.QueueFront()->PopIO_Request();
-			ReturnBLKtoRDY();
+			BLK_List.QueueFront()->DeleteIO_Request();
+			UnBlockProcess();
 			ProcessedIO_D = 0;
 		}
 		ProcessedIO_D++;
 	}
 }
 
-bool Scheduler::MigrateToRR(Processor* MigrationLoc)
+bool Scheduler::MigrateFromFCFStoRR(Process* MigratingProcess)
 {
-	//If there is no RR processors
-	if (!RRCount)
+	// If there is no process to migrate 
+    // Or if there are no processors to migrate to
+	if (!MigratingProcess || !RRCount)
 		return false;
 
-	Process* ProcessToMigrate = MigrationLoc->GetRunPtr();
+	MigratingProcess->UpdateWaitingTime(TimeStep);
 
-	if (!ProcessToMigrate->IsChild() && ProcessToMigrate->GetWaitingTime() > MaxW)
+	if (!MigratingProcess->IsChild() && MigratingProcess->GetWaitingTime() > MaxW)
 	{
-		UpdateShortestRRIndex();
-		ProcessorsList[ShortestRRIndex]->AddToReadyQueue(ProcessToMigrate);
-		ProcessToMigrate->ChangeProcessState(RDY);
-		MigrationLoc->SetRunptr(nullptr);
-		MigrationLoc->ChangeProcessorState(IDLE);
-		cout << "Migration To RR is done" << "\n";
+		SetMinIndex(3);				// Set MinIndex to index of RR processor with shortest ready queue
+
+		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
+
+		MigratingProcess->ChangeProcessState(RDY);
+
+		MaxWMigrationCount++;
+
+		return true;
+	}
+	return false;
+}
+
+bool Scheduler::MigrateFromRRtoSJF(Process* MigratingProcess) 
+{
+    // If there is no process to migrate 
+	// Or if there are no processors to migrate to
+	if (!MigratingProcess || !SJFCount)
+		return false;
+
+	if (MigratingProcess->GetRemainingCPUTime() < RTF) 
+	{
+		SetMinIndex(2);				// Set MinIndex to index of SJF processor with shortest ready queue
+
+		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
+
+		MigratingProcess->ChangeProcessState(RDY);
+
+		RTFMigrationCount++; 
+
 		return true;
 	}
 	return false;
@@ -330,8 +336,7 @@ void Scheduler::Steal()
 	//Setting the indices of the processors with the longest and shortest finish times
 	SetMinIndex();
 	SetMaxIndex();
-	UpdateShortestFCFSIndex();
-
+	
 	//Calculating the steal limit
 	int StealLimit = CalcStealLimit();
 
@@ -339,19 +344,16 @@ void Scheduler::Steal()
 	{
 		Process* StolenProcess = ProcessorsList[MaxIndex]->StealProcess();
 
-		//in case the StolenProcess is a child where child can only be processed by FCFS processors
+		//In case the StolenProcess is a child where a child can only be scheduled by FCFS processors
 		if (StolenProcess->IsChild())
 		{
-			ProcessorsList[ShortestFCFSIndex]->AddToReadyQueue(StolenProcess);
+			SetMinIndex(1);
 
-			if (MaxIndex == ShortestFCFSIndex)
-				return;
+			ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
 		}
 		else
 		{
 			ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
-			if (MinIndex == MaxIndex)
-				break;
 		}
 		StealCount++;
 
@@ -360,60 +362,30 @@ void Scheduler::Steal()
 	}
 }
 
-bool Scheduler::Kill()
+void Scheduler::IncrementKillCount()
 {
-	KillSignal* KillSig = nullptr;
-	KillSignalQ.Dequeue(KillSig);
-
-	FCFS_Processor* FCFSPtr = nullptr;
-
-	for (size_t i = 0; i < FCFSCount; i++)
-	{
-		// Force casting to access FCFS exclusive member functions
-		FCFSPtr = (FCFS_Processor*)ProcessorsList[i];
-
-		// if the process to be killed is the runptr 
-		if (ProcessorsList[i]->GetRunPtr()->GetPID() == KillSig->PID)
-		{
-			TerminateProcess(FCFSPtr->GetRunPtr());          // terminate the process
-
-			FCFSPtr->SetRunptr(nullptr);
-
-			KillCount++;
-
-			delete KillSig;
-			return true;
-		}
-
-		// If the process to be killed is found in the ready list of an FCFS processor
-		if (FCFSPtr->KillByID(KillSig->PID))
-		{
-			KillCount++;
-
-			delete KillSig;
-			return true;
-		}
-	}
-
-	// Not RDY/RUN for FCFS -> ignore
-	return false;
+	KillCount++;
 }
 
-bool Scheduler::Fork(Process* ProcessPtr)
+void Scheduler::BlockProcess(Process* ProcessPtr)
+{
+	//Moving process to BLK_List and updating status
+	BLK_List.Enqueue(ProcessPtr);					
+
+	ProcessPtr->ChangeProcessState(BLK);			
+}
+
+void Scheduler::Fork(Process* ParentProcess)
 {
 	//checking that the process hasn't forked yet
 	if (!ProcessPtr || (ProcessPtr->GetLeftChild() && ProcessPtr->GetRightChild()))
 		return false;
 
-	//increasing number of processes
-	ProcessesCount++;
-
-	//initializing the child Process's data members
-	int ChildID = ProcessesCount;
+	//Initializing the child Process's data members
+	int ChildID = ++ProcessesCount;
 	int ChildAT = TimeStep;
-	int ChildCT = ProcessPtr->GetRemainingCPUTime();
-	int ChildDL = ProcessPtr->GetDeadline();				//Not sure about it ,need to ask TA	
-	int ChildIO_N = 0;									//Child Process can never ask for I/O
+	int ChildCT = ParentProcess->GetRemainingCPUTime();
+	int ChildDL = ParentProcess->GetDeadline();
 
 	//creating Child process
 	Process* Child = new Process(ChildID, ChildAT, ChildCT, ChildDL, ChildIO_N, this);
@@ -433,8 +405,12 @@ bool Scheduler::Fork(Process* ProcessPtr)
 	Child->SetParent(ProcessPtr);
 	MoveChildToReady(Child);
 
-}
 
+
+	SetMinIndex(1);
+
+	ProcessorsList[MinIndex]->AddToReadyQueue(Child);
+}
 bool Scheduler::KillOrphan(Process* ProcessPtr)
 {
 	if (ProcessPtr->IsParent())
@@ -446,66 +422,50 @@ bool Scheduler::KillOrphan(Process* ProcessPtr)
 	}
 	//Removing Process from Processor
 	FCFS_Processor* ProcessorPtr = GetFCFS_ProcessorPtrTo(ProcessPtr);
+}
 
-	if (ProcessPtr->GetProcessState() == RUN)
+	FCFS_Processor* ProcessorPtr = GetFCFS_ProcessorPtrTo(ProcessPtr);
+}
+	Child->ChangeProcessState(RDY);
+
+	ForkCount++;
+void Scheduler::KillOrphan(Process* OrphanProcess)
+
+void Scheduler::KillOrphan(Process* OrphanProcess)
+{
+	bool Found = 0;
+	FCFS_Processor* FCFSPtr = nullptr;
+
+	for (size_t i = 0; i < FCFSCount && !Found; i++)
 	{
-		ProcessorPtr->SetRunptr(nullptr);
-		ProcessorPtr->ChangeProcessorState(IDLE);
-		TerminateProcess(ProcessPtr);
+		//Force casting to access FCFS_Processor exclusive member function
+		FCFSPtr = (FCFS_Processor*)ProcessorsList[i];
+
+		Found = FCFSPtr->KillOrphan(OrphanProcess->GetID());
 	}
-	else
-		ProcessorPtr->KillByID(ProcessPtr->GetPID());
-
-	//Updating Process state
-	ProcessPtr->ChangeProcessState(ORPH);
-	return true;
 }
 
-bool Scheduler::BlockProcess(Processor* ProcessorPtr)
+void Scheduler::UnBlockProcess()
 {
-	//checking if there is a processor in the RUN state or not
-	if (ProcessorPtr->GetProcessorState() == IDLE)
-		return false;
-
-	//moving & updating states
-	BLK_List.Enqueue(ProcessorPtr->GetRunPtr());					//adding to BLK
-	ProcessorPtr->GetRunPtr()->ChangeProcessState(BLK);				//changing Process state to BLK
-	ProcessorPtr->SetRunptr(nullptr);								//removing the process from Runptr
-	ProcessorPtr->ChangeProcessorState(IDLE);						//changing processor state
-	return true;
-}
-
-bool Scheduler::ReturnBLKtoRDY()
-{
-	//checking if BLK_List is Empty
+	//Checking if BLK_List is Empty
 	if (BLK_List.isEmpty())
-		return false;
+		return;
 
-	//checking process & processor availabilty
+	//Dequeueing the process to be unblocked
 	Process* UnBlockedProcess = nullptr;
-
-	UnBlockedProcess = BLK_List.QueueFront();
-
-	if (!UnBlockedProcess)
-		return false;
-
-	SetMinIndex();
-
 	BLK_List.Dequeue(UnBlockedProcess);
 
+	//Choosing the processor with the shortest ready queue
+	SetMinIndex();
 	ProcessorsList[MinIndex]->AddToReadyQueue(UnBlockedProcess);
 
 	//updating process state
 	UnBlockedProcess->ChangeProcessState(RDY);
-	return true;
 }
 
-bool Scheduler::TerminateProcess(Process* ProcessToTerminate)
+void Scheduler::TerminateProcess(Process* ProcessToTerminate)
 {
-	//checking if process not equal nullptr
-	if (!ProcessToTerminate)
-		return false;
-
+	//Moving to TRM & changing states
 	//checking Forking 
 	if (ProcessToTerminate->IsParent())
 	{
@@ -531,18 +491,23 @@ bool Scheduler::TerminateProcess(Process* ProcessToTerminate)
 	}
 	//moving to TRM & changing states
 	ProcessToTerminate->SetTerminationTime(TimeStep);
+	//moving to TRM & changing states
+	ProcessToTerminate->SetTerminationTime(TimeStep);
 
 	//If the process was completed before its expected deadline
 	if (TimeStep < ProcessToTerminate->GetDeadline())
 		CompletedBeforeDeadlineCount++;
 
-	TRM_List.Enqueue(ProcessToTerminate);
-	ProcessToTerminate->ChangeProcessState(TRM);
+	//Checking if the terminated process has a child
+	if (ProcessToTerminate->IsParent())
+		KillOrphan(ProcessToTerminate->GetChild());
 
-	return true;
+	//Checking if the terminated process is a child
+	if (ProcessToTerminate->IsChild())
+		ProcessToTerminate->SeparateFromParent();
 }
 
-void Scheduler::FromNEWtoRDY()
+void Scheduler::MoveNEWtoRDY()
 {
 	Process* NewProcessPtr = nullptr;
 
@@ -570,27 +535,14 @@ void Scheduler::FromNEWtoRDY()
 	}
 }
 
-void Scheduler::MoveChildToReady(Process* ProcessPtr)
-{
-	if (!ProcessPtr)
-		return;
-
-	UpdateShortestFCFSIndex();
-	ProcessorsList[ShortestFCFSIndex]->AddToReadyQueue(ProcessPtr);
-	ProcessPtr->ChangeProcessState(RDY);
-	cout << "Child safely moved to Ready" << endl;
-}
-
 void Scheduler::Simulate()
 {
 	UI_Mode CrntMode;
 
 	string FileName = ProgramUI->InputFileName();
 
-	//calling Load function
-	bool FileOpened = ReadInputFile(FileName);
-
-	if (!FileOpened) return;
+	//Reading the input file
+	if (!ReadInputFile(FileName)) return;
 
 	//User chooses what UI mode to run on
 	CrntMode = ProgramUI->InputInterfaceMode();
@@ -600,26 +552,14 @@ void Scheduler::Simulate()
 
 
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
-	{
-		//Moving new processes to ready queues
-		FromNEWtoRDY();
-
-	
-
-		//Check if there is a kill signal at the current time step
-		while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == TimeStep)
+		MoveNEWtoRDY();
 			Kill();
 
 
 		for (size_t i = 0; i < ProcessorsCount; i++)
 		{
-			//Calling ScheduleAlgo for each processor   
+			//Calling ScheduleAlgo of each processor   
 			ProcessorsList[i]->ScheduleAlgo(TimeStep);
-
-
-			//Parameter-handling functions that are called each time step
-			ProcessorsList[i]->IncrementBusyOrIdleTime();
-			ProcessorsList[i]->IncrementRunningProcess();
 		}
 
 		//Randomization of number for forking
@@ -637,13 +577,12 @@ void Scheduler::Simulate()
 		if (TimeStep % STL == 0)
 			Steal();
 
-
-		//incrementing & printing timestep
-		if (CrntMode != Silent)
-			ProgramUI->TimeStepOut(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
-
-		// Handle IO_Duration in BLK list each time step
+		//Handle IO_Duration in BLK list each time step
 		HandleIODuration();
+
+		//Incrementing & printing timestep
+		if (CrntMode != Silent)
+			ProgramUI->PrintTimeStep(BLK_List, TRM_List, ProcessorsList, FCFSCount, SJFCount, RRCount, EDFCount, TimeStep);
 
 		TimeStep++;
 	}
@@ -653,6 +592,77 @@ void Scheduler::Simulate()
 
 	if (CrntMode == Silent)
 		ProgramUI->PrintSilentMode(1);
+}
+
+void Scheduler::SetMinIndex(int RangeSelect)
+{
+	//If RangeSelect = 0 (default), the fn will search for the shortest queue within all procssors
+	//If RangeSelect = 1, it will search within the range of FCFS processors only
+	//If RangeSelect = 2, it will search within the range of SJF processors only
+	//If RangeSelect = 3, it will search within the range of RR processors only
+
+	//Default values for start, end & initializing MinIndex
+	int Start = 1, End = ProcessorsCount;
+	MinIndex = 0;
+
+	if (RangeSelect == 1)			//The range is FCFS processors only
+	{
+		Start = 1;
+		End = FCFSCount;
+	}
+	else if (RangeSelect == 2)		//The range is SJF processors only
+	{ 	
+		Start = (MinIndex = FCFSCount) + 1;
+		End = FCFSCount + SJFCount;
+	}
+	else if (RangeSelect == 3)		//The range is RR processors only
+	{
+		Start = (MinIndex = FCFSCount + SJFCount) + 1;
+		End = FCFSCount + SJFCount + RRCount;
+	}
+
+	//Checking which processor has the smallest expected finish time (within given range)
+	for (size_t i = Start; i < End; i++)
+	{
+		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
+			MinIndex = i;
+	}
+}
+
+void Scheduler::SetMaxIndex(int RangeSelect)
+{
+	//If RangeSelect = 0 (default), the fn will search for the shortest queue within all procssors
+	//If RangeSelect = 1, it will search within the range of FCFS processors only
+	
+	//Default values for start, end & initializing MaxIndex
+	int Start = 1, End = ProcessorsCount;
+	MaxIndex = 0;
+
+	if (RangeSelect == 1)			//The range is FCFS processors only
+	{
+		Start = 1;
+		End = FCFSCount;
+	}
+
+	//Checking which processor has the biggest expected finish time
+	for (size_t i = Start; i < End; i++)
+	{
+		if (ProcessorsList[i]->GetFinishTime() > ProcessorsList[MaxIndex]->GetFinishTime())
+			MaxIndex = i;
+	}
+}
+
+int Scheduler::CalcStealLimit()
+{
+	int SQF = ProcessorsList[MinIndex]->GetFinishTime();
+	int LQF = ProcessorsList[MaxIndex]->GetFinishTime();
+
+	if (!LQF)
+		return 0;
+
+	int StealLimit = 100 * (LQF - SQF) / LQF;
+
+	return StealLimit;
 }
 
 double Scheduler::CalcAvgUtilization() const
@@ -684,12 +694,12 @@ double Scheduler::CalcAvgRT() const
 
 double Scheduler::CalcRTFMigrationPercentage() const
 {
-	return (double)100 * RTFCount / ProcessesCount;
+	return (double)100 * RTFMigrationCount / ProcessesCount;
 }
 
 double Scheduler::CalcMaxWMigrationPercentage() const
 {
-	return (double)100 * MaxWCount / ProcessesCount;
+	return (double)100 * MaxWMigrationCount / ProcessesCount;
 }
 
 double Scheduler::CalcStealPercentage() const
@@ -712,80 +722,21 @@ double Scheduler::CalcBeforeDeadlinePercentage() const
 	return (double)100 * CompletedBeforeDeadlineCount / ProcessesCount;
 }
 
-void Scheduler::SetMinIndex()
+Scheduler::~Scheduler()
 {
-	//Initializing the index of the processor with the smallest finish time
-	MinIndex = 0;
+	//Deallocating dynamically allocated objects
+	for (size_t i = 0; i < ProcessorsCount; i++)
+	{
+		delete ProcessorsList[i];
+	}
+	delete[] ProcessorsList;
+	delete ProgramUI;
 
+	while (!FCFS_Processor::KillSignalQ.isEmpty())
 	//Checking which processor has the smallest expected finish time
-	for (size_t i = 1; i < ProcessorsCount; i++)
+	for (size_t i = FCFSCount+SJFCount+1; i < ProcessorsCount; i++)
 	{
-		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
-			MinIndex = i;
+		FCFS_Processor::KillSignalQ.Dequeue(DeleteKillSig);
+		delete DeleteKillSig;
 	}
-}
-
-void Scheduler::SetMaxIndex()
-{
-	//Initializing the index of the processor with the biggest finish time
-	MaxIndex = 0;
-
-	//Checking which processor has the biggest expected finish time
-	for (size_t i = 1; i < ProcessorsCount; i++)
-	{
-		if (ProcessorsList[i]->GetFinishTime() > ProcessorsList[MaxIndex]->GetFinishTime())
-			MaxIndex = i;
-	}
-}
-
-void Scheduler::UpdateShortestFCFSIndex()
-{
-	//Initializing the index of the processor with the smallest finish time
-	ShortestFCFSIndex = 0;
-
-	//Checking which processor has the smallest expected finish time
-	for (size_t i = 1; i < FCFSCount; i++)
-	{
-		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[ShortestFCFSIndex]->GetFinishTime())
-			ShortestFCFSIndex = i;
-	}
-}
-
-void Scheduler::UpdateLongestFCFSIndex()
-{
-	//Initializing the index of the processor with the smallest finish time
-	LongestFCFSIndex = 0;
-
-	//Checking which processor has the smallest expected finish time
-	for (size_t i = 1; i < FCFSCount; i++)
-	{
-		if (ProcessorsList[i]->GetFinishTime() > ProcessorsList[LongestFCFSIndex]->GetFinishTime())
-			LongestFCFSIndex = i;
-	}
-}
-
-void Scheduler::UpdateShortestRRIndex()
-{
-	//Initializing the index of the processor with the smallest finish time
-	ShortestRRIndex = FCFSCount + SJFCount;
-
-	//Checking which processor has the smallest expected finish time
-	for (size_t i = FCFSCount + SJFCount + 1; i < ProcessorsCount; i++)
-	{
-		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[ShortestRRIndex]->GetFinishTime())
-			ShortestRRIndex = i;
-	}
-}
-
-int Scheduler::CalcStealLimit()
-{
-	SQF = ProcessorsList[MinIndex]->GetFinishTime();
-	LQF = ProcessorsList[MaxIndex]->GetFinishTime();
-
-	if (!LQF)
-		return 0;
-
-	int StealLimit = 100 * (LQF - SQF) / LQF;
-
-	return StealLimit;
 }

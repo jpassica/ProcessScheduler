@@ -1,8 +1,8 @@
 #include "Process.h"
-#include "Scheduler.h"
-//Process Constructor
-Process::Process(int ID, int AT, int CT, int DL, int IO_N , Scheduler* SchPtr)
-	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), IO_N(IO_N), CrntState(NEW) , SchedulerPtr(SchPtr)
+
+
+Process::Process(int ID, int AT, int CT, int DL)
+	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), CrntState(NEW)
 {
 	//initializing all data members
 	TerminationTime = 0;
@@ -14,7 +14,7 @@ Process::Process(int ID, int AT, int CT, int DL, int IO_N , Scheduler* SchPtr)
 	LeftChildPtr = nullptr;
 	RightChildPtr = nullptr;
 	ParentPtr = nullptr;
-	firstTimeExecution = 1;
+	FirstTimeExecution = 1;
 }
 
 ostream& operator<<(ostream& out, const Process* P)
@@ -48,7 +48,7 @@ void Process::SetResponseTime(int FCPU)
 	//the function changes this data member to false 
 	//to stop the processors from overrwriting the RT
 
-	firstTimeExecution = 0;
+	FirstTimeExecution = 0;
 }
 
 void Process::AddIORequest(int IO_R, int IO_D)
@@ -72,7 +72,7 @@ void Process::SetTerminationTime(int TT)
 	WaitingTime = TurnAroundTime - ProcessedTime;
 }
 
-int Process::GetPID() const
+int Process::GetID() const 
 {
 	return PID;
 }
@@ -154,17 +154,15 @@ void Process::ChangeProcessState(ProcessState NewState)
 
 bool Process::TimeForIO()
 {
-	if (!IO_RequestQ.isEmpty())
+	if (!IO_RequestQ.isEmpty() && ProcessedTime == IO_RequestQ.QueueFront()->IO_R)
 	{
-		if (ProcessedTime == IO_RequestQ.QueueFront()->IO_R)
-		{
-			return true;
-		}
+		return true;
 	}
-	return false;
+	else
+		return false;
 }
 
-void Process::PopIO_Request()
+void Process::DeleteIO_Request() 
 {
 	IO_Request* CompletedIO_Request;
 	IO_RequestQ.Dequeue(CompletedIO_Request);
@@ -178,14 +176,12 @@ void Process::ExecuteProcess()
 
 bool Process::isFirstExecution() const
 {
-	return firstTimeExecution;
+	return FirstTimeExecution;
 }
 
 bool Process::IsChild() const
 {
-	if (ParentPtr)
-		return true;
-	return false;
+	return ParentPtr;
 }
 
 bool Process::IsParent() const
@@ -206,12 +202,40 @@ bool Process::TsRight() const
 		return false;
 	return (ParentPtr->GetRightChild());
 }
-
-void Process::UpdateTotalWaitingTime()
-{
-	WaitingTime = (SchedulerPtr->GetTimeStep()-ArrivalTime)-ProcessedTime;
+	return ChildPtr;
 }
 
+void Process::SeparateFromParent()
+{
+	if (ParentPtr)
+	{
+		ParentPtr->ChildPtr = nullptr;
+		ParentPtr = nullptr;
+	}
+}
 
+void Process::SeparateFromChild()
+{
+	if (ChildPtr)
+	{
+		ChildPtr->ParentPtr = nullptr;
+		ChildPtr = nullptr;
+	}
+}
+
+void Process::UpdateWaitingTime(int CrntTimeStep)
+{
+	WaitingTime = CrntTimeStep - ProcessedTime - ArrivalTime;
+}
+
+Process::~Process()
+{
+	IO_Request* DeleteIO_Request = nullptr;
+	while (!IO_RequestQ.isEmpty())
+	{
+		IO_RequestQ.Dequeue(DeleteIO_Request);
+		delete DeleteIO_Request;
+	}
+}
 
 

@@ -12,7 +12,7 @@ class Scheduler
 private:
 	int TimeStep;
 
-	//processors lists(dynamic allocation)
+	//List of all processors in the system
 	Processor** ProcessorsList;
 
 	//Processor counters
@@ -22,97 +22,93 @@ private:
 	int EDFCount;
 	int ProcessorsCount;
 
-
 	//Process lists
 	Queue<Process*> NEW_List;
 	Queue<Process*> BLK_List;
 	Queue<Process*> TRM_List;    
 	int ProcessesCount;
 
-	//input values
+	//Operation parameters
 	int RTF;  
 	int MaxW; 
 	int STL;
-	int ForkProb;
 	int RRtimeSlice;
 	
-	//statistics variables
+	//Statistics counters
 	int TotalWaitingTime;
 	int TotalResponseTime;
 	int TotalTurnAroundtime;	
 
-	int RTFCount;						//no. of migrated processes due to RTF
-	int MaxWCount;						//no. of migrated processes due to MaxW
+	int RTFMigrationCount;				//no. of migrated processes due to RTF
+	int MaxWMigrationCount;				//no. of migrated processes due to MaxW
 	int StealCount;						//no of stolen processes
 	int ForkCount;						//no. of forking instances
 	int KillCount;						//no. of kills
-	int CompletedBeforeDeadlineCount;
+	int CompletedBeforeDeadlineCount;	//no. of processes finished before their deadline
 
-	Queue<KillSignal*> KillSignalQ;
-
-	//Indices of the processors with the smallest & biggest finish time
+	//Index of the processor with the shortest expected finish time
 	int MinIndex;
+
+	//Index of the processor with the longest expected finish time
 	int MaxIndex;
-
-	//Child Processes can only be Processed by FCFS Processors
-	int ShortestFCFSIndex;
-	int LongestFCFSIndex;
-
-	//Used in migration
-	int ShortestRRIndex;
-
-	//Largest and smallest finish time between all the processors
-	int SQF;
-	int LQF;
-
 
 	int ProcessedIO_D;
 
 	//Pointer to the User Interface that will work throughout the simulation
 	UI* ProgramUI;
 
-	void setProcessors(int, int, int, int, int);  //used locally when input is loaded from the file
+	//Used locally when input is loaded from the file
+	void AllocateProcessors(int, int, int, int, int, int);  
 
-	//returns the processor that the passed Process is currently in
-	FCFS_Processor* GetFCFS_ProcessorPtrTo(Process*);
 public:
 	Scheduler();
-	
-	//getters 
-	int GetTimeStep();
-	//function responsible for reading input file
-	bool ReadInputFile(string filename);
 
-	//function responsible for generating output file
-	bool WriteOutputFile();
+	//Reads input file, sets data, allocates processes & processors
+	bool ReadInputFile(string);
 
-	//process operations
-	bool MigrateToRR(Processor*);
+	//Generates output file and writes all statistics
+	void WriteOutputFile();
+
+	//------------- Process operations -------------
+
+	//Steals processes from the longest queue and gives it to the shortest
 	void Steal();
-	
-	bool Kill();
-	bool Fork(Process*);
-	bool KillOrphan(Process*);
 
-	//process moving
-	bool BlockProcess(Processor*);
-	bool ReturnBLKtoRDY();
-	bool TerminateProcess(Process*);
+	//Migration functions
+	bool MigrateFromFCFStoRR(Process*);
+	bool MigrateFromRRtoSJF(Process*);
+
+	//Forks a child process
+	void Fork(Process*);
+
+	void KillOrphan(Process*);
 
 	void HandleIODuration();
-	void HandleIORequest(Processor*);
 	
+	//Process moving functions
+	void BlockProcess(Process*);
+	void UnBlockProcess();
+	void TerminateProcess(Process*);
 
-	//Moves all processes arriving at current timestep to shortest ready queues 
-	void FromNEWtoRDY();
+	//Moves all processes arriving at timestep to shortest ready queues 
+	void MoveNEWtoRDY();
 
-	//Moves Child processes to Ready 
-	void MoveChildToReady(Process*);
-
-	//The main function that for running the simulation
+	//The main function that runs the simulation	
 	void Simulate();
 
-	//statistics functions
+	//Sets the index of the processor with the smallest finish time
+	void SetMinIndex(int RangeSelect = 0);
+
+	//Sets the index of the processor with the biggest finish time
+	void SetMaxIndex(int RangeSelect = 0);
+
+	//Calculates and returns the steal limit
+	int CalcStealLimit();
+
+	//Called by FCFS processors when they execute a kill signal
+	void IncrementKillCount();
+
+	//Statistics calculation functions
 	double CalcAvgUtilization() const;
 	double CalcAvgTRT() const;
 	double CalcAvgWT() const;
@@ -125,22 +121,7 @@ public:
 	double CalcKillPercentage() const;
 	double CalcBeforeDeadlinePercentage() const;
 
-
-	//Sets the index of the processor with the smallest finish time
-	void SetMinIndex();
-
-	//Sets the index of the processor with the biggest finish time
-	void SetMaxIndex();
-
-	//Updates the index of the shortest & Longest FCFS Processor
-	void UpdateShortestFCFSIndex();
-	void UpdateLongestFCFSIndex();
-
-	//
-	void UpdateShortestRRIndex();
-
-	//Calculates and returns the steal limit
-	int CalcStealLimit();
+	~Scheduler();
 };
 
 #endif

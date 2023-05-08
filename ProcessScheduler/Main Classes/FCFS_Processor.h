@@ -7,29 +7,35 @@
 class FCFS_Processor : public Processor
 {
 	ProcessList FCFS_Ready;
+	int ForkProbability;
 
 public:
-	FCFS_Processor(int ID, Scheduler* SchedulerPtr);
+	FCFS_Processor(int, int, Scheduler*);
 
-	//Picks the next process to run according to 'first come first serve'
+	static Queue<KillSignal*> KillSignalQ;
+
+	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) override;
 
 	//adds the passed process to the FCFS_Ready
-	virtual void AddToReadyQueue(Process* pReady) override;
+	virtual void AddToReadyQueue(Process*) override;
 
 	virtual bool isReadyQueueEmpty() const override;
 
-	virtual bool RunNextProcess(int crntTimeStep) override;
+	virtual bool RunNextProcess(int) override;
 
 	virtual int GetRDYCount() const override;
 
-	bool KillByID(int randomID);
+	bool KillByID(int);
 
 	virtual void PrintRDY() const override;
 
 	virtual Process* StealProcess() override;
-	bool SearchProcess(int) const;
 
+	//Kills processes if they receive a kill signal at current time step
+	void Kill();
+
+	bool KillOrphan(int);
 };
 
 #endif

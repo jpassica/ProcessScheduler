@@ -1,7 +1,6 @@
 #pragma once
-#include "FCFS_Processor.h"
-#include "SJF_Processor.h"
-#include "RR_Processor.h"
+
+#include "Processor.h"
 #include <iostream>
 #include <string>
 
@@ -28,6 +27,6 @@ public:
 	string InputFileName(bool isError = 0);
 
 	//Main function for printing info each time step
-	void TimeStepOut(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
-		Processor** ProcessorsList, int NF, int NS, int NR, int NE, int timeStep);
+	void PrintTimeStep(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
+		Processor** ProcessorsList, int NF, int NS, int NR, int NE, int TimeStep);
 };	

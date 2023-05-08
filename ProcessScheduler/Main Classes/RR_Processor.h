@@ -12,7 +12,7 @@ class RR_Processor : public Processor
 public:
 	RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr);
 
-	//Picks the next process to run according to whose turn  it is in the queue
+	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) override;
 
 	//adds passed process to RR_Ready

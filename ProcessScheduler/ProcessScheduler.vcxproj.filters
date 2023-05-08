@@ -100,9 +100,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="SampleInput.txt" />
-    <Text Include="OutputFile.txt" />
-    <Text Include="Testcase1.txt" />
-    <Text Include="Fntest1.txt" />
+    <Text Include="TestCaseC.txt" />
+    <Text Include="TestCaseA.txt" />
+    <Text Include="OutputFileA.txt" />
+    <Text Include="TestCaseB.txt" />
+    <Text Include="OutputFileB.txt" />
+    <Text Include="OutputFileC.txt" />
   </ItemGroup>
 </Project>

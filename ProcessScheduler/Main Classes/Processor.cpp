@@ -8,20 +8,19 @@ Processor::Processor(int ID, Scheduler* SchedulerPtr) : CrntState(IDLE), ID(ID),
 	FinishTime = 0;
 }
 
-double Processor::CalcPLoad(int TotalTRT) const	//calculates and returns pLoad %
+double Processor::CalcPLoad(int TotalTRT) const
 {
 	return ((double)BusyTime / TotalTRT) * 100;
 }
 
-double Processor::CalcPUtil() const				//calculates and returns pUtil %
+double Processor::CalcPUtil() const		
 {
 	return ((double)BusyTime / (BusyTime + IdleTime)) * 100;
 }
 
-void Processor::IncrementRunningProcess()
+int Processor::GetID() const
 {
-	if (RunPtr)
-		RunPtr->ExecuteProcess();
+	return ID;
 }
 
 void Processor::IncrementBusyOrIdleTime()
@@ -32,29 +31,17 @@ void Processor::IncrementBusyOrIdleTime()
 		BusyTime++;
 }
 
-void Processor::ChangeProcessorState(ProcessorState NextState)
-{
-	CrntState = NextState;
-}
-
-int Processor::getID() const
-{
-	return ID;
-}
-
-void Processor::SetRunptr(Process* p)
-{
-	RunPtr = p;
-}
-
-ProcessorState Processor::GetProcessorState()
-{
-	return CrntState;
-}
-
-Process* Processor::GetRunPtr()
+bool Processor::isExecutingProcess() const
 {
 	return RunPtr;
+}
+
+int Processor::GetRunningProcessID() const
+{
+	if (RunPtr)
+		return RunPtr->GetID();
+	else
+		return 0;
 }
 
 ostream& operator<<(ostream& out, const Processor& P)

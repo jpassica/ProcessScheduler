@@ -6,10 +6,9 @@ using namespace std;
 
 class Scheduler;
 
-class Process {
+class Process 
+{
 private:
-
-	Scheduler* SchedulerPtr;
 	//Main parameters
 	const int PID;
 	int ArrivalTime;
@@ -21,7 +20,6 @@ private:
 
 	int Deadline;
 
-	int IO_N;
 	int totalIO_D;
 	Queue<IO_Request*> IO_RequestQ;
 
@@ -34,31 +32,30 @@ private:
 	Process* RightChildPtr;
 	Process* ParentPtr;
 
-	//to put down the response time
-	bool firstTimeExecution;
+	//To mark the response time
+	bool FirstTimeExecution;
 
 public:
 	//Non-default constructor
-	Process(int ID, int AT, int CT, int DL, int IO_N , Scheduler*);
+	Process(int ID, int AT, int CT, int DL);
 
 	//Overoaded insertion operator
 	friend ostream& operator<<(ostream&, const Process*);
-
 
 	//Setter functions
 	void SetLeftChild(Process*);
 	void SetRightChild(Process*);
 
 	void SetParent(Process*);
-	void SetTerminationTime(int n);
-	void SetResponseTime(int n);
+	void SetTerminationTime(int);
+	void SetResponseTime(int);
 
 	//Takes data and creates IO request and adds it to queue
-	void AddIORequest(int IO_R, int IO_D);
+	void AddIORequest(int, int);
 
 	//Getter functions
 	int GetCPUTime() const;
-	int GetPID() const;
+	int GetID() const;
 	int GetArrivalTime() const;
 	int GetTurnAroundTime() const;
 	int GetResponseTime() const;
@@ -76,24 +73,30 @@ public:
 	int GetRemainingCPUTime() const;
 
 	int GetIO_D();
-	void ChangeProcessState(ProcessState NewState);
+	void ChangeProcessState(ProcessState);
 
 	bool TimeForIO();
-	void PopIO_Request();
-
+	void DeleteIO_Request();
 
 	//Increments the ProcessedTime of the process currently being executed
 	void ExecuteProcess();
 
 	//returns true if this the process had not received the CPU before
 	bool isFirstExecution() const;
+
 	bool IsChild() const;
 	bool IsParent() const;
 
 	//detects if the child is in the left or right pointer of the parent
 	bool IsLeft() const;
 	bool TsRight() const;
+	//Cuts off connection between process and its parent
+	void SeparateFromParent();
 
-	void UpdateTotalWaitingTime();
+	//Cuts off connection between process and its child
+	void SeparateFromChild();
 
+	void UpdateWaitingTime(int);
+
+	~Process();
 };
