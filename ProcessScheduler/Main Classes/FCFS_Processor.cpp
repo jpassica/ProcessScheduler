@@ -15,10 +15,10 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 		}
 	}
 
-	//KillBySig signals
+	//ExecuteKIllSignal signals
 	bool Kill = 1;
 	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->Time == CrntTimeStep && Kill)
-		Kill = KillBySig();
+		Kill = ExecuteKIllSignal();
 
 	//IO requests
 	if (RunPtr && RunPtr->TimeForIO())
@@ -152,7 +152,7 @@ Process* FCFS_Processor::StealProcess()
 	return StolenProcess;
 }
 
-bool FCFS_Processor::KillBySig()
+bool FCFS_Processor::ExecuteKIllSignal()
 {
 	KillSignal* KillSig = KillSignalQ.QueueFront();
 
@@ -206,4 +206,22 @@ bool FCFS_Processor::KillOrphan(int ID)
 	return false;
 }
 
+void FCFS_Processor::AddKillSignal(int Time, int ID)
+{
+	KillSignal* NewKillSignal = new KillSignal(Time, ID);
+
+	KillSignalQ.Enqueue(NewKillSignal);
+}
+
 Queue<KillSignal*> FCFS_Processor::KillSignalQ;
+
+void FCFS_Processor::ClearKillSignalQ()
+{
+	KillSignal* DeleteKillSig = nullptr;
+
+	while (!KillSignalQ.isEmpty())
+	{
+		KillSignalQ.Dequeue(DeleteKillSig);
+		delete DeleteKillSig;
+	}
+}

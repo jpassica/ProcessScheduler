@@ -62,7 +62,7 @@ void Scheduler::AllocateProcessors(int NF, int NS, int NR, int NE, int RRtimeSli
 
 bool Scheduler::ReadInputFile(string FileName)
 {
-	//creating input stream object and opening file
+	//Creating input stream object and opening file
 	ifstream IP_Stream;
 	FileName += ".txt";
 	IP_Stream.open(FileName);
@@ -150,16 +150,14 @@ bool Scheduler::ReadInputFile(string FileName)
 	//reading SIGKILLs
 
 	//reading each kill signal's data until there is no more data
-	int time(0), ID(0);
-	KillSignal* NewKillSignal = nullptr;
+	int Time(0), ID(0);
+	
 
 	while (!IP_Stream.eof())
 	{
-		IP_Stream >> time >> PID;
+		IP_Stream >> Time >> PID;
 
-		NewKillSignal = new KillSignal(time, PID);
-
-		FCFS_Processor::KillSignalQ.Enqueue(NewKillSignal);
+		FCFS_Processor::AddKillSignal(Time, PID);
 	}
 
 	IP_Stream.close();
@@ -173,7 +171,6 @@ void Scheduler::WriteOutputFile(string FileName)
 	//Creating output stream object and opening file for writing
 	ofstream OP_Stream;
 	FileName += ".txt";
-
 	OP_Stream.open(FileName);
 
 	//If there is any problem with the file, abort
@@ -349,7 +346,7 @@ void Scheduler::IncrementKillCount()
 
 void Scheduler::BlockProcess(Process* ProcessPtr)
 {
-	//Moving process to BLK_List and updating status
+	//Moving process to BLK_List
 	BLK_List.Enqueue(ProcessPtr);							
 }
 
@@ -643,11 +640,5 @@ Scheduler::~Scheduler()
 
 	delete ProgramUI;
 
-	KillSignal* DeleteKillSig = nullptr;
-
-	while (!FCFS_Processor::KillSignalQ.isEmpty())
-	{
-		FCFS_Processor::KillSignalQ.Dequeue(DeleteKillSig);
-		delete DeleteKillSig;
-	}
+	FCFS_Processor::ClearKillSignalQ();
 }
