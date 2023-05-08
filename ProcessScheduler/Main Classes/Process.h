@@ -22,9 +22,10 @@ private:
 	int totalIO_D;
 	Queue<IO_Request*> IO_RequestQ;
 
-	ProcessState CrntState;
-
 	int ProcessedTime;
+
+	//Is true if the process has forked once in its lifetime 
+	bool HasForked;
 	Process* ChildPtr;
 	Process* ParentPtr;
 
@@ -58,7 +59,6 @@ public:
 	int GetDeadline() const;
 
 	int GetTotalIO_D() const;
-	ProcessState GetProcessState() const;
 	Process* GetChild() const;
 	Process* GetParent() const;
 
@@ -66,7 +66,9 @@ public:
 	int GetRemainingCPUTime() const;
 
 	int GetIO_D();
-	void ChangeProcessState(ProcessState);
+
+	//Returns true if the process has ever forked in its lifetime
+	bool HasForkedBefore() const;
 
 	bool TimeForIO();
 	void DeleteIO_Request();

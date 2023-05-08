@@ -2,14 +2,14 @@
 #include <Windows.h>
 using namespace std;
 
-string UI::ReadLine()
+string UI::ReadLine() const
 {
 	string Line;
 	getline(cin, Line);
 	return Line;
 }
 
-void UI::WriteLine(string Line)
+void UI::WriteLine(string Line) const
 {
 	cout << Line << endl;
 }
@@ -38,7 +38,7 @@ UI_Mode UI::InputInterfaceMode()
 	return CrntMode;
 }
 
-void UI::PrintSilentMode(bool StartorEnd)
+void UI::PrintSilentMode(bool StartorEnd) const
 {
 	//if StartorEnd = 0, this means we are at the beginning of the simulation
 	
@@ -53,7 +53,7 @@ void UI::PrintSilentMode(bool StartorEnd)
 	}
 }
 
-string UI::InputFileName(bool isError)
+string UI::ReadInputFileName(bool isError) const
 {
 	string FileName;
 
@@ -69,8 +69,21 @@ string UI::InputFileName(bool isError)
 	return FileName;
 }
 
+string UI::ReadOutputFileName() const
+{
+	string FileName;
+
+	cout << "Please enter output file name (to be generated): > ";
+
+	cin >> FileName;
+
+	cout << endl;
+
+	return FileName;
+}
+
 void UI::PrintTimeStep(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
-	Processor** ProcessorsList, int NF, int NS, int NR, int NE, int timeStep)
+	Processor** ProcessorsList, int NF, int NS, int NR, int NE, int timeStep) const
 {
 	int ProcessorsCount = NF + NS + NR + NE;
 

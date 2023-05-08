@@ -1,7 +1,7 @@
 #include "Process.h"
 
 Process::Process(int ID, int AT, int CT, int DL)
-	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), CrntState(NEW)
+	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL)
 {
 	//initializing all data members
 	TerminationTime = 0;
@@ -13,6 +13,7 @@ Process::Process(int ID, int AT, int CT, int DL)
 	ChildPtr = nullptr;
 	ParentPtr = nullptr;
 	FirstTimeExecution = 1;
+	HasForked = 0;
 }
 
 ostream& operator<<(ostream& out, const Process* P)
@@ -24,6 +25,8 @@ ostream& operator<<(ostream& out, const Process* P)
 void Process::SetChild(Process* ForkedProcess)
 {
 	ChildPtr = ForkedProcess;
+
+	HasForked = 1;
 }
 
 void Process::SetParent(Process* Ptr)
@@ -105,11 +108,6 @@ int Process::GetTotalIO_D() const
 	return totalIO_D;
 }
 
-ProcessState Process::GetProcessState() const
-{
-	return CrntState;
-}
-
 Process* Process::GetChild() const
 {
 	return ChildPtr;
@@ -135,9 +133,9 @@ int Process::GetIO_D()
 	return IO_RequestQ.QueueFront()->IO_D;
 }
 
-void Process::ChangeProcessState(ProcessState NewState)
+bool Process::HasForkedBefore() const
 {
-	CrntState = NewState;
+	return HasForked;
 }
 
 bool Process::TimeForIO()

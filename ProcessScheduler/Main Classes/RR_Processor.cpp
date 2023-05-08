@@ -33,7 +33,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	}
 
 	//Migration
-	while (pScheduler->MigrateFromRRtoSJF(RunPtr)) 
+	while (RunPtr && pScheduler->MigrateFromRRtoSJF(RunPtr)) 
 	{
 		RunPtr = nullptr;
 		TimeSliceCounter = 0;
@@ -70,8 +70,6 @@ void RR_Processor::AddToReadyQueue(Process* pReady)
 {
 	RR_Ready.Enqueue(pReady);
 
-	pReady->ChangeProcessState(RDY);
-
 	FinishTime += pReady->GetRemainingCPUTime();
 }
 
@@ -94,7 +92,6 @@ bool RR_Processor::RunNextProcess(int crntTimeStep)
 	RR_Ready.Dequeue(RunPtr);
 
 	CrntState = BUSY;
-	RunPtr->ChangeProcessState(RUN);
 
 	if (RunPtr->isFirstExecution())
 		RunPtr->SetResponseTime(crntTimeStep);

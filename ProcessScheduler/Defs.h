@@ -1,8 +1,6 @@
 //This file is for various data modules used all throughout the project
 
-enum ProcessState { NEW, RDY, RUN, BLK, TRM, ORPH };
-
-enum ProcessorState { IDLE, BUSY };
+enum ProcessorState { IDLE, BUSY, STOP };
 
 enum UI_Mode { Interactive, StepByStep, Silent };
 

@@ -10,7 +10,9 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 	{
 		int Random = rand() % 100;
 		if (Random <= ForkProbability)
+		{
 			pScheduler->Fork(RunPtr);
+		}
 	}
 
 	//KillBySig signals
@@ -42,7 +44,7 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunNextProcess(CrntTimeStep);
 
 	//Migration case	
-	while (RunPtr && pScheduler->MigrateFromFCFStoRR(RunPtr))
+	while (RunPtr && !RunPtr->IsChild() && pScheduler->MigrateFromFCFStoRR(RunPtr))
 	{
 		RunPtr = nullptr;
 		RunNextProcess(CrntTimeStep);
@@ -61,8 +63,6 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 void FCFS_Processor::AddToReadyQueue(Process* pReady)
 {
 	FCFS_Ready.insert(FCFS_Ready.getCount() + 1, pReady);
-
-	pReady->ChangeProcessState(RDY);
 
 	FinishTime += pReady->GetRemainingCPUTime();
 }
@@ -90,7 +90,6 @@ bool FCFS_Processor::RunNextProcess(int crntTimeStep)
 	FCFS_Ready.remove(1);
 
 	CrntState = BUSY;
-	RunPtr->ChangeProcessState(RUN);
 
 	if (RunPtr->isFirstExecution())
 		RunPtr->SetResponseTime(crntTimeStep);
@@ -132,9 +131,21 @@ void FCFS_Processor::PrintRDY() const
 
 Process* FCFS_Processor::StealProcess()
 {
-	Process* StolenProcess = FCFS_Ready.getEntry(1);
+	size_t i(1);
 
-	FCFS_Ready.remove(1);
+	//Skipping any forked processes, but not changing their position in the list
+	while (i <= FCFS_Ready.getCount() && FCFS_Ready.getEntry(i)->IsChild())
+	{
+		i++;
+	}
+
+	//If there are no non-forked processes in the ready list, then we can't steal anything
+	if (i > FCFS_Ready.getCount())
+		return nullptr;
+
+	Process* StolenProcess = FCFS_Ready.getEntry(i);
+
+	FCFS_Ready.remove(i);
 
 	FinishTime -= StolenProcess->GetRemainingCPUTime();
 

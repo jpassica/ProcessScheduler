@@ -61,8 +61,6 @@ void EDF_Processor::AddToReadyQueue(Process* pReady)
 {
 	EDF_Ready.Enqueue(pReady, pReady->GetDeadline());
 
-	pReady->ChangeProcessState(RDY);
-
 	FinishTime += pReady->GetRemainingCPUTime();
 }
 
@@ -85,7 +83,6 @@ bool EDF_Processor::RunNextProcess(int crntTimeStep)
 	EDF_Ready.Dequeue(RunPtr);
 
 	CrntState = BUSY;
-	RunPtr->ChangeProcessState(RUN);
 
 	if (RunPtr->isFirstExecution())
 		RunPtr->SetResponseTime(crntTimeStep);

@@ -10,6 +10,7 @@
 class Scheduler
 {
 private:
+	//
 	int TimeStep;
 
 	//List of all processors in the system
@@ -52,6 +53,7 @@ private:
 	//Index of the processor with the longest expected finish Time
 	int MaxIndex;
 
+	//Total time spent at top of BLK list, receiving IO resources
 	int ProcessedIO_D;
 
 	//Pointer to the User Interface that will work throughout the simulation
@@ -67,7 +69,7 @@ public:
 	bool ReadInputFile(string);
 
 	//Generates output file and writes all statistics
-	void WriteOutputFile();
+	void WriteOutputFile(string);
 
 	//------------- Process operations -------------
 
@@ -108,7 +110,7 @@ public:
 	//Called by FCFS processors when they execute a kill signal
 	void IncrementKillCount();
 
-	//Statistics calculation functions
+	//---------------- Statistics calculation functions -------------------
 	double CalcAvgUtilization() const;
 	double CalcAvgTRT() const;
 	double CalcAvgWT() const;

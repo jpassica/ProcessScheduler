@@ -45,8 +45,6 @@ void SJF_Processor::AddToReadyQueue(Process* pReady)
 {
 	SJF_Ready.Enqueue(pReady, pReady->GetCPUTime());
 
-	pReady->ChangeProcessState(RDY);
-
 	FinishTime += pReady->GetRemainingCPUTime();
 }
 
@@ -55,7 +53,7 @@ bool SJF_Processor::isReadyQueueEmpty() const
 	return SJF_Ready.isEmpty();
 }
 
-bool SJF_Processor::RunNextProcess(int crntTimeStep)
+bool SJF_Processor::RunNextProcess(int CrntTimeStep)
 {
 	if (RunPtr)
 		return false;
@@ -69,10 +67,9 @@ bool SJF_Processor::RunNextProcess(int crntTimeStep)
 	SJF_Ready.Dequeue(RunPtr);
 
 	CrntState = BUSY;
-	RunPtr->ChangeProcessState(RUN);
 
 	if (RunPtr->isFirstExecution())
-		RunPtr->SetResponseTime(crntTimeStep);
+		RunPtr->SetResponseTime(CrntTimeStep);
 
 	FinishTime -= RunPtr->GetRemainingCPUTime();
 

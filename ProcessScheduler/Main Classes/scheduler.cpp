@@ -4,6 +4,7 @@
 
 Scheduler::Scheduler()
 {
+	//Initializing all data members
 	TimeStep = 0;
 
 	ProgramUI = new UI();
@@ -68,7 +69,7 @@ bool Scheduler::ReadInputFile(string FileName)
 
 	while (!IP_Stream.is_open())							//keep reading file names until we successfully open file
 	{
-		FileName = ProgramUI->InputFileName(1);
+		FileName = ProgramUI->ReadInputFileName(1);
 		FileName += ".txt";
 		IP_Stream.open(FileName);
 	}
@@ -167,12 +168,13 @@ bool Scheduler::ReadInputFile(string FileName)
 	return true;
 }
 
-void Scheduler::WriteOutputFile()
+void Scheduler::WriteOutputFile(string FileName)
 {
 	//Creating output stream object and opening file for writing
 	ofstream OP_Stream;
-	string fileName = "OutputFileD.txt";
-	OP_Stream.open(fileName);
+	FileName += ".txt";
+
+	OP_Stream.open(FileName);
 
 	//If there is any problem with the file, abort
 	if (!OP_Stream || !OP_Stream.good())
@@ -286,8 +288,6 @@ bool Scheduler::MigrateFromFCFStoRR(Process* MigratingProcess)
 
 		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
 
-		MigratingProcess->ChangeProcessState(RDY);
-
 		MaxWMigrationCount++;
 
 		return true;
@@ -307,8 +307,6 @@ bool Scheduler::MigrateFromRRtoSJF(Process* MigratingProcess)
 		SetMinIndex(2);				// Set MinIndex to index of SJF processor with shortest ready queue
 
 		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
-
-		MigratingProcess->ChangeProcessState(RDY);
 
 		RTFMigrationCount++; 
 
@@ -330,17 +328,13 @@ void Scheduler::Steal()
 	{
 		Process* StolenProcess = ProcessorsList[MaxIndex]->StealProcess();
 
-		//In case the StolenProcess is a child where a child can only be scheduled by FCFS processors
-		if (StolenProcess->IsChild())
-		{
-			SetMinIndex(1);
+		//If the longest queue is comprised entirely of forked processes, we cannot steal any 
+		//Not sure if I should move on to the second longest queue, that would be a very laborous task
+		if (!StolenProcess)
+			return;
 
-			ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
-		}
-		else
-		{
-			ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
-		}
+		ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
+	
 		StealCount++;
 
 		//Recalculating the steal limit
@@ -356,15 +350,13 @@ void Scheduler::IncrementKillCount()
 void Scheduler::BlockProcess(Process* ProcessPtr)
 {
 	//Moving process to BLK_List and updating status
-	BLK_List.Enqueue(ProcessPtr);					
-
-	ProcessPtr->ChangeProcessState(BLK);			
+	BLK_List.Enqueue(ProcessPtr);							
 }
 
 void Scheduler::Fork(Process* ParentProcess)
 {
-	//checking that the process hasn't forked yet
-	if (ParentProcess->IsParent())
+	//Checking that the process hasn't forked yet
+	if (ParentProcess->HasForkedBefore())
 		return;
 
 	//Initializing the child Process's data members
@@ -382,8 +374,6 @@ void Scheduler::Fork(Process* ParentProcess)
 	SetMinIndex(1);
 
 	ProcessorsList[MinIndex]->AddToReadyQueue(Child);
-
-	Child->ChangeProcessState(RDY);
 
 	ForkCount++;
 }
@@ -415,9 +405,6 @@ void Scheduler::UnBlockProcess()
 	//Choosing the processor with the shortest ready queue
 	SetMinIndex();
 	ProcessorsList[MinIndex]->AddToReadyQueue(UnBlockedProcess);
-
-	//updating process state
-	UnBlockedProcess->ChangeProcessState(RDY);
 }
 
 void Scheduler::TerminateProcess(Process* ProcessToTerminate)
@@ -426,8 +413,6 @@ void Scheduler::TerminateProcess(Process* ProcessToTerminate)
 	ProcessToTerminate->SetTerminationTime(TimeStep);
 
 	TRM_List.Enqueue(ProcessToTerminate);
-
-	ProcessToTerminate->ChangeProcessState(TRM);
 
 	//If the process was completed before its expected deadline
 	if (TimeStep < ProcessToTerminate->GetDeadline())
@@ -461,8 +446,6 @@ void Scheduler::MoveNEWtoRDY()
 		//Adding the process to the RDY queue of the processor with the smallest finish Time
 		ProcessorsList[MinIndex]->AddToReadyQueue(NewProcessPtr);
 
-		NewProcessPtr->ChangeProcessState(RDY);
-
 		if (!NEW_List.isEmpty())
 			NewProcessPtr = NEW_List.QueueFront();
 		else
@@ -474,13 +457,16 @@ void Scheduler::Simulate()
 {
 	UI_Mode CrntMode;
 
-	string FileName = ProgramUI->InputFileName();
+	string FileName = ProgramUI->ReadInputFileName();
 
 	//Reading the input file
 	if (!ReadInputFile(FileName)) return;
 
 	//User chooses what UI mode to run on
 	CrntMode = ProgramUI->InputInterfaceMode();
+
+	//User chooses what to name the output file
+	FileName = ProgramUI->ReadOutputFileName();
 
 	if (CrntMode == Silent)
 		ProgramUI->PrintSilentMode(0);
@@ -512,7 +498,7 @@ void Scheduler::Simulate()
 	}
 
 	//Generating the output file
-	WriteOutputFile();
+	WriteOutputFile(FileName);
 
 	if (CrntMode == Silent)
 		ProgramUI->PrintSilentMode(1);
