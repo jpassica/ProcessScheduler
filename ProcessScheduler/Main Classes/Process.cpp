@@ -78,7 +78,7 @@ void Process::SetTerminationTime(int TT)
 	WaitingTime = TurnAroundTime - ProcessedTime;
 }
 
-int Process::GetID() const 
+int Process::GetID() const
 {
 	return PID;
 }
@@ -161,7 +161,7 @@ bool Process::TimeForIO()
 		return false;
 }
 
-void Process::DeleteIO_Request() 
+void Process::DeleteIO_Request()
 {
 	IO_Request* CompletedIO_Request;
 	IO_RequestQ.Dequeue(CompletedIO_Request);
@@ -185,7 +185,7 @@ bool Process::IsChild() const
 
 bool Process::IsParent() const
 {
-	return (LeftChildPtr||RightChildPtr);
+	return (LeftChildPtr || RightChildPtr);
 }
 
 void Process::SeparateFromParent()
@@ -206,7 +206,7 @@ void Process::AddChild(Process* ChildProcess)
 {
 	if (!LeftChildPtr)
 		LeftChildPtr = ChildProcess;
-	else
+	else if (!RightChildPtr)
 		RightChildPtr = ChildProcess;
 
 	ChildProcess->ParentPtr = this;
