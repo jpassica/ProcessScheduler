@@ -16,6 +16,7 @@ Scheduler::Scheduler()
 	RRCount = 0;
 	EDFCount = 0;
 	RRtimeSlice = 0;
+	HealingTime = 0;
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
 
@@ -84,6 +85,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	//reading the main parameters
 	IP_Stream >> FCFSCount >> SJFCount >> RRCount >> EDFCount;
 	IP_Stream >> RRtimeSlice;
+	IP_Stream >> HealingTime;
 	IP_Stream >> RTF >> MaxW >> STL >> ForkProb;
 	IP_Stream >> ProcessesCount;
 
