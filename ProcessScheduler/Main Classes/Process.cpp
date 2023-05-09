@@ -23,26 +23,26 @@ ostream& operator<<(ostream& out, const Process* P)
 	return out;
 }
 
-void Process::SetLeftChild(Process* ForkedProcess)
-{
-	LeftChildPtr = ForkedProcess;
-
-	if (ForkedProcess) 
-		ForkCount++;
-}
-
-void Process::SetRightChild(Process* ForkedProcess)
-{
-	RightChildPtr = ForkedProcess;
-
-	if (ForkedProcess) 
-		ForkCount++;
-}
-
-void Process::SetParent(Process* Ptr)
-{
-	ParentPtr = Ptr;
-}
+//oid Process::SetLeftChild(Process* ForkedProcess)
+//{
+//	LeftChildPtr = ForkedProcess;
+//
+//	if (ForkedProcess) 
+//		ForkCount++;
+//}
+//
+//void Process::SetRightChild(Process* ForkedProcess)
+//{
+//	RightChildPtr = ForkedProcess;
+//
+//	if (ForkedProcess) 
+//		ForkCount++;
+//}
+//
+//void Process::SetParent(Process* Ptr)
+//{
+//	ParentPtr = Ptr;
+//}
 
 //Set the response Time as FCPU is the Time when the process is ready to be processed at first Time
 void Process::SetResponseTime(int FCPU)

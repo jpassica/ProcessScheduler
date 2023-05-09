@@ -483,11 +483,11 @@ void Scheduler::Simulate()
 	//Reading the input file
 	if (!ReadInputFile(FileName)) return;
 
-	//User chooses what UI mode to run on
-	CrntMode = ProgramUI->InputInterfaceMode();
-
 	//User chooses what to name the output file
 	FileName = ProgramUI->ReadOutputFileName();
+
+	//User chooses what UI mode to run on
+	CrntMode = ProgramUI->InputInterfaceMode();
 
 	if (CrntMode == Silent)
 		ProgramUI->PrintSilentMode(0);
