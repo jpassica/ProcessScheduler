@@ -10,10 +10,11 @@ Process::Process(int ID, int AT, int CT, int DL)
 	ResponseTime = 0;
 	totalIO_D = 0;
 	ProcessedTime = 0;
-	ChildPtr = nullptr;
+	LeftChildPtr = nullptr;
+	RightChildPtr = nullptr;
 	ParentPtr = nullptr;
 	FirstTimeExecution = 1;
-	HasForked = 0;
+	ForkCount = 0;
 }
 
 ostream& operator<<(ostream& out, const Process* P)
@@ -22,17 +23,26 @@ ostream& operator<<(ostream& out, const Process* P)
 	return out;
 }
 
-void Process::SetChild(Process* ForkedProcess)
-{
-	ChildPtr = ForkedProcess;
-
-	HasForked = 1;
-}
-
-void Process::SetParent(Process* Ptr)
-{
-	ParentPtr = Ptr;
-}
+//oid Process::SetLeftChild(Process* ForkedProcess)
+//{
+//	LeftChildPtr = ForkedProcess;
+//
+//	if (ForkedProcess) 
+//		ForkCount++;
+//}
+//
+//void Process::SetRightChild(Process* ForkedProcess)
+//{
+//	RightChildPtr = ForkedProcess;
+//
+//	if (ForkedProcess) 
+//		ForkCount++;
+//}
+//
+//void Process::SetParent(Process* Ptr)
+//{
+//	ParentPtr = Ptr;
+//}
 
 //Set the response Time as FCPU is the Time when the process is ready to be processed at first Time
 void Process::SetResponseTime(int FCPU)
@@ -68,7 +78,7 @@ void Process::SetTerminationTime(int TT)
 	WaitingTime = TurnAroundTime - ProcessedTime;
 }
 
-int Process::GetID() const 
+int Process::GetID() const
 {
 	return PID;
 }
@@ -108,14 +118,14 @@ int Process::GetTotalIO_D() const
 	return totalIO_D;
 }
 
-Process* Process::GetChild() const
+Process* Process::GetLeftChild() const
 {
-	return ChildPtr;
+	return LeftChildPtr;
 }
 
-Process* Process::GetParent() const
+Process* Process::GetRightChild() const
 {
-	return ParentPtr;
+	return RightChildPtr;
 }
 
 int Process::GetProcessedTime() const
@@ -133,9 +143,12 @@ int Process::GetIO_D()
 	return IO_RequestQ.QueueFront()->IO_D;
 }
 
-bool Process::HasForkedBefore() const
+bool Process::CanFork()
 {
-	return HasForked;
+	if (ForkCount >= 0 && ForkCount < 2)
+		return true;
+	else
+		return false;
 }
 
 bool Process::TimeForIO()
@@ -148,7 +161,7 @@ bool Process::TimeForIO()
 		return false;
 }
 
-void Process::DeleteIO_Request() 
+void Process::DeleteIO_Request()
 {
 	IO_Request* CompletedIO_Request;
 	IO_RequestQ.Dequeue(CompletedIO_Request);
@@ -172,25 +185,32 @@ bool Process::IsChild() const
 
 bool Process::IsParent() const
 {
-	return ChildPtr;
+	return (LeftChildPtr || RightChildPtr);
 }
 
 void Process::SeparateFromParent()
 {
-	if (ParentPtr)
-	{
-		ParentPtr->ChildPtr = nullptr;
-		ParentPtr = nullptr;
-	}
+	if (!ParentPtr)
+		return;
+
+	if (ParentPtr->LeftChildPtr == this)
+		ParentPtr->LeftChildPtr = nullptr;
+
+	else
+		ParentPtr->RightChildPtr = nullptr;
+
+	ParentPtr = nullptr;
 }
 
-void Process::SeparateFromChild()
+void Process::AddChild(Process* ChildProcess)
 {
-	if (ChildPtr)
-	{
-		ChildPtr->ParentPtr = nullptr;
-		ChildPtr = nullptr;
-	}
+	if (!LeftChildPtr)
+		LeftChildPtr = ChildProcess;
+	else if (!RightChildPtr)
+		RightChildPtr = ChildProcess;
+
+	ChildProcess->ParentPtr = this;
+	ForkCount++;
 }
 
 void Process::UpdateWaitingTime(int CrntTimeStep)
@@ -200,7 +220,9 @@ void Process::UpdateWaitingTime(int CrntTimeStep)
 
 Process::~Process()
 {
+	//Deallocating any remaining IO requests
 	IO_Request* DeleteIO_Request = nullptr;
+
 	while (!IO_RequestQ.isEmpty())
 	{
 		IO_RequestQ.Dequeue(DeleteIO_Request);

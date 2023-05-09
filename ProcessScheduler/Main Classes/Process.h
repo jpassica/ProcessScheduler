@@ -24,9 +24,12 @@ private:
 
 	int ProcessedTime;
 
-	//Is true if the process has forked once in its lifetime 
-	bool HasForked;
-	Process* ChildPtr;
+	//Maximum = 2
+	int ForkCount;
+
+	//Left & right child pointers to form forking tree 
+	Process* LeftChildPtr;
+	Process* RightChildPtr;
 	Process* ParentPtr;
 
 	//To mark the response Time
@@ -40,8 +43,6 @@ public:
 	friend ostream& operator<<(ostream&, const Process*);
 
 	//Setter functions
-	void SetChild(Process*);
-	void SetParent(Process*);
 	void SetTerminationTime(int);
 	void SetResponseTime(int);
 
@@ -57,18 +58,15 @@ public:
 	int GetWaitingTime() const;
 	int GetTerminationTime() const;
 	int GetDeadline() const;
-
 	int GetTotalIO_D() const;
-	Process* GetChild() const;
-	Process* GetParent() const;
-
+	Process* GetLeftChild() const;
+	Process* GetRightChild() const;
 	int GetProcessedTime() const;
 	int GetRemainingCPUTime() const;
-
 	int GetIO_D();
 
-	//Returns true if the process has ever forked in its lifetime
-	bool HasForkedBefore() const;
+	//Returns true if the process can fork, which is when it has forked less than 2 times in its lifetime
+	bool CanFork();
 
 	bool TimeForIO();
 	void DeleteIO_Request();
@@ -82,12 +80,13 @@ public:
 	bool IsChild() const;
 	bool IsParent() const;
 
-	//Cuts off connection between process and its parent
+	//Separates child process from its parent
 	void SeparateFromParent();
 
-	//Cuts off connection between process and its child
-	void SeparateFromChild();
+	//Adds child process in free position
+	void AddChild(Process*);
 
+	//Updates process waiting time according to current time step
 	void UpdateWaitingTime(int);
 
 	~Process();

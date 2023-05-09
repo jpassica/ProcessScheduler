@@ -16,6 +16,7 @@ Scheduler::Scheduler()
 	RRCount = 0;
 	EDFCount = 0;
 	RRtimeSlice = 0;
+	HealingTime = 0;
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
 
@@ -84,6 +85,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	//reading the main parameters
 	IP_Stream >> FCFSCount >> SJFCount >> RRCount >> EDFCount;
 	IP_Stream >> RRtimeSlice;
+	IP_Stream >> HealingTime;
 	IP_Stream >> RTF >> MaxW >> STL >> ForkProb;
 	IP_Stream >> ProcessesCount;
 
@@ -350,21 +352,22 @@ void Scheduler::BlockProcess(Process* ProcessPtr)
 
 void Scheduler::Fork(Process* ParentProcess)
 {
-	//Checking that the process hasn't forked yet
-	if (ParentProcess->HasForkedBefore())
+	//Checking if the process can't fork
+	if (!ParentProcess->CanFork())
 		return;
 
 	//Initializing the child Process's data members
 	int ChildID = ++ProcessesCount;
 	int ChildAT = TimeStep;
 	int ChildCT = ParentProcess->GetRemainingCPUTime();
-	int ChildDL = ParentProcess->GetDeadline();			
+	int ChildDL = ParentProcess->GetDeadline();
 
-	//creating Child process
+	//Creating child process
 	Process* Child = new Process(ChildID, ChildAT, ChildCT, ChildDL);
 
-	ParentProcess->SetChild(Child);
-	Child->SetParent(ParentProcess);
+	//Placing the child in the empty position (left then right)
+
+	ParentProcess->AddChild(Child);
 
 	SetMinIndex(1);
 
@@ -375,6 +378,9 @@ void Scheduler::Fork(Process* ParentProcess)
 
 void Scheduler::KillOrphan(Process* OrphanProcess)
 {
+	if (!OrphanProcess)
+		return;
+
 	bool Found = 0;
 	FCFS_Processor* FCFSPtr = nullptr;
 
@@ -405,22 +411,26 @@ void Scheduler::UnBlockProcess()
 
 void Scheduler::TerminateProcess(Process* ProcessToTerminate)
 {
+	//Checking if the terminated process has children 
+	if (ProcessToTerminate->IsParent())
+	{
+		KillOrphan(ProcessToTerminate->GetLeftChild());
+
+		KillOrphan(ProcessToTerminate->GetRightChild());
+	}
+
+	//Checking if the terminated process is a child
+	if (ProcessToTerminate->IsChild())
+		ProcessToTerminate->SeparateFromParent();
+
 	//Moving to TRM & changing states
 	ProcessToTerminate->SetTerminationTime(TimeStep);
-
-	TRM_List.Enqueue(ProcessToTerminate);
 
 	//If the process was completed before its expected deadline
 	if (TimeStep < ProcessToTerminate->GetDeadline())
 		CompletedBeforeDeadlineCount++;
 
-	//Checking if the terminated process has a child
-	if (ProcessToTerminate->IsParent())
-		KillOrphan(ProcessToTerminate->GetChild());
-
-	//Checking if the terminated process is a child
-	if (ProcessToTerminate->IsChild())
-		ProcessToTerminate->SeparateFromParent();
+	TRM_List.Enqueue(ProcessToTerminate);
 }
 
 void Scheduler::MoveNEWtoRDY()
@@ -462,16 +472,17 @@ void Scheduler::Simulate()
 {
 	UI_Mode CrntMode;
 
+	//User chooses what to name the output file
 	string FileName = ProgramUI->ReadInputFileName();
 
-	//Reading the input file
+	//User choose what input file to use
 	if (!ReadInputFile(FileName)) return;
+
+	//Reading input file
+	FileName = ProgramUI->ReadOutputFileName();
 
 	//User chooses what UI mode to run on
 	CrntMode = ProgramUI->InputInterfaceMode();
-
-	//User chooses what to name the output file
-	FileName = ProgramUI->ReadOutputFileName();
 
 	if (CrntMode == Silent)
 		ProgramUI->PrintSilentMode(0);
@@ -479,7 +490,6 @@ void Scheduler::Simulate()
 
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
 	{
-		//Moving new processes to ready queues
 		MoveNEWtoRDY();
 
 		for (size_t i = 0; i < ProcessorsCount; i++)

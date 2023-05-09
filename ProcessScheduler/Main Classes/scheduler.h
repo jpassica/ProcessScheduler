@@ -34,6 +34,7 @@ private:
 	int MaxW; 
 	int STL;
 	int RRtimeSlice;
+	int HealingTime;			//Period overheated processors have to wait to become functional again
 	
 	//Statistics counters
 	int TotalWaitingTime;
