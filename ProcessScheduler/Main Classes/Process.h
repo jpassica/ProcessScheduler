@@ -1,8 +1,7 @@
 #pragma once
-#include <iostream>
+
 #include "..\Defs.h"
 #include "..\DS Classes\Queue.h"
-using namespace std;
 
 class Scheduler;
 
@@ -23,16 +22,18 @@ private:
 	int totalIO_D;
 	Queue<IO_Request*> IO_RequestQ;
 
-	ProcessState CrntState;
-
 	int ProcessedTime;
+
+	//Is true if the process has forked once in its lifetime 
+	bool HasForked;
+	Process* ChildPtr;
 
 	//Left & right child pointers to form forking tree 
 	Process* LeftChildPtr;
 	Process* RightChildPtr;
 	Process* ParentPtr;
 
-	//To mark the response time
+	//To mark the response Time
 	bool FirstTimeExecution;
 
 public:
@@ -64,7 +65,7 @@ public:
 	int GetDeadline() const;
 
 	int GetTotalIO_D() const;
-	ProcessState GetProcessState() const;
+	
 	Process* GetLeftChild() const;
 	Process* GetRightChild() const;
 	Process* GetParent() const;
@@ -73,7 +74,9 @@ public:
 	int GetRemainingCPUTime() const;
 
 	int GetIO_D();
-	void ChangeProcessState(ProcessState);
+
+	//Returns true if the process has ever forked in its lifetime
+	bool HasForkedBefore() const;
 
 	bool TimeForIO();
 	void DeleteIO_Request();

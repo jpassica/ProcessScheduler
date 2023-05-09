@@ -10,6 +10,7 @@
 class Scheduler
 {
 private:
+	//
 	int TimeStep;
 
 	//List of all processors in the system
@@ -33,6 +34,7 @@ private:
 	int MaxW; 
 	int STL;
 	int RRtimeSlice;
+	int HealingTime;			//Period overheated processors have to wait to become functional again
 	
 	//Statistics counters
 	int TotalWaitingTime;
@@ -46,12 +48,13 @@ private:
 	int KillCount;						//no. of kills
 	int CompletedBeforeDeadlineCount;	//no. of processes finished before their deadline
 
-	//Index of the processor with the shortest expected finish time
+	//Index of the processor with the shortest expected finish Time
 	int MinIndex;
 
-	//Index of the processor with the longest expected finish time
+	//Index of the processor with the longest expected finish Time
 	int MaxIndex;
 
+	//Total time spent at top of BLK list, receiving IO resources
 	int ProcessedIO_D;
 
 	//Pointer to the User Interface that will work throughout the simulation
@@ -67,7 +70,7 @@ public:
 	bool ReadInputFile(string);
 
 	//Generates output file and writes all statistics
-	void WriteOutputFile();
+	void WriteOutputFile(string);
 
 	//------------- Process operations -------------
 
@@ -96,10 +99,10 @@ public:
 	//The main function that runs the simulation	
 	void Simulate();
 
-	//Sets the index of the processor with the smallest finish time
+	//Sets the index of the processor with the smallest finish Time
 	void SetMinIndex(int RangeSelect = 0);
 
-	//Sets the index of the processor with the biggest finish time
+	//Sets the index of the processor with the biggest finish Time
 	void SetMaxIndex(int RangeSelect = 0);
 
 	//Calculates and returns the steal limit
@@ -108,7 +111,7 @@ public:
 	//Called by FCFS processors when they execute a kill signal
 	void IncrementKillCount();
 
-	//Statistics calculation functions
+	//---------------- Statistics calculation functions -------------------
 	double CalcAvgUtilization() const;
 	double CalcAvgTRT() const;
 	double CalcAvgWT() const;

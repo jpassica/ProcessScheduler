@@ -10,6 +10,8 @@ Processor::Processor(int ID, Scheduler* SchedulerPtr) : CrntState(IDLE), ID(ID),
 
 double Processor::CalcPLoad(int TotalTRT) const
 {
+	if (!TotalTRT)  return 0;
+
 	return ((double)BusyTime / TotalTRT) * 100;
 }
 

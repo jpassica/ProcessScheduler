@@ -2,8 +2,8 @@
 #define PROCESSOR_H
 
 #include "Process.h"
-using namespace std;
 
+// Forward declaration  
 class Scheduler;
 
 class Processor
@@ -11,10 +11,10 @@ class Processor
 protected:
 	int ID;
 	ProcessorState CrntState;				//idle vs. busy
-	int BusyTime, IdleTime;					//Total time the processor was busy/idle
+	int BusyTime, IdleTime;					//Total Time the processor was busy/idle
 	Process* RunPtr;						//Ptr to the running process
 	Scheduler* pScheduler;					//Ptr to Scheduler class
-	int FinishTime;							//Estimated finish time of all processes in the ready queue/list
+	int FinishTime;							//Estimated finish Time of all processes in the ready queue/list
 
 public:
 	Processor(int ID, Scheduler* SchedulerPtr);
@@ -61,7 +61,7 @@ public:
 	//Returns ID of the currently running process
 	int GetRunningProcessID() const;
 
-	//returns expected finish time of all processes in the ready queue/list
+	//returns expected finish Time of all processes in the ready queue/list
 	int GetFinishTime() const;
 };
 

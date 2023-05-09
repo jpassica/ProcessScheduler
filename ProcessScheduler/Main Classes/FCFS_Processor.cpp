@@ -10,12 +10,15 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 	{
 		int Random = rand() % 100;
 		if (Random <= ForkProbability)
+		{
 			pScheduler->Fork(RunPtr);
+		}
 	}
 
-	//Kill signals
-	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->time == CrntTimeStep)
-		Kill();
+	//ExecuteKIllSignal signals
+	bool Kill = 1;
+	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->Time == CrntTimeStep && Kill)
+		Kill = ExecuteKIllSignal();
 
 	//IO requests
 	if (RunPtr && RunPtr->TimeForIO())
@@ -41,7 +44,7 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunNextProcess(CrntTimeStep);
 
 	//Migration case	
-	while (RunPtr && pScheduler->MigrateFromFCFStoRR(RunPtr))
+	while (RunPtr && !RunPtr->IsChild() && pScheduler->MigrateFromFCFStoRR(RunPtr))
 	{
 		RunPtr = nullptr;
 		RunNextProcess(CrntTimeStep);
@@ -60,8 +63,6 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 void FCFS_Processor::AddToReadyQueue(Process* pReady)
 {
 	FCFS_Ready.insert(FCFS_Ready.getCount() + 1, pReady);
-
-	pReady->ChangeProcessState(RDY);
 
 	FinishTime += pReady->GetRemainingCPUTime();
 }
@@ -89,7 +90,6 @@ bool FCFS_Processor::RunNextProcess(int crntTimeStep)
 	FCFS_Ready.remove(1);
 
 	CrntState = BUSY;
-	RunPtr->ChangeProcessState(RUN);
 
 	if (RunPtr->isFirstExecution())
 		RunPtr->SetResponseTime(crntTimeStep);
@@ -131,23 +131,36 @@ void FCFS_Processor::PrintRDY() const
 
 Process* FCFS_Processor::StealProcess()
 {
-	Process* StolenProcess = FCFS_Ready.getEntry(1);
+	size_t i(1);
 
-	FCFS_Ready.remove(1);
+	//Skipping any forked processes, but not changing their position in the list
+	while (i <= FCFS_Ready.getCount() && FCFS_Ready.getEntry(i)->IsChild())
+	{
+		i++;
+	}
+
+	//If there are no non-forked processes in the ready list, then we can't steal anything
+	if (i > FCFS_Ready.getCount())
+		return nullptr;
+
+	Process* StolenProcess = FCFS_Ready.getEntry(i);
+
+	FCFS_Ready.remove(i);
 
 	FinishTime -= StolenProcess->GetRemainingCPUTime();
 
 	return StolenProcess;
 }
 
-void FCFS_Processor::Kill()
+bool FCFS_Processor::ExecuteKIllSignal()
 {
-	KillSignal* KillSig = nullptr;
-	KillSignalQ.Dequeue(KillSig);
+	KillSignal* KillSig = KillSignalQ.QueueFront();
 
 	// if the process to be killed is the runptr 
 	if (RunPtr && RunPtr->GetID() == KillSig->PID)
 	{
+		KillSignalQ.Dequeue(KillSig);
+
 		pScheduler->TerminateProcess(RunPtr);          // terminate the process
 
 		RunPtr = nullptr;
@@ -156,19 +169,23 @@ void FCFS_Processor::Kill()
 
 		delete KillSig;
 
-		return;
+		return true;
 	}
 
 	// If the process to be killed is found in the ready list of an FCFS processor
-	if (KillByID(KillSig->PID))
+	else if (KillByID(KillSig->PID))
 	{
+		KillSignalQ.Dequeue(KillSig);
+
 		pScheduler->IncrementKillCount();
+
 		delete KillSig;
 
-		return;
+		return true;
 	}
 
 	// Not RDY/RUN for FCFS -> ignore
+	return false;
 }
 
 bool FCFS_Processor::KillOrphan(int ID)
@@ -189,4 +206,22 @@ bool FCFS_Processor::KillOrphan(int ID)
 	return false;
 }
 
+void FCFS_Processor::AddKillSignal(int Time, int ID)
+{
+	KillSignal* NewKillSignal = new KillSignal(Time, ID);
+
+	KillSignalQ.Enqueue(NewKillSignal);
+}
+
 Queue<KillSignal*> FCFS_Processor::KillSignalQ;
+
+void FCFS_Processor::ClearKillSignalQ()
+{
+	KillSignal* DeleteKillSig = nullptr;
+
+	while (!KillSignalQ.isEmpty())
+	{
+		KillSignalQ.Dequeue(DeleteKillSig);
+		delete DeleteKillSig;
+	}
+}

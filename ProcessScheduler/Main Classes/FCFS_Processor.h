@@ -7,12 +7,11 @@
 class FCFS_Processor : public Processor
 {
 	ProcessList FCFS_Ready;
+	static Queue<KillSignal*> KillSignalQ;
 	int ForkProbability;
 
 public:
 	FCFS_Processor(int, int, Scheduler*);
-
-	static Queue<KillSignal*> KillSignalQ;
 
 	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) override;
@@ -32,10 +31,16 @@ public:
 
 	virtual Process* StealProcess() override;
 
-	//Kills processes if they receive a kill signal at current time step
-	void Kill();
+	//Kills processes if they receive a kill signal at current Time step
+	bool ExecuteKIllSignal();
 
 	bool KillOrphan(int);
+
+	//Creates KillSignal object and adds it to the kill signal queue
+	static void AddKillSignal(int, int);
+
+	//Called at end of program to deallocate any remaining unexecuted kill signals
+	static void ClearKillSignalQ();
 };
 
 #endif

@@ -1,8 +1,7 @@
 #include "Process.h"
 
-
 Process::Process(int ID, int AT, int CT, int DL)
-	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL), CrntState(NEW)
+	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL)
 {
 	//initializing all data members
 	TerminationTime = 0;
@@ -15,6 +14,7 @@ Process::Process(int ID, int AT, int CT, int DL)
 	RightChildPtr = nullptr;
 	ParentPtr = nullptr;
 	FirstTimeExecution = 1;
+	HasForked = 0;
 }
 
 ostream& operator<<(ostream& out, const Process* P)
@@ -31,6 +31,9 @@ void Process::SetLeftChild(Process* ForkedProcess)
 void Process::SetRightChild(Process* Ptr)
 {
 	RightChildPtr = Ptr;
+	ChildPtr = ForkedProcess;
+
+	HasForked = 1;
 }
 
 void Process::SetParent(Process* Ptr)
@@ -38,13 +41,13 @@ void Process::SetParent(Process* Ptr)
 	ParentPtr = Ptr;
 }
 
-//Set the response time as FCPU is the time when the process is ready to be processed at first time
+//Set the response Time as FCPU is the Time when the process is ready to be processed at first Time
 void Process::SetResponseTime(int FCPU)
 {
 	ResponseTime = FCPU - ArrivalTime;
 
 	//since this function will only be used once for each process
-	//which is when it is being executed for the first time,
+	//which is when it is being executed for the first Time,
 	//the function changes this data member to false 
 	//to stop the processors from overrwriting the RT
 
@@ -123,6 +126,7 @@ Process* Process::GetLeftChild() const
 }
 
 Process* Process::GetRightChild() const
+Process* Process::GetChild() const
 {
 	return RightChildPtr;
 }
@@ -147,9 +151,9 @@ int Process::GetIO_D()
 	return IO_RequestQ.QueueFront()->IO_D;
 }
 
-void Process::ChangeProcessState(ProcessState NewState)
+bool Process::HasForkedBefore() const
 {
-	CrntState = NewState;
+	return HasForked;
 }
 
 bool Process::TimeForIO()
@@ -231,6 +235,7 @@ void Process::UpdateWaitingTime(int CrntTimeStep)
 Process::~Process()
 {
 	IO_Request* DeleteIO_Request = nullptr;
+
 	while (!IO_RequestQ.isEmpty())
 	{
 		IO_RequestQ.Dequeue(DeleteIO_Request);

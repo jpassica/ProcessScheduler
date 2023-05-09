@@ -5,7 +5,7 @@ EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, Sc
 
 void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//First, check if there is an IO Request to be handled at the current time step
+	//First, check if there is an IO Request to be handled at the current Time step
 	if (RunPtr && RunPtr->TimeForIO())
 	{
 		pScheduler->BlockProcess(RunPtr);
@@ -61,8 +61,6 @@ void EDF_Processor::AddToReadyQueue(Process* pReady)
 {
 	EDF_Ready.Enqueue(pReady, pReady->GetDeadline());
 
-	pReady->ChangeProcessState(RDY);
-
 	FinishTime += pReady->GetRemainingCPUTime();
 }
 
@@ -85,7 +83,6 @@ bool EDF_Processor::RunNextProcess(int crntTimeStep)
 	EDF_Ready.Dequeue(RunPtr);
 
 	CrntState = BUSY;
-	RunPtr->ChangeProcessState(RUN);
 
 	if (RunPtr->isFirstExecution())
 		RunPtr->SetResponseTime(crntTimeStep);

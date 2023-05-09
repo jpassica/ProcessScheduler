@@ -18,6 +18,7 @@ FCFS_Processor* Scheduler::GetFCFS_ProcessorPtrTo(Process* ProcessPtr)
 
 Scheduler::Scheduler()
 {
+	//Initializing all data members
 	TimeStep = 0;
 
 	ProgramUI = new UI();
@@ -29,6 +30,7 @@ Scheduler::Scheduler()
 	RRCount = 0;
 	EDFCount = 0;
 	RRtimeSlice = 0;
+	HealingTime = 0;
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
 
@@ -75,14 +77,14 @@ void Scheduler::AllocateProcessors(int NF, int NS, int NR, int NE, int RRtimeSli
 
 bool Scheduler::ReadInputFile(string FileName)
 {
-	//creating input stream object and opening file
+	//Creating input stream object and opening file
 	ifstream IP_Stream;
 	FileName += ".txt";
 	IP_Stream.open(FileName);
 
 	while (!IP_Stream.is_open())							//keep reading file names until we successfully open file
 	{
-		FileName = ProgramUI->InputFileName(1);
+		FileName = ProgramUI->ReadInputFileName(1);
 		FileName += ".txt";
 		IP_Stream.open(FileName);
 	}
@@ -97,6 +99,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	//reading the main parameters
 	IP_Stream >> FCFSCount >> SJFCount >> RRCount >> EDFCount;
 	IP_Stream >> RRtimeSlice;
+	IP_Stream >> HealingTime;
 	IP_Stream >> RTF >> MaxW >> STL >> ForkProb;
 	IP_Stream >> ProcessesCount;
 
@@ -163,16 +166,14 @@ bool Scheduler::ReadInputFile(string FileName)
 	//reading SIGKILLs
 
 	//reading each kill signal's data until there is no more data
-	int time(0), ID(0);
-	KillSignal* NewKillSignal = nullptr;
+	int Time(0), ID(0);
+	
 
 	while (!IP_Stream.eof())
 	{
-		IP_Stream >> time >> PID;
+		IP_Stream >> Time >> PID;
 
-		NewKillSignal = new KillSignal(time, PID);
-
-		FCFS_Processor::KillSignalQ.Enqueue(NewKillSignal);
+		FCFS_Processor::AddKillSignal(Time, PID);
 	}
 
 	IP_Stream.close();
@@ -181,12 +182,12 @@ bool Scheduler::ReadInputFile(string FileName)
 	return true;
 }
 
-void Scheduler::WriteOutputFile()
+void Scheduler::WriteOutputFile(string FileName)
 {
 	//Creating output stream object and opening file for writing
 	ofstream OP_Stream;
-	string fileName = "OutputFileC.txt";
-	OP_Stream.open(fileName);
+	FileName += ".txt";
+	OP_Stream.open(FileName);
 
 	//If there is any problem with the file, abort
 	if (!OP_Stream || !OP_Stream.good())
@@ -300,8 +301,6 @@ bool Scheduler::MigrateFromFCFStoRR(Process* MigratingProcess)
 
 		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
 
-		MigratingProcess->ChangeProcessState(RDY);
-
 		MaxWMigrationCount++;
 
 		return true;
@@ -321,8 +320,6 @@ bool Scheduler::MigrateFromRRtoSJF(Process* MigratingProcess)
 		SetMinIndex(2);				// Set MinIndex to index of SJF processor with shortest ready queue
 
 		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
-
-		MigratingProcess->ChangeProcessState(RDY);
 
 		RTFMigrationCount++; 
 
@@ -344,17 +341,13 @@ void Scheduler::Steal()
 	{
 		Process* StolenProcess = ProcessorsList[MaxIndex]->StealProcess();
 
-		//In case the StolenProcess is a child where a child can only be scheduled by FCFS processors
-		if (StolenProcess->IsChild())
-		{
-			SetMinIndex(1);
+		//If the longest queue is comprised entirely of forked processes, we cannot steal any 
+		//Not sure if I should move on to the second longest queue, that would be a very laborous task
+		if (!StolenProcess)
+			return;
 
-			ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
-		}
-		else
-		{
-			ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
-		}
+		ProcessorsList[MinIndex]->AddToReadyQueue(StolenProcess);
+	
 		StealCount++;
 
 		//Recalculating the steal limit
@@ -369,17 +362,18 @@ void Scheduler::IncrementKillCount()
 
 void Scheduler::BlockProcess(Process* ProcessPtr)
 {
-	//Moving process to BLK_List and updating status
-	BLK_List.Enqueue(ProcessPtr);					
-
-	ProcessPtr->ChangeProcessState(BLK);			
+	//Moving process to BLK_List
+	BLK_List.Enqueue(ProcessPtr);							
 }
 
 void Scheduler::Fork(Process* ParentProcess)
 {
+	//Checking that the process hasn't forked yet
+	if (ParentProcess->HasForkedBefore())
+		return;
 	//checking that the process hasn't forked yet
 	if (!ProcessPtr || (ProcessPtr->GetLeftChild() && ProcessPtr->GetRightChild()))
-		return false;
+		return;
 
 	//Initializing the child Process's data members
 	int ChildID = ++ProcessesCount;
@@ -424,10 +418,6 @@ bool Scheduler::KillOrphan(Process* ProcessPtr)
 	FCFS_Processor* ProcessorPtr = GetFCFS_ProcessorPtrTo(ProcessPtr);
 }
 
-	FCFS_Processor* ProcessorPtr = GetFCFS_ProcessorPtrTo(ProcessPtr);
-}
-	Child->ChangeProcessState(RDY);
-
 	ForkCount++;
 void Scheduler::KillOrphan(Process* OrphanProcess)
 
@@ -458,9 +448,6 @@ void Scheduler::UnBlockProcess()
 	//Choosing the processor with the shortest ready queue
 	SetMinIndex();
 	ProcessorsList[MinIndex]->AddToReadyQueue(UnBlockedProcess);
-
-	//updating process state
-	UnBlockedProcess->ChangeProcessState(RDY);
 }
 
 void Scheduler::TerminateProcess(Process* ProcessToTerminate)
@@ -520,13 +507,11 @@ void Scheduler::MoveNEWtoRDY()
 	{
 		NEW_List.Dequeue(NewProcessPtr);
 
-		//Setting the index of the processor with the smallest expected finish time
+		//Setting the index of the processor with the smallest expected finish Time
 		SetMinIndex();
 
-		//Adding the process to the RDY queue of the processor with the smallest finish time
+		//Adding the process to the RDY queue of the processor with the smallest finish Time
 		ProcessorsList[MinIndex]->AddToReadyQueue(NewProcessPtr);
-
-		NewProcessPtr->ChangeProcessState(RDY);
 
 		if (!NEW_List.isEmpty())
 			NewProcessPtr = NEW_List.QueueFront();
@@ -539,13 +524,16 @@ void Scheduler::Simulate()
 {
 	UI_Mode CrntMode;
 
-	string FileName = ProgramUI->InputFileName();
+	string FileName = ProgramUI->ReadInputFileName();
 
 	//Reading the input file
 	if (!ReadInputFile(FileName)) return;
 
 	//User chooses what UI mode to run on
 	CrntMode = ProgramUI->InputInterfaceMode();
+
+	//User chooses what to name the output file
+	FileName = ProgramUI->ReadOutputFileName();
 
 	if (CrntMode == Silent)
 		ProgramUI->PrintSilentMode(0);
@@ -577,7 +565,7 @@ void Scheduler::Simulate()
 		if (TimeStep % STL == 0)
 			Steal();
 
-		//Handle IO_Duration in BLK list each time step
+		//Handle IO_Duration in BLK list each Time step
 		HandleIODuration();
 
 		//Incrementing & printing timestep
@@ -588,7 +576,7 @@ void Scheduler::Simulate()
 	}
 
 	//Generating the output file
-	WriteOutputFile();
+	WriteOutputFile(FileName);
 
 	if (CrntMode == Silent)
 		ProgramUI->PrintSilentMode(1);
@@ -621,7 +609,7 @@ void Scheduler::SetMinIndex(int RangeSelect)
 		End = FCFSCount + SJFCount + RRCount;
 	}
 
-	//Checking which processor has the smallest expected finish time (within given range)
+	//Checking which processor has the smallest expected finish Time (within given range)
 	for (size_t i = Start; i < End; i++)
 	{
 		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
@@ -644,7 +632,7 @@ void Scheduler::SetMaxIndex(int RangeSelect)
 		End = FCFSCount;
 	}
 
-	//Checking which processor has the biggest expected finish time
+	//Checking which processor has the biggest expected finish Time
 	for (size_t i = Start; i < End; i++)
 	{
 		if (ProcessorsList[i]->GetFinishTime() > ProcessorsList[MaxIndex]->GetFinishTime())
@@ -730,13 +718,8 @@ Scheduler::~Scheduler()
 		delete ProcessorsList[i];
 	}
 	delete[] ProcessorsList;
+
 	delete ProgramUI;
 
-	while (!FCFS_Processor::KillSignalQ.isEmpty())
-	//Checking which processor has the smallest expected finish time
-	for (size_t i = FCFSCount+SJFCount+1; i < ProcessorsCount; i++)
-	{
-		FCFS_Processor::KillSignalQ.Dequeue(DeleteKillSig);
-		delete DeleteKillSig;
-	}
+	FCFS_Processor::ClearKillSignalQ();
 }

@@ -1,18 +1,16 @@
 //This file is for various data modules used all throughout the project
 
-enum ProcessState { NEW, RDY, RUN, BLK, TRM, ORPH };
-
-enum ProcessorState { IDLE, BUSY };
+enum ProcessorState { IDLE, BUSY, STOP };
 
 enum UI_Mode { Interactive, StepByStep, Silent };
 
 struct KillSignal {
-	int time;
+	int Time;
 	int PID;
 
 	KillSignal(int t, int ID)
 	{
-		time = t;
+		Time = t;
 		PID = ID;
 	}
 };
