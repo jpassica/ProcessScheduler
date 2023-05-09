@@ -11,7 +11,7 @@ class FCFS_Processor : public Processor
 	int ForkProbability;
 
 public:
-	FCFS_Processor(int, int, Scheduler*);
+	FCFS_Processor(int, int, Scheduler*, int HealingTime);
 
 	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) override;
@@ -20,6 +20,8 @@ public:
 	virtual void AddToReadyQueue(Process*) override;
 
 	virtual bool isReadyQueueEmpty() const override;
+
+	virtual void GoForHealing() override;
 
 	virtual bool RunNextProcess(int) override;
 

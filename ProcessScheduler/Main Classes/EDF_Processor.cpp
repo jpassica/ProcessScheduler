@@ -1,10 +1,16 @@
 #include "EDF_Processor.h"
 #include "Scheduler.h"
 
-EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr) {}
+EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr, int HealingTime) : Processor(ID, SchedulerPtr, HealingTime) {}
 
 void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 {
+	//if the processor is stopped  
+	if (CrntState == STOP) {
+		ContinueHealing();
+		return;
+	}
+
 	//First, check if there is an IO Request to be handled at the current Time step
 	if (RunPtr && RunPtr->TimeForIO())
 	{
@@ -67,6 +73,24 @@ void EDF_Processor::AddToReadyQueue(Process* pReady)
 bool EDF_Processor::isReadyQueueEmpty() const
 {
 	return EDF_Ready.isEmpty();
+}
+
+void EDF_Processor::GoForHealing() {
+
+
+	Process* ProcessToMove;
+	if (RunPtr) {
+		pScheduler->MovetoRDY(RunPtr);
+	}
+
+	while (!EDF_Ready.isEmpty())
+	{
+		EDF_Ready.Dequeue(ProcessToMove);
+		pScheduler->MovetoRDY(ProcessToMove);
+	}
+
+	RunPtr = nullptr;
+	CrntState = STOP;
 }
 
 bool EDF_Processor::RunNextProcess(int crntTimeStep)

@@ -94,15 +94,18 @@ public:
 
 	//Moves all processes arriving at timestep to shortest ready queues 
 	void MoveNEWtoRDY();
+	
+	//move all processes of the stopped processor to shortest queue
+	void MovetoRDY(Process*);
 
 	//The main function that runs the simulation	
 	void Simulate();
 
 	//Sets the index of the processor with the smallest finish Time
-	void SetMinIndex(int RangeSelect = 0);
+	bool SetMinIndex(int RangeSelect = 0);
 
 	//Sets the index of the processor with the biggest finish Time
-	void SetMaxIndex(int RangeSelect = 0);
+	bool SetMaxIndex(int RangeSelect = 0);
 
 	//Calculates and returns the steal limit
 	int CalcStealLimit();

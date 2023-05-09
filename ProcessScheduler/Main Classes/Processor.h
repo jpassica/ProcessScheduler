@@ -15,9 +15,10 @@ protected:
 	Process* RunPtr;						//Ptr to the running process
 	Scheduler* pScheduler;					//Ptr to Scheduler class
 	int FinishTime;							//Estimated finish Time of all processes in the ready queue/list
+	int HealingTime;                        //time needed for healing   
 
 public:
-	Processor(int ID, Scheduler* SchedulerPtr);
+	Processor(int ID, Scheduler* SchedulerPtr, int Healing);
 
 	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) = 0;
@@ -39,6 +40,9 @@ public:
 
 	//Steals a process from the top of the RDY queue/list
 	virtual Process* StealProcess() = 0;
+
+	//Stop the processor then move it's RUN/RDY prosesses to shortest ready queue
+	virtual void GoForHealing() = 0;
 
 	//Outputs Processor's ID
 	friend ostream& operator<<(ostream&, const Processor&);  
@@ -63,6 +67,12 @@ public:
 
 	//returns expected finish Time of all processes in the ready queue/list
 	int GetFinishTime() const;
+
+	//returns if the processor is stopped
+	bool IsStopped() const;
+
+	//reduce the healing time
+	void ContinueHealing();
 };
 
 #endif

@@ -7,7 +7,7 @@ class EDF_Processor : public Processor
 	PriorityQueue<Process*> EDF_Ready;
 
 public:
-	EDF_Processor(int ID, Scheduler* SchedulerPtr);
+	EDF_Processor(int ID, Scheduler* SchedulerPtr, int HealingTime);
 
 	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) override;
@@ -17,6 +17,8 @@ public:
 
 	//returns true if ready queue/list is empty
 	virtual bool isReadyQueueEmpty() const override;
+
+	virtual void GoForHealing() override;
 
 	//moves process at top of ready queue/list to run
 	virtual bool RunNextProcess(int crntTimeStep) override;

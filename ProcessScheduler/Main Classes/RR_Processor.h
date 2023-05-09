@@ -10,7 +10,7 @@ class RR_Processor : public Processor
 	Queue<Process*> RR_Ready;
 
 public:
-	RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr);
+	RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr, int HealingTime);
 
 	//Handles moving processes to and from RUN state
 	virtual void ScheduleAlgo(int) override;
@@ -19,6 +19,8 @@ public:
 	virtual void AddToReadyQueue(Process* pReady) override;
 
 	virtual bool isReadyQueueEmpty() const override;
+
+	virtual void GoForHealing() override;
 
 	virtual bool RunNextProcess(int crntTimeStep) override;
 	

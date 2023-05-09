@@ -47,16 +47,16 @@ void Scheduler::AllocateProcessors(int NF, int NS, int NR, int NE, int RRtimeSli
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		if (i < NF)
-			ProcessorsList[i] = new FCFS_Processor(i + 1, ForkProbability, this);
+			ProcessorsList[i] = new FCFS_Processor(i + 1, ForkProbability, this, 777);
 
 		else if (i >= NF && i < NF + NS)
-			ProcessorsList[i] = new SJF_Processor(i + 1, this);
+			ProcessorsList[i] = new SJF_Processor(i + 1, this, 777);
 
 		else if (i >= NF + NS && i < NF + NS + NR)
-			ProcessorsList[i] = new RR_Processor(i + 1, RRtimeSlice, this);
+			ProcessorsList[i] = new RR_Processor(i + 1, RRtimeSlice, this, 777);
 
 		else
-			ProcessorsList[i] = new EDF_Processor(i + 1, this);
+			ProcessorsList[i] = new EDF_Processor(i + 1, this, 777);
 	}
 }
 
@@ -301,13 +301,11 @@ bool Scheduler::MigrateFromRRtoSJF(Process* MigratingProcess)
 
 	if (MigratingProcess->GetRemainingCPUTime() < RTF) 
 	{
-		SetMinIndex(2);				// Set MinIndex to index of SJF processor with shortest ready queue
-
-		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
-
-		RTFMigrationCount++; 
-
-		return true;
+		if (SetMinIndex(2)) {				// Set MinIndex to index of SJF processor with shortest ready queue
+			ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
+			RTFMigrationCount++;
+			return true;
+		}
 	}
 	return false;
 }
@@ -400,8 +398,9 @@ void Scheduler::UnBlockProcess()
 	BLK_List.Dequeue(UnBlockedProcess);
 
 	//Choosing the processor with the shortest ready queue
-	SetMinIndex();
+	SetMinIndex();	
 	ProcessorsList[MinIndex]->AddToReadyQueue(UnBlockedProcess);
+
 }
 
 void Scheduler::TerminateProcess(Process* ProcessToTerminate)
@@ -450,6 +449,15 @@ void Scheduler::MoveNEWtoRDY()
 	}
 }
 
+void Scheduler::MovetoRDY(Process* ProcessToMove) {
+
+	//Setting the index of the processor with the smallest expected finish Time
+	SetMinIndex();
+
+	//Adding the process to the RDY queue of the processor with the smallest finish Time
+	ProcessorsList[MinIndex]->AddToReadyQueue(ProcessToMove);
+}
+
 void Scheduler::Simulate()
 {
 	UI_Mode CrntMode;
@@ -476,6 +484,10 @@ void Scheduler::Simulate()
 
 		for (size_t i = 0; i < ProcessorsCount; i++)
 		{
+			//Overheating
+			if ((rand() % 100) < 3)
+				ProcessorsList[i]->GoForHealing();
+
 			//Calling ScheduleAlgo of each processor   
 			ProcessorsList[i]->ScheduleAlgo(TimeStep);
 		}
@@ -501,7 +513,7 @@ void Scheduler::Simulate()
 		ProgramUI->PrintSilentMode(1);
 }
 
-void Scheduler::SetMinIndex(int RangeSelect)
+bool Scheduler::SetMinIndex(int RangeSelect)
 {
 	//If RangeSelect = 0 (default), the fn will search for the shortest queue within all procssors
 	//If RangeSelect = 1, it will search within the range of FCFS processors only
@@ -509,47 +521,72 @@ void Scheduler::SetMinIndex(int RangeSelect)
 	//If RangeSelect = 3, it will search within the range of RR processors only
 
 	//Default values for start, end & initializing MinIndex
-	int Start = 1, End = ProcessorsCount;
+	int Start , End = ProcessorsCount;
 	MinIndex = 0;
 
+	//while loop to handle that if all of the processors are stopped 
 	if (RangeSelect == 1)			//The range is FCFS processors only
 	{
-		Start = 1;
 		End = FCFSCount;
-	}
-	else if (RangeSelect == 2)		//The range is SJF processors only
-	{ 	
-		Start = (MinIndex = FCFSCount) + 1;
-		End = FCFSCount + SJFCount;
-	}
-	else if (RangeSelect == 3)		//The range is RR processors only
-	{
-		Start = (MinIndex = FCFSCount + SJFCount) + 1;
-		End = FCFSCount + SJFCount + RRCount;
+		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End) {
+			MinIndex++;
+		}
+		if (MinIndex == End)
+			return false;
 	}
 
+	else if (RangeSelect == 2)		//The range is SJF processors only
+	{
+		MinIndex = FCFSCount;
+		End = FCFSCount + SJFCount;
+		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End) {
+			MinIndex++;
+		}
+		if (MinIndex == End)
+			return false;
+	}
+
+	else if (RangeSelect == 3)		//The range is RR processors only
+	{
+		MinIndex = FCFSCount + SJFCount;
+		End = FCFSCount + SJFCount + RRCount;
+		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End) {
+			MinIndex++;
+		}
+		if (MinIndex == End)
+			return false;
+	}
+
+	Start = MinIndex + 1;
 	//Checking which processor has the smallest expected finish Time (within given range)
 	for (size_t i = Start; i < End; i++)
 	{
 		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
 			MinIndex = i;
 	}
+	return true;
 }
 
-void Scheduler::SetMaxIndex(int RangeSelect)
+bool Scheduler::SetMaxIndex(int RangeSelect)
 {
 	//If RangeSelect = 0 (default), the fn will search for the shortest queue within all procssors
 	//If RangeSelect = 1, it will search within the range of FCFS processors only
 	
 	//Default values for start, end & initializing MaxIndex
-	int Start = 1, End = ProcessorsCount;
+	int Start , End = ProcessorsCount;
 	MaxIndex = 0;
 
 	if (RangeSelect == 1)			//The range is FCFS processors only
 	{
-		Start = 1;
 		End = FCFSCount;
+		while (ProcessorsList[MaxIndex]->IsStopped() && MaxIndex < End) {
+			MaxIndex++;
+		}
+		if (MaxIndex == End)
+			return false;
 	}
+
+	Start = MinIndex + 1;
 
 	//Checking which processor has the biggest expected finish Time
 	for (size_t i = Start; i < End; i++)

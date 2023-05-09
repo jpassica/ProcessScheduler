@@ -1,10 +1,16 @@
 ﻿#include "FCFS_Processor.h"
 #include "Scheduler.h"
 
-FCFS_Processor::FCFS_Processor(int ID, int ForkProb, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr), ForkProbability(ForkProb) {}
+FCFS_Processor::FCFS_Processor(int ID, int ForkProb, Scheduler* SchedulerPtr, int HealingTime) : Processor(ID, SchedulerPtr, HealingTime), ForkProbability(ForkProb) {}
 
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
+	//if the processor is stopped  
+	if (CrntState == STOP) {
+		ContinueHealing();
+		return;
+	}
+
 	//Forking
 	if (RunPtr)
 	{
@@ -150,6 +156,22 @@ Process* FCFS_Processor::StealProcess()
 	FinishTime -= StolenProcess->GetRemainingCPUTime();
 
 	return StolenProcess;
+}
+
+void FCFS_Processor::GoForHealing() {
+
+	if (RunPtr) {
+		pScheduler->MovetoRDY(RunPtr);
+	}
+
+	while (!FCFS_Ready.isEmpty())
+	{
+		pScheduler->MovetoRDY(FCFS_Ready.getEntry(1));
+		FCFS_Ready.remove(1);
+	}
+	
+	RunPtr = nullptr;
+	CrntState = STOP;
 }
 
 bool FCFS_Processor::ExecuteKIllSignal()

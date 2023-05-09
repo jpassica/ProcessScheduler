@@ -1,13 +1,19 @@
 #include "RR_Processor.h"
 #include "scheduler.h"
 
-RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr), TimeSlice(timeSlice)
+RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr, int HealingTime) : Processor(ID, SchedulerPtr, HealingTime), TimeSlice(timeSlice)
 {
 	TimeSliceCounter = 0;
 }
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
+	//if the processor is stopped  
+	if (CrntState == STOP) {
+		ContinueHealing();
+		return;
+	}
+
 	//First, check if there is an IO Request to be handled at the current Time step
 	if (RunPtr && RunPtr->TimeForIO())
 	{
@@ -76,6 +82,23 @@ void RR_Processor::AddToReadyQueue(Process* pReady)
 bool RR_Processor::isReadyQueueEmpty() const
 {
 	return RR_Ready.isEmpty();
+}
+
+void RR_Processor::GoForHealing() {
+
+	Process* ProcessToMove;
+	if (RunPtr) {
+		pScheduler->MovetoRDY(RunPtr);
+	}
+
+	while (!RR_Ready.isEmpty())
+	{
+		RR_Ready.Dequeue(ProcessToMove);
+		pScheduler->MovetoRDY(ProcessToMove);
+	}
+
+	RunPtr = nullptr;
+	CrntState = STOP;
 }
 
 bool RR_Processor::RunNextProcess(int crntTimeStep)

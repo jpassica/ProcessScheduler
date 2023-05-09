@@ -1,11 +1,17 @@
 #include "SJF_Processor.h"
 #include "Scheduler.h"
 
-SJF_Processor::SJF_Processor(int ID, Scheduler* SchedulerPtr) : Processor(ID, SchedulerPtr)
+SJF_Processor::SJF_Processor(int ID, Scheduler* SchedulerPtr, int HealingTime) : Processor(ID, SchedulerPtr, HealingTime)
 {}
 
 void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 { 
+	//if the processor is stopped  
+	if (CrntState == STOP) {
+		ContinueHealing();
+		return;
+	}
+
 	//First, check if there is an IO Request to be handled at the current Time step
 	if (RunPtr && RunPtr->TimeForIO())
 	{
@@ -51,6 +57,23 @@ void SJF_Processor::AddToReadyQueue(Process* pReady)
 bool SJF_Processor::isReadyQueueEmpty() const
 {
 	return SJF_Ready.isEmpty();
+}
+
+void SJF_Processor::GoForHealing() {
+
+	Process* ProcessToMove;
+	if (RunPtr) {
+		pScheduler->MovetoRDY(RunPtr);
+	}
+
+	while (!SJF_Ready.isEmpty())
+	{
+		SJF_Ready.Dequeue(ProcessToMove);
+		pScheduler->MovetoRDY(ProcessToMove);
+	}
+
+	RunPtr = nullptr;
+	CrntState = STOP;
 }
 
 bool SJF_Processor::RunNextProcess(int CrntTimeStep)

@@ -1,6 +1,6 @@
 #include "Processor.h"
 
-Processor::Processor(int ID, Scheduler* SchedulerPtr) : CrntState(IDLE), ID(ID), RunPtr(nullptr), pScheduler(SchedulerPtr)
+Processor::Processor(int ID, Scheduler* SchedulerPtr,int Healing) : CrntState(IDLE), ID(ID),HealingTime(Healing), RunPtr(nullptr), pScheduler(SchedulerPtr)
 {
 	//initializing all processor data members
 	BusyTime = 0;
@@ -55,4 +55,16 @@ ostream& operator<<(ostream& out, const Processor& P)
 int Processor::GetFinishTime() const
 {
 	return FinishTime;
+}
+
+bool Processor::IsStopped() const
+{
+	return CrntState == STOP;
+}
+
+void Processor::ContinueHealing() {
+
+	HealingTime--;
+	if (HealingTime == 0)
+		CrntState = IDLE;
 }
