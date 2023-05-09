@@ -14,7 +14,7 @@ Process::Process(int ID, int AT, int CT, int DL)
 	RightChildPtr = nullptr;
 	ParentPtr = nullptr;
 	FirstTimeExecution = 1;
-	HasForked = 0;
+	ForkCount = 0;
 }
 
 ostream& operator<<(ostream& out, const Process* P)
@@ -26,14 +26,17 @@ ostream& operator<<(ostream& out, const Process* P)
 void Process::SetLeftChild(Process* ForkedProcess)
 {
 	LeftChildPtr = ForkedProcess;
+
+	if (ForkedProcess) 
+		ForkCount++;
 }
 
-void Process::SetRightChild(Process* Ptr)
+void Process::SetRightChild(Process* ForkedProcess)
 {
-	RightChildPtr = Ptr;
-	ChildPtr = ForkedProcess;
+	RightChildPtr = ForkedProcess;
 
-	HasForked = 1;
+	if (ForkedProcess) 
+		ForkCount++;
 }
 
 void Process::SetParent(Process* Ptr)
@@ -115,25 +118,14 @@ int Process::GetTotalIO_D() const
 	return totalIO_D;
 }
 
-ProcessState Process::GetProcessState() const
-{
-	return CrntState;
-}
-
 Process* Process::GetLeftChild() const
 {
 	return LeftChildPtr;
 }
 
 Process* Process::GetRightChild() const
-Process* Process::GetChild() const
 {
 	return RightChildPtr;
-}
-
-Process* Process::GetParent() const
-{
-	return ParentPtr;
 }
 
 int Process::GetProcessedTime() const
@@ -151,9 +143,12 @@ int Process::GetIO_D()
 	return IO_RequestQ.QueueFront()->IO_D;
 }
 
-bool Process::HasForkedBefore() const
+bool Process::CanFork()
 {
-	return HasForked;
+	if (ForkCount >= 0 && ForkCount < 2)
+		return true;
+	else
+		return false;
 }
 
 bool Process::TimeForIO()
@@ -193,38 +188,29 @@ bool Process::IsParent() const
 	return (LeftChildPtr||RightChildPtr);
 }
 
-bool Process::IsLeft() const
-{
-	if(!ParentPtr)
-		return false;
-	return (ParentPtr->GetLeftChild());
-}
-
-bool Process::TsRight() const
-{
-	if (!ParentPtr)
-		return false;
-	return (ParentPtr->GetRightChild());
-}
-	return ChildPtr;
-}
-
 void Process::SeparateFromParent()
 {
-	if (ParentPtr)
-	{
-		ParentPtr->ChildPtr = nullptr;
-		ParentPtr = nullptr;
-	}
+	if (!ParentPtr)
+		return;
+
+	if (ParentPtr->LeftChildPtr == this)
+		ParentPtr->LeftChildPtr = nullptr;
+
+	else
+		ParentPtr->RightChildPtr = nullptr;
+
+	ParentPtr = nullptr;
 }
 
-void Process::SeparateFromChild()
+void Process::AddChild(Process* ChildProcess)
 {
-	if (ChildPtr)
-	{
-		ChildPtr->ParentPtr = nullptr;
-		ChildPtr = nullptr;
-	}
+	if (!LeftChildPtr)
+		LeftChildPtr = ChildProcess;
+	else
+		RightChildPtr = ChildProcess;
+
+	ChildProcess->ParentPtr = this;
+	ForkCount++;
 }
 
 void Process::UpdateWaitingTime(int CrntTimeStep)

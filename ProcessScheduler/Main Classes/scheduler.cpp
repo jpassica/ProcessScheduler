@@ -2,20 +2,6 @@
 #include <fstream>
 #include <iomanip>
 
-FCFS_Processor* Scheduler::GetFCFS_ProcessorPtrTo(Process* ProcessPtr)
-{
-	FCFS_Processor* FCFSPtr = nullptr;
-
-	for (int i = 0; i < FCFSCount; i++)
-	{
-		//Force casting to FCFS Processor
-		FCFSPtr = (FCFS_Processor*)ProcessorsList[i];
-		if (FCFSPtr->GetRunPtr() == ProcessPtr || FCFSPtr->SearchProcess(ProcessPtr->GetPID()))
-			return FCFSPtr;
-	}
-	return nullptr;
-}
-
 Scheduler::Scheduler()
 {
 	//Initializing all data members
@@ -368,11 +354,8 @@ void Scheduler::BlockProcess(Process* ProcessPtr)
 
 void Scheduler::Fork(Process* ParentProcess)
 {
-	//Checking that the process hasn't forked yet
-	if (ParentProcess->HasForkedBefore())
-		return;
-	//checking that the process hasn't forked yet
-	if (!ProcessPtr || (ProcessPtr->GetLeftChild() && ProcessPtr->GetRightChild()))
+	//Checking if the process can't fork
+	if (!ParentProcess->CanFork())
 		return;
 
 	//Initializing the child Process's data members
@@ -381,48 +364,25 @@ void Scheduler::Fork(Process* ParentProcess)
 	int ChildCT = ParentProcess->GetRemainingCPUTime();
 	int ChildDL = ParentProcess->GetDeadline();
 
-	//creating Child process
-	Process* Child = new Process(ChildID, ChildAT, ChildCT, ChildDL, ChildIO_N, this);
+	//Creating child process
+	Process* Child = new Process(ChildID, ChildAT, ChildCT, ChildDL);
 
-	//setting the child in the empty pointer (right or left)
-	if (!ProcessPtr->GetLeftChild())
-	{
-		ProcessPtr->SetLeftChild(Child);
-		cout << "Forking Done,Left Child with ID= " << ProcessesCount << endl;
-	}
-	else if (!ProcessPtr->GetRightChild())
-	{
-		ProcessPtr->SetRightChild(Child);
-		cout << "Forking Done,Right Child with ID= " << ProcessesCount << endl;
-	}
-	cout << "Parent ID = " << ProcessPtr->GetPID();
-	Child->SetParent(ProcessPtr);
-	MoveChildToReady(Child);
+	//Placing the child in the empty position (left then right)
 
-
+	ParentProcess->AddChild(Child);
 
 	SetMinIndex(1);
 
 	ProcessorsList[MinIndex]->AddToReadyQueue(Child);
-}
-bool Scheduler::KillOrphan(Process* ProcessPtr)
-{
-	if (ProcessPtr->IsParent())
-	{
-		if(ProcessPtr->GetLeftChild())
-			KillOrphan(ProcessPtr->GetLeftChild());
-		if (ProcessPtr->GetRightChild())
-			KillOrphan(ProcessPtr->GetRightChild());
-	}
-	//Removing Process from Processor
-	FCFS_Processor* ProcessorPtr = GetFCFS_ProcessorPtrTo(ProcessPtr);
-}
 
 	ForkCount++;
-void Scheduler::KillOrphan(Process* OrphanProcess)
+}
 
 void Scheduler::KillOrphan(Process* OrphanProcess)
 {
+	if (!OrphanProcess)
+		return;
+
 	bool Found = 0;
 	FCFS_Processor* FCFSPtr = nullptr;
 
@@ -452,46 +412,40 @@ void Scheduler::UnBlockProcess()
 
 void Scheduler::TerminateProcess(Process* ProcessToTerminate)
 {
-	//Moving to TRM & changing states
-	//checking Forking 
+	//Checking if the terminated process has children 
 	if (ProcessToTerminate->IsParent())
 	{
-		if (ProcessToTerminate->GetLeftChild())
-			KillOrphan(ProcessToTerminate->GetLeftChild());
-		if (ProcessToTerminate->GetRightChild())
-			KillOrphan(ProcessToTerminate->GetRightChild());
+		KillOrphan(ProcessToTerminate->GetLeftChild());
+
+		KillOrphan(ProcessToTerminate->GetRightChild());
 	}
-	//checking if the terminated process is a child
+
+	//Checking if the terminated process is a child
 	if (ProcessToTerminate->IsChild())
 	{
-		//separating parent & child
-		Process* Parent = ProcessToTerminate->GetParent();
-		
-		//Changing the Parent's childPtr to Null
-		if(ProcessToTerminate->IsLeft())
-			Parent->SetLeftChild(nullptr);	
-		else 
-			Parent->SetRightChild(nullptr);
+		ProcessToTerminate->SeparateFromParent();
 
-		if (!Parent->GetLeftChild() && !Parent->GetRightChild())
-			ProcessToTerminate->SetParent(nullptr);					//Changing the ParentPtr to nullptr in case of empty left & Right child ptrs 
+		//Separating parent & child
+		//Process* Parent = ProcessToTerminate->GetParent();
+		//
+		////Changing the Parent's childPtr to Null
+
+		//if(ProcessToTerminate->IsLeft())
+		//	Parent->SetLeftChild(nullptr);	
+		//else 
+		//	Parent->SetRightChild(nullptr);
+
+		//	ProcessToTerminate->SetParent(nullptr);					//Changing the ParentPtr to nullptr in case of empty left & Right child ptrs 
 	}
-	//moving to TRM & changing states
-	ProcessToTerminate->SetTerminationTime(TimeStep);
-	//moving to TRM & changing states
+
+	//Moving to TRM & changing states
 	ProcessToTerminate->SetTerminationTime(TimeStep);
 
 	//If the process was completed before its expected deadline
 	if (TimeStep < ProcessToTerminate->GetDeadline())
 		CompletedBeforeDeadlineCount++;
 
-	//Checking if the terminated process has a child
-	if (ProcessToTerminate->IsParent())
-		KillOrphan(ProcessToTerminate->GetChild());
-
-	//Checking if the terminated process is a child
-	if (ProcessToTerminate->IsChild())
-		ProcessToTerminate->SeparateFromParent();
+	TRM_List.Enqueue(ProcessToTerminate);
 }
 
 void Scheduler::MoveNEWtoRDY()
@@ -540,25 +494,13 @@ void Scheduler::Simulate()
 
 
 	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
+	{
 		MoveNEWtoRDY();
-			Kill();
-
 
 		for (size_t i = 0; i < ProcessorsCount; i++)
 		{
 			//Calling ScheduleAlgo of each processor   
 			ProcessorsList[i]->ScheduleAlgo(TimeStep);
-		}
-
-		//Randomization of number for forking
-		for (int i = 0; i < FCFSCount; i++)
-		{
-			if (ProcessorsList[i]->GetProcessorState() == BUSY)
-			{
-				int Random = rand() % 100;
-				if (Random <= ForkProb)
-					Fork(ProcessorsList[i]->GetRunPtr());
-			}
 		}
 
 		//Initiating the steal action each STL timesteps
