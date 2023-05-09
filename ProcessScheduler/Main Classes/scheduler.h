@@ -34,7 +34,6 @@ private:
 	int MaxW; 
 	int STL;
 	int RRtimeSlice;
-	int HealingTime;			//Period overheated processors have to wait to become functional again
 	
 	//Statistics counters
 	int TotalWaitingTime;
@@ -61,7 +60,7 @@ private:
 	UI* ProgramUI;
 
 	//Used locally when input is loaded from the file
-	void AllocateProcessors(int, int, int, int, int, int);  
+	void AllocateProcessors(int, int, int, int, int, int, int);  
 
 public:
 	Scheduler();

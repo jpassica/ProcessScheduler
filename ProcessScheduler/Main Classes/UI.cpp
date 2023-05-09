@@ -106,6 +106,9 @@ void UI::PrintTimeStep(const Queue<Process*>& BLK_List, const Queue<Process*>& T
 			cout << " [EDF ]";
 
 		cout << ": " << ProcessorsList[i]->GetRDYCount() << " RDY : ";
+
+		if (ProcessorsList[i]->IsStopped())
+			cout << "OVERHEATED";
 		ProcessorsList[i]->PrintRDY();
 		cout << endl;
 	}

@@ -16,7 +16,6 @@ Scheduler::Scheduler()
 	RRCount = 0;
 	EDFCount = 0;
 	RRtimeSlice = 0;
-	HealingTime = 0;
 	ProcessorsCount = 0;
 	ProcessesCount = 0;
 
@@ -41,23 +40,23 @@ Scheduler::Scheduler()
 	ProcessedIO_D = 0;
 }
 
-void Scheduler::AllocateProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice, int ForkProbability)
+void Scheduler::AllocateProcessors(int NF, int NS, int NR, int NE, int RRtimeSlice, int ForkProbability, int HealingTime)
 {
 	ProcessorsList = new Processor * [ProcessorsCount];
 
 	for (int i = 0; i < ProcessorsCount; i++)
 	{
 		if (i < NF)
-			ProcessorsList[i] = new FCFS_Processor(i + 1, ForkProbability, this, 777);
+			ProcessorsList[i] = new FCFS_Processor(i + 1, ForkProbability, this, HealingTime);
 
 		else if (i >= NF && i < NF + NS)
-			ProcessorsList[i] = new SJF_Processor(i + 1, this, 777);
+			ProcessorsList[i] = new SJF_Processor(i + 1, this, HealingTime);
 
 		else if (i >= NF + NS && i < NF + NS + NR)
-			ProcessorsList[i] = new RR_Processor(i + 1, RRtimeSlice, this, 777);
+			ProcessorsList[i] = new RR_Processor(i + 1, RRtimeSlice, this, HealingTime);
 
 		else
-			ProcessorsList[i] = new EDF_Processor(i + 1, this, 777);
+			ProcessorsList[i] = new EDF_Processor(i + 1, this, HealingTime);
 	}
 }
 
@@ -80,7 +79,7 @@ bool Scheduler::ReadInputFile(string FileName)
 
 	//now we can safely read from file
 
-	int ForkProb(0);
+	int ForkProb(0), HealingTime(0);
 
 	//reading the main parameters
 	IP_Stream >> FCFSCount >> SJFCount >> RRCount >> EDFCount;
@@ -93,7 +92,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	ProcessorsCount = FCFSCount + SJFCount + RRCount + EDFCount;
 
 	//creating the processors according to the read data
-	AllocateProcessors(FCFSCount, SJFCount, RRCount, EDFCount, RRtimeSlice, ForkProb);
+	AllocateProcessors(FCFSCount, SJFCount, RRCount, EDFCount, RRtimeSlice, ForkProb, HealingTime);
 
 	//variables to be read for each process and sent to ctor
 	int AT(0), PID(0), CT(0), DL(0), IO_N(0), IO_R(0), IO_D(0);
@@ -149,12 +148,11 @@ bool Scheduler::ReadInputFile(string FileName)
 		NEW_List.Enqueue(newProcess);
 	}
 
-	//reading SIGKILLs
+	//Reading SIGKILLs
 
-	//reading each kill signal's data until there is no more data
+	//Reading each kill signal's data until there is no more data
 	int Time(0), ID(0);
 	
-
 	while (!IP_Stream.eof())
 	{
 		IP_Stream >> Time >> PID;
@@ -193,6 +191,7 @@ void Scheduler::WriteOutputFile(string FileName)
 	{
 		TRM_List.Dequeue(deletePtr);
 
+		//Writing all needed info for each process
 		OP_Stream << setw(7) << deletePtr->GetTerminationTime()
 			<< setw(7) << deletePtr->GetID()
 			<< setw(7) << deletePtr->GetArrivalTime()
@@ -207,9 +206,12 @@ void Scheduler::WriteOutputFile(string FileName)
 		TotalResponseTime += deletePtr->GetResponseTime();
 		TotalTurnAroundtime += deletePtr->GetTurnAroundTime();
 
+		//Deallocating process since we don't need it anymore
 		delete deletePtr;
 	}
 
+
+	//--- Process statistics ---
 	OP_Stream << "\nProcesses: " << ProcessesCount << endl
 		<< "Avg WT = " << CalcAvgWT() << ",     "
 		<< "Avg RT = " << CalcAvgRT() << ",     "
@@ -217,7 +219,6 @@ void Scheduler::WriteOutputFile(string FileName)
 
 	//To prevent any instance of division by zero
 	if (!ProcessesCount) return;
-
 
 	OP_Stream << "Migration%:     RTF= " << CalcRTFMigrationPercentage()
 		<< "%,     MaxW= " << CalcMaxWMigrationPercentage() << "%\n"
@@ -227,6 +228,7 @@ void Scheduler::WriteOutputFile(string FileName)
 		<< "Processes Completed Before Deadline: " << CalcBeforeDeadlinePercentage() << "%\n\n";
 
 
+	//--- Processor Statistics ---
 	OP_Stream << "Processors: " << ProcessorsCount << " ["
 		<< FCFSCount << " FCFS, " << SJFCount << " SJF, "
 		<< RRCount << " RR, " << EDFCount << " EDF]\n";
@@ -365,8 +367,6 @@ void Scheduler::Fork(Process* ParentProcess)
 	//Creating child process
 	Process* Child = new Process(ChildID, ChildAT, ChildCT, ChildDL);
 
-	//Placing the child in the empty position (left then right)
-
 	ParentProcess->AddChild(Child);
 
 	SetMinIndex(1);
@@ -495,7 +495,7 @@ void Scheduler::Simulate()
 		for (size_t i = 0; i < ProcessorsCount; i++)
 		{
 			//Overheating
-			if ((rand() % 100) < 3)
+			if ((rand() % 100) < 30)
 				ProcessorsList[i]->GoForHealing();
 
 			//Calling ScheduleAlgo of each processor   
