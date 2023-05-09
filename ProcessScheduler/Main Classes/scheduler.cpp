@@ -422,21 +422,7 @@ void Scheduler::TerminateProcess(Process* ProcessToTerminate)
 
 	//Checking if the terminated process is a child
 	if (ProcessToTerminate->IsChild())
-	{
 		ProcessToTerminate->SeparateFromParent();
-
-		//Separating parent & child
-		//Process* Parent = ProcessToTerminate->GetParent();
-		//
-		////Changing the Parent's childPtr to Null
-
-		//if(ProcessToTerminate->IsLeft())
-		//	Parent->SetLeftChild(nullptr);	
-		//else 
-		//	Parent->SetRightChild(nullptr);
-
-		//	ProcessToTerminate->SetParent(nullptr);					//Changing the ParentPtr to nullptr in case of empty left & Right child ptrs 
-	}
 
 	//Moving to TRM & changing states
 	ProcessToTerminate->SetTerminationTime(TimeStep);
@@ -478,12 +464,13 @@ void Scheduler::Simulate()
 {
 	UI_Mode CrntMode;
 
+	//User chooses what to name the output file
 	string FileName = ProgramUI->ReadInputFileName();
 
-	//Reading the input file
+	//User choose what input file to use
 	if (!ReadInputFile(FileName)) return;
 
-	//User chooses what to name the output file
+	//Reading input file
 	FileName = ProgramUI->ReadOutputFileName();
 
 	//User chooses what UI mode to run on

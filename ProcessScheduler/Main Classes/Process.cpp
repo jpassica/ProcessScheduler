@@ -220,6 +220,7 @@ void Process::UpdateWaitingTime(int CrntTimeStep)
 
 Process::~Process()
 {
+	//Deallocating any remaining IO requests
 	IO_Request* DeleteIO_Request = nullptr;
 
 	while (!IO_RequestQ.isEmpty())
