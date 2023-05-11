@@ -12,7 +12,7 @@ void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 		return;
 	}
 
-	//First, check if there is an IO Request to be handled at the current Time step
+	//Handling IO requests
 	if (RunPtr && RunPtr->TimeForIO())
 	{
 		pScheduler->BlockProcess(RunPtr);
@@ -20,13 +20,11 @@ void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 		CrntState = IDLE;
 	}
 
-	//If there is no running process and the ready queue is empty, there is nothing to do for now
-
 	//if there is no running process but there is a process in the ready queue, move it to RUN
 	if (!RunPtr && !EDF_Ready.isEmpty())
 		RunNextProcess(CrntTimeStep);
 
-	//if the running process is done executing and is ready to move to TRM
+	//If the running process is done executing and is ready to move to TRM
 	else if (RunPtr && !RunPtr->GetRemainingCPUTime())
 	{
 		pScheduler->TerminateProcess(RunPtr);
@@ -54,12 +52,8 @@ void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 		}
 	}
 
-	//if the running process is not done executing, then there is nothing to do for now
-
 	if (RunPtr)
-	{
 		RunPtr->ExecuteProcess();
-	}
 
 	IncrementBusyOrIdleTime();
 }

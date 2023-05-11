@@ -15,7 +15,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		return;
 	}
 
-	//First, check if there is an IO Request to be handled at the current Time step
+	//Handling IO requests
 	if (RunPtr && RunPtr->TimeForIO())
 	{
 		pScheduler->BlockProcess(RunPtr);
@@ -64,7 +64,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunNextProcess(CrntTimeStep);
 	}
 
-	//else if there is a running process -> counter++
+	//else if there is a running process -> Counter++ & ProcessedTime++
 	if (RunPtr)
 	{
 		TimeSliceCounter++;

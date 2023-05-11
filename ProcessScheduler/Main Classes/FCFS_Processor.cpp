@@ -17,7 +17,7 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->Time == CrntTimeStep && Kill)
 		Kill = ExecuteKillSignal();
 
-	//IO requests
+	//Handling IO requests
 	if (RunPtr && RunPtr->TimeForIO())
 	{
 		pScheduler->BlockProcess(RunPtr);
