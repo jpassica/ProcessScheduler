@@ -6,13 +6,14 @@ SJF_Processor::SJF_Processor(int ID, Scheduler* SchedulerPtr, int HealingTime) :
 
 void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 { 
-	//if the processor is stopped  
-	if (CrntState == STOP) {
+	//If the processor is in STOP state
+	if (CrntState == STOP)
+	{
 		ContinueHealing();
 		return;
 	}
 
-	//First, check if there is an IO Request to be handled at the current Time step
+	//FHandling IO requests
 	if (RunPtr && RunPtr->TimeForIO())
 	{
 		pScheduler->BlockProcess(RunPtr);
@@ -20,29 +21,24 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 		CrntState = IDLE;
 	}
 
-	//Case 1: if there is no running process and the ready queue is empty, there is nothing to do for now
+	//If there is no running process and the ready queue is empty, there is nothing to do for now
 
-	//Case 2: if the running process is done executing and is ready to move to TRM
+	//If the running process is done executing and is ready to move to TRM
 	if (RunPtr && RunPtr->GetRemainingCPUTime() == 0)
 	{
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
 		RunNextProcess(CrntTimeStep);
 	}
-	//Case 3: if there is no running process but there is a process in the ready queue, move it to RUN
+
+	//If there is no running process but there is a process in the ready queue, move it to RUN
 	else if (!RunPtr && !SJF_Ready.isEmpty())
 	{
 		RunNextProcess(CrntTimeStep);
 	}
 
-
-	//Case4: if the running process is not done executing, then there is nothing to do for now
-
-
 	if (RunPtr)
-	{
 		RunPtr->ExecuteProcess();
-	}
 
 	IncrementBusyOrIdleTime();
 }

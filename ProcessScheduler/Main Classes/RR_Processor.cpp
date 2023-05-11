@@ -8,8 +8,9 @@ RR_Processor::RR_Processor(int ID, int timeSlice, Scheduler* SchedulerPtr, int H
 
 void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//if the processor is stopped  
-	if (CrntState == STOP) {
+	//If the processor is in STOP state
+	if (CrntState == STOP)
+	{
 		ContinueHealing();
 		return;
 	}

@@ -5,8 +5,9 @@ EDF_Processor::EDF_Processor(int ID, Scheduler* SchedulerPtr, int HealingTime) :
 
 void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//if the processor is stopped  
-	if (CrntState == STOP) {
+	//If the processor is in STOP state
+	if (CrntState == STOP)
+	{
 		ContinueHealing();
 		return;
 	}

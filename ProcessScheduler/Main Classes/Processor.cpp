@@ -63,8 +63,8 @@ bool Processor::IsStopped() const
 	return CrntState == STOP;
 }
 
-void Processor::ContinueHealing() {
-
+void Processor::ContinueHealing() 
+{
 	HealingTimeCounter--;
 	if (HealingTimeCounter == 0)
 	{

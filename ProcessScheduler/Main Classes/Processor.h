@@ -57,7 +57,7 @@ public:
 	//Returns processor ID
 	int GetID() const;
 
-	//Increments BusyTime || IdleTime based on current state
+	//increments BusyTime || IdleTime based on current state
 	void IncrementBusyOrIdleTime();
 
 	//Returns true if the processor is currently running a process

@@ -5,23 +5,14 @@ FCFS_Processor::FCFS_Processor(int ID, int ForkProb, Scheduler* SchedulerPtr, in
 
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
-	//if the processor is stopped  
+	//If the processor is in STOP state
 	if (CrntState == STOP) 
 	{
 		ContinueHealing();
 		return;
 	}
 
-	//Forking
-	if (RunPtr && RunPtr->CanFork())
-	{
-		if(rand() % 1000 < ForkProbability)
-		{
-			pScheduler->Fork(RunPtr);
-		}
-	}
-
-	//ExecuteKillSignal
+	//Executing kill signals
 	bool Kill = 1;
 	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->Time == CrntTimeStep && Kill)
 		Kill = ExecuteKillSignal();
@@ -34,9 +25,16 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 		CrntState = IDLE;							
 	}
 
-	//Case 1: if there is no running process and the ready list is empty, there is nothing to do for now
+	//Forking
+	if (RunPtr && RunPtr->CanFork())
+	{
+		if (rand() % 100000 < ForkProbability)
+		{
+			pScheduler->Fork(RunPtr);
+		}
+	}
 
-	//Case 2: if the running process is done executing and is ready to move to TRM
+	//If the running process is done executing and is ready to move to TRM
 	if (RunPtr && RunPtr->GetRemainingCPUTime() <= 0)
 	{
 		pScheduler->TerminateProcess(RunPtr);
@@ -44,8 +42,7 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunNextProcess(CrntTimeStep);
 	}
 
-	//Case 3: if there is no running process but there is a process in the ready list, move it to RUN
-
+	//If there is no running process but there is a process in the ready list, move it to RUN
 	else if (!RunPtr && !FCFS_Ready.isEmpty())
 		RunNextProcess(CrntTimeStep);
 
@@ -56,12 +53,8 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunNextProcess(CrntTimeStep);
 	}
 
-	//Case4: if the running process is not done executing, then there is nothing to do for now
-
 	if (RunPtr)
-	{
 		RunPtr->ExecuteProcess();
-	}
 
 	IncrementBusyOrIdleTime();
 }
