@@ -6,6 +6,7 @@ Processor::Processor(int ID, Scheduler* SchedulerPtr,int Healing) : CrntState(ID
 	BusyTime = 0;
 	IdleTime = 0;
 	FinishTime = 0;
+	HealingTimeCounter = HealingTime;
 }
 
 double Processor::CalcPLoad(int TotalTRT) const
@@ -64,7 +65,10 @@ bool Processor::IsStopped() const
 
 void Processor::ContinueHealing() {
 
-	HealingTime--;
-	if (HealingTime == 0)
+	HealingTimeCounter--;
+	if (HealingTimeCounter == 0)
+	{
 		CrntState = IDLE;
+		HealingTimeCounter = HealingTime;
+	}
 }

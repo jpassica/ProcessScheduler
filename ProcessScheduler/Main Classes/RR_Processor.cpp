@@ -84,12 +84,12 @@ bool RR_Processor::isReadyQueueEmpty() const
 	return RR_Ready.isEmpty();
 }
 
-void RR_Processor::GoForHealing() {
-
+void RR_Processor::ClearOverheatedProcessor() 
+{
 	Process* ProcessToMove;
-	if (RunPtr) {
+
+	if (RunPtr)
 		pScheduler->MovetoRDY(RunPtr);
-	}
 
 	while (!RR_Ready.isEmpty())
 	{
@@ -99,6 +99,7 @@ void RR_Processor::GoForHealing() {
 
 	RunPtr = nullptr;
 	CrntState = STOP;
+	FinishTime = 0;
 }
 
 bool RR_Processor::RunNextProcess(int crntTimeStep)

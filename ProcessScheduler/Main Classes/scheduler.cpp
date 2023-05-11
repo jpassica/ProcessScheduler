@@ -285,7 +285,8 @@ bool Scheduler::MigrateFromFCFStoRR(Process* MigratingProcess)
 
 	if (!MigratingProcess->IsChild() && MigratingProcess->GetWaitingTime() > MaxW)
 	{
-		SetMinIndex(3);				// Set MinIndex to index of RR processor with shortest ready queue
+		if (!SetMinIndex(3))				// Set MinIndex to index of RR processor with shortest ready queue
+			return false;
 
 		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
 
@@ -305,11 +306,14 @@ bool Scheduler::MigrateFromRRtoSJF(Process* MigratingProcess)
 
 	if (MigratingProcess->GetRemainingCPUTime() < RTF) 
 	{
-		if (SetMinIndex(2)) {				// Set MinIndex to index of SJF processor with shortest ready queue
-			ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
-			RTFMigrationCount++;
-			return true;
-		}
+		if (!SetMinIndex(2))				// Set MinIndex to index of SJF processor with shortest ready queue		
+			return false;
+
+		ProcessorsList[MinIndex]->AddToReadyQueue(MigratingProcess);
+
+		RTFMigrationCount++;
+
+		return true;
 	}
 	return false;
 }
@@ -317,9 +321,9 @@ bool Scheduler::MigrateFromRRtoSJF(Process* MigratingProcess)
 void Scheduler::Steal()
 {
 	//Setting the indices of the processors with the longest and shortest finish times
-	SetMinIndex();
-	SetMaxIndex();
-	
+	if (!SetMinIndex())  return;
+	if (!SetMaxIndex())  return;
+
 	//Calculating the steal limit
 	int StealLimit = CalcStealLimit();
 
@@ -328,7 +332,6 @@ void Scheduler::Steal()
 		Process* StolenProcess = ProcessorsList[MaxIndex]->StealProcess();
 
 		//If the longest queue is comprised entirely of forked processes, we cannot steal any 
-		//Not sure if I should move on to the second longest queue, that would be a very laborous task
 		if (!StolenProcess)
 			return;
 
@@ -344,6 +347,20 @@ void Scheduler::Steal()
 void Scheduler::IncrementKillCount()
 {
 	KillCount++;
+}
+
+void Scheduler::CheckForOverheating()
+{
+	bool TurnedOff = 0;
+
+	for (size_t i = 0; i < ProcessorsCount && !TurnedOff; i++)
+	{
+		if (rand() % 1000 < 3)
+		{
+			ProcessorsList[i]->ClearOverheatedProcessor();
+			TurnedOff = 1;
+		}
+	}
 }
 
 void Scheduler::BlockProcess(Process* ProcessPtr)
@@ -369,6 +386,7 @@ void Scheduler::Fork(Process* ParentProcess)
 
 	ParentProcess->AddChild(Child);
 
+	// We are sure that there will be at least 1 functional processor
 	SetMinIndex(1);
 
 	ProcessorsList[MinIndex]->AddToReadyQueue(Child);
@@ -404,9 +422,11 @@ void Scheduler::UnBlockProcess()
 	BLK_List.Dequeue(UnBlockedProcess);
 
 	//Choosing the processor with the shortest ready queue
-	SetMinIndex();	
-	ProcessorsList[MinIndex]->AddToReadyQueue(UnBlockedProcess);
+	if (SetMinIndex())
+		ProcessorsList[MinIndex]->AddToReadyQueue(UnBlockedProcess);
 
+	else
+		TMP_List.Enqueue(UnBlockedProcess);
 }
 
 void Scheduler::TerminateProcess(Process* ProcessToTerminate)
@@ -447,25 +467,44 @@ void Scheduler::MoveNEWtoRDY()
 		NEW_List.Dequeue(NewProcessPtr);
 
 		//Setting the index of the processor with the smallest expected finish Time
-		SetMinIndex();
+		if (SetMinIndex())
+			//Adding the process to the RDY queue of the processor with the smallest finish Time
+			ProcessorsList[MinIndex]->AddToReadyQueue(NewProcessPtr);
+		else
+			TMP_List.Enqueue(NewProcessPtr);
 
-		//Adding the process to the RDY queue of the processor with the smallest finish Time
-		ProcessorsList[MinIndex]->AddToReadyQueue(NewProcessPtr);
 
 		if (!NEW_List.isEmpty())
 			NewProcessPtr = NEW_List.QueueFront();
 		else
 			NewProcessPtr = nullptr;
 	}
+
+	Process* ReturningProcess = nullptr;
+
+	//Returning all processes that had to wait for overheated processors to recover
+	while (!TMP_List.isEmpty())
+	{
+		if (!SetMinIndex())
+			break;
+
+		ProcessorsList[MinIndex]->AddToReadyQueue(ReturningProcess);
+
+		if (!TMP_List.isEmpty())
+			ReturningProcess = NEW_List.QueueFront();
+		else
+			ReturningProcess = nullptr;
+	}
 }
 
-void Scheduler::MovetoRDY(Process* ProcessToMove) {
-
+void Scheduler::MovetoRDY(Process* ProcessToMove) 
+{
 	//Setting the index of the processor with the smallest expected finish Time
-	SetMinIndex();
-
-	//Adding the process to the RDY queue of the processor with the smallest finish Time
-	ProcessorsList[MinIndex]->AddToReadyQueue(ProcessToMove);
+	if (SetMinIndex())
+		//Adding the process to the RDY queue of the processor with the smallest finish Time
+		ProcessorsList[MinIndex]->AddToReadyQueue(ProcessToMove);
+	else
+		TMP_List.Enqueue(ProcessToMove);
 }
 
 void Scheduler::Simulate()
@@ -488,26 +527,25 @@ void Scheduler::Simulate()
 		ProgramUI->PrintSilentMode(0);
 
 
-	while (TRM_List.getCount() != ProcessesCount) //program ends when all processes are in TRM list
+	while (TRM_List.getCount() != ProcessesCount)	//program ends when all processes are in TRM list
 	{
 		MoveNEWtoRDY();
 
 		for (size_t i = 0; i < ProcessorsCount; i++)
 		{
-			//Overheating
-			if ((rand() % 100) < 30)
-				ProcessorsList[i]->GoForHealing();
-
 			//Calling ScheduleAlgo of each processor   
 			ProcessorsList[i]->ScheduleAlgo(TimeStep);
 		}
 
 		//Initiating the steal action each STL timesteps
-		if (TimeStep % STL == 0)
+		if (TimeStep % STL == 0 && TimeStep)
 			Steal();
 
 		//Handle IO_Duration in BLK list each Time step
 		HandleIODuration();
+
+		//Overheating
+		CheckForOverheating();
 
 		//Incrementing & printing timestep
 		if (CrntMode != Silent)
@@ -531,16 +569,17 @@ bool Scheduler::SetMinIndex(int RangeSelect)
 	//If RangeSelect = 3, it will search within the range of RR processors only
 
 	//Default values for start, end & initializing MinIndex
-	int Start , End = ProcessorsCount;
-	MinIndex = 0;
+	int Start, End;
 
 	//while loop to handle that if all of the processors are stopped 
 	if (RangeSelect == 1)			//The range is FCFS processors only
 	{
+		MinIndex = 0;
 		End = FCFSCount;
-		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End) {
+
+		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End)
 			MinIndex++;
-		}
+
 		if (MinIndex == End)
 			return false;
 	}
@@ -549,9 +588,10 @@ bool Scheduler::SetMinIndex(int RangeSelect)
 	{
 		MinIndex = FCFSCount;
 		End = FCFSCount + SJFCount;
-		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End) {
+
+		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End) 
 			MinIndex++;
-		}
+	
 		if (MinIndex == End)
 			return false;
 	}
@@ -560,50 +600,56 @@ bool Scheduler::SetMinIndex(int RangeSelect)
 	{
 		MinIndex = FCFSCount + SJFCount;
 		End = FCFSCount + SJFCount + RRCount;
-		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End) {
+
+		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End) 
 			MinIndex++;
-		}
+
+		if (MinIndex == End)
+			return false;
+	}
+
+	else if (!RangeSelect)
+	{
+		MinIndex = 0;
+		End = ProcessorsCount;
+
+		while (ProcessorsList[MinIndex]->IsStopped() && MinIndex < End)
+			MinIndex++;
+
 		if (MinIndex == End)
 			return false;
 	}
 
 	Start = MinIndex + 1;
+
 	//Checking which processor has the smallest expected finish Time (within given range)
 	for (size_t i = Start; i < End; i++)
 	{
-		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime())
+		if (ProcessorsList[i]->GetFinishTime() < ProcessorsList[MinIndex]->GetFinishTime() && !ProcessorsList[i]->IsStopped())
 			MinIndex = i;
 	}
-	return true;
+
+	if (ProcessorsList[MinIndex]->IsStopped())
+		return false;
+	else
+		return true;
 }
 
 bool Scheduler::SetMaxIndex(int RangeSelect)
 {
-	//If RangeSelect = 0 (default), the fn will search for the shortest queue within all procssors
-	//If RangeSelect = 1, it will search within the range of FCFS processors only
-	
-	//Default values for start, end & initializing MaxIndex
-	int Start , End = ProcessorsCount;
 	MaxIndex = 0;
 
-	if (RangeSelect == 1)			//The range is FCFS processors only
-	{
-		End = FCFSCount;
-		while (ProcessorsList[MaxIndex]->IsStopped() && MaxIndex < End) {
-			MaxIndex++;
-		}
-		if (MaxIndex == End)
-			return false;
-	}
-
-	Start = MinIndex + 1;
-
 	//Checking which processor has the biggest expected finish Time
-	for (size_t i = Start; i < End; i++)
+	for (size_t i = 1; i < ProcessorsCount; i++)
 	{
-		if (ProcessorsList[i]->GetFinishTime() > ProcessorsList[MaxIndex]->GetFinishTime())
+		if (ProcessorsList[i]->GetFinishTime() > ProcessorsList[MaxIndex]->GetFinishTime() && !ProcessorsList[i]->IsStopped())
 			MaxIndex = i;
 	}
+
+	if (ProcessorsList[MinIndex]->IsStopped())
+		return false;
+	else
+		return true;
 }
 
 int Scheduler::CalcStealLimit()

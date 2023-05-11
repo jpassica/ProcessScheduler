@@ -16,6 +16,7 @@ protected:
 	Scheduler* pScheduler;					//Ptr to Scheduler class
 	int FinishTime;							//Estimated finish Time of all processes in the ready queue/list
 	int HealingTime;                        //time needed for healing   
+	int HealingTimeCounter;
 
 public:
 	Processor(int ID, Scheduler* SchedulerPtr, int Healing);
@@ -26,13 +27,13 @@ public:
 	//this function is overriden in each processor class
 	virtual void AddToReadyQueue(Process* pReady) = 0;
 
-	//returns true if ready queue/list is empty
+	//Returns true if ready queue/list is empty
 	virtual bool isReadyQueueEmpty() const = 0;
 
-	//moves process at top of ready queue/list to run
+	//Moves process at top of ready queue/list to run
 	virtual bool RunNextProcess(int crntTimeStep) = 0;
 
-	//returns count of items in ready queue/list
+	//Returns count of items in ready queue/list
 	virtual int GetRDYCount() const = 0;
 
 	//Calls print function of ready queue/list
@@ -41,8 +42,8 @@ public:
 	//Steals a process from the top of the RDY queue/list
 	virtual Process* StealProcess() = 0;
 
-	//Stop the processor then move it's RUN/RDY prosesses to shortest ready queue
-	virtual void GoForHealing() = 0;
+	//Stops the processor and moves its RUN/RDY prosesses to shortest ready queue
+	virtual void ClearOverheatedProcessor() = 0;
 
 	//Outputs Processor's ID
 	friend ostream& operator<<(ostream&, const Processor&);  

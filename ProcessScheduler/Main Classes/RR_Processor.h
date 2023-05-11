@@ -18,16 +18,22 @@ public:
 	//adds passed process to RR_Ready
 	virtual void AddToReadyQueue(Process* pReady) override;
 
+	//Returns true if ready queue/list is empty
 	virtual bool isReadyQueueEmpty() const override;
 
-	virtual void GoForHealing() override;
+	//Stops the processor and moves its RUN/RDY prosesses to shortest ready queue
+	virtual void ClearOverheatedProcessor() override;
 
+	//Moves process at top of ready queue/list to run
 	virtual bool RunNextProcess(int crntTimeStep) override;
 	
+	//Returns count of items in ready queue/list
 	virtual int GetRDYCount() const override;
 
+	//Calls print function of ready queue/list
 	virtual void PrintRDY() const override;
 
+	//Steals process from the top of the ready queue
 	virtual Process* StealProcess() override;
 };
 

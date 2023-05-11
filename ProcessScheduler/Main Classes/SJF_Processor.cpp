@@ -59,7 +59,7 @@ bool SJF_Processor::isReadyQueueEmpty() const
 	return SJF_Ready.isEmpty();
 }
 
-void SJF_Processor::GoForHealing() {
+void SJF_Processor::ClearOverheatedProcessor() {
 
 	Process* ProcessToMove;
 	if (RunPtr) {
@@ -74,6 +74,7 @@ void SJF_Processor::GoForHealing() {
 
 	RunPtr = nullptr;
 	CrntState = STOP;
+	FinishTime = 0;
 }
 
 bool SJF_Processor::RunNextProcess(int CrntTimeStep)

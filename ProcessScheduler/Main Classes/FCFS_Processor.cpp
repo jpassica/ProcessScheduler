@@ -6,25 +6,25 @@ FCFS_Processor::FCFS_Processor(int ID, int ForkProb, Scheduler* SchedulerPtr, in
 void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 {
 	//if the processor is stopped  
-	if (CrntState == STOP) {
+	if (CrntState == STOP) 
+	{
 		ContinueHealing();
 		return;
 	}
 
 	//Forking
-	if (RunPtr)
+	if (RunPtr && RunPtr->CanFork())
 	{
-		int Random = rand() % 100;
-		if (Random <= ForkProbability)
+		if(rand() % 1000 < ForkProbability)
 		{
 			pScheduler->Fork(RunPtr);
 		}
 	}
 
-	//ExecuteKIllSignal signals
+	//ExecuteKillSignal
 	bool Kill = 1;
 	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->Time == CrntTimeStep && Kill)
-		Kill = ExecuteKIllSignal();
+		Kill = ExecuteKillSignal();
 
 	//IO requests
 	if (RunPtr && RunPtr->TimeForIO())
@@ -158,11 +158,11 @@ Process* FCFS_Processor::StealProcess()
 	return StolenProcess;
 }
 
-void FCFS_Processor::GoForHealing() {
-
-	if (RunPtr) {
+void FCFS_Processor::ClearOverheatedProcessor() 
+{
+	if (RunPtr) 
 		pScheduler->MovetoRDY(RunPtr);
-	}
+
 
 	while (!FCFS_Ready.isEmpty())
 	{
@@ -172,9 +172,10 @@ void FCFS_Processor::GoForHealing() {
 	
 	RunPtr = nullptr;
 	CrntState = STOP;
+	FinishTime = 0;
 }
 
-bool FCFS_Processor::ExecuteKIllSignal()
+bool FCFS_Processor::ExecuteKillSignal()
 {
 	KillSignal* KillSig = KillSignalQ.QueueFront();
 

@@ -29,6 +29,9 @@ private:
 	Queue<Process*> TRM_List;    
 	int ProcessesCount;
 
+	//Used to temporarily store processes until processors recover from overheating
+	Queue<Process*> TMP_List;
+
 	//Operation parameters
 	int RTF;  
 	int MaxW; 
@@ -112,6 +115,9 @@ public:
 
 	//Called by FCFS processors when they execute a kill signal
 	void IncrementKillCount();
+	
+	//Turns off processor
+	void CheckForOverheating();
 
 	//---------------- Statistics calculation functions -------------------
 	double CalcAvgUtilization() const;

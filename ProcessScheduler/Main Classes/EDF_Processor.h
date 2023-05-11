@@ -18,9 +18,10 @@ public:
 	//returns true if ready queue/list is empty
 	virtual bool isReadyQueueEmpty() const override;
 
-	virtual void GoForHealing() override;
+	//Stops the processor and moves its RUN/RDY prosesses to shortest ready queue
+	virtual void ClearOverheatedProcessor() override;
 
-	//moves process at top of ready queue/list to run
+	//Moves process at top of ready queue/list to run
 	virtual bool RunNextProcess(int crntTimeStep) override;
 
 	//returns count of items in ready queue/list
@@ -29,7 +30,7 @@ public:
 	//Calls print function of ready queue/list
 	virtual void PrintRDY() const override;
 
-	//Steals a process from the top of the RDY queue/list
+	//Steals a process from the top of the ready queue
 	virtual Process* StealProcess() override;
 
 };

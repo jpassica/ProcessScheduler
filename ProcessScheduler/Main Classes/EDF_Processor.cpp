@@ -75,8 +75,7 @@ bool EDF_Processor::isReadyQueueEmpty() const
 	return EDF_Ready.isEmpty();
 }
 
-void EDF_Processor::GoForHealing() {
-
+void EDF_Processor::ClearOverheatedProcessor() {
 
 	Process* ProcessToMove;
 	if (RunPtr) {
@@ -91,6 +90,7 @@ void EDF_Processor::GoForHealing() {
 
 	RunPtr = nullptr;
 	CrntState = STOP;
+	FinishTime = 0;
 }
 
 bool EDF_Processor::RunNextProcess(int crntTimeStep)

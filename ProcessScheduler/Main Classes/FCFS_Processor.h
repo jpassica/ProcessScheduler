@@ -7,7 +7,7 @@
 class FCFS_Processor : public Processor
 {
 	ProcessList FCFS_Ready;
-	static Queue<KillSignal*> KillSignalQ;
+	static Queue<KillSignal*> KillSignalQ;			//Queue of kill signals shared by all FCFS processors
 	int ForkProbability;
 
 public:
@@ -19,23 +19,31 @@ public:
 	//adds the passed process to the FCFS_Ready
 	virtual void AddToReadyQueue(Process*) override;
 
+	//Returns true if ready queue/list is empty
 	virtual bool isReadyQueueEmpty() const override;
 
-	virtual void GoForHealing() override;
+	//Stops the processor and moves its RUN/RDY prosesses to shortest ready queue
+	virtual void ClearOverheatedProcessor() override;
 
+	//Moves process at top of ready queue/list to run
 	virtual bool RunNextProcess(int) override;
 
+	//Returns count of items in ready queue/list
 	virtual int GetRDYCount() const override;
 
+	//Kills the process with the passed ID if it found in RDY/RUN
 	bool KillByID(int);
 
+	//Calls print function of ready queue/list
 	virtual void PrintRDY() const override;
 
+	//Steals process from the top of the ready list
 	virtual Process* StealProcess() override;
 
 	//Kills processes if they receive a kill signal at current Time step
-	bool ExecuteKIllSignal();
+	bool ExecuteKillSignal();
 
+	//Kills orphan process upon termination of its parent process
 	bool KillOrphan(int);
 
 	//Creates KillSignal object and adds it to the kill signal queue

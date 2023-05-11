@@ -109,6 +109,7 @@ void UI::PrintTimeStep(const Queue<Process*>& BLK_List, const Queue<Process*>& T
 
 		if (ProcessorsList[i]->IsStopped())
 			cout << "OVERHEATED";
+
 		ProcessorsList[i]->PrintRDY();
 		cout << endl;
 	}
