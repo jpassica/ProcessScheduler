@@ -55,14 +55,16 @@ void UI::PrintSilentMode(bool StartorEnd) const
 
 string UI::ReadInputFileName(bool isError) const
 {
-	string FileName;
+	string FileName, FileCode;
 
 	if (isError)
 		cerr << "Error! Are you sure there's a file with that name?\n Please enter a valid input file name: >";
 	else
 		cout << "Please enter input file name: > ";
 
-	cin >> FileName;
+	cin >> FileCode;
+
+	FileName = "TestCase" + FileCode;
 
 	cout << endl;
 
@@ -71,11 +73,13 @@ string UI::ReadInputFileName(bool isError) const
 
 string UI::ReadOutputFileName() const
 {
-	string FileName;
+	string FileName, FileCode;
 
 	cout << "Please enter output file name (to be generated): > ";
 
-	cin >> FileName;
+	cin >> FileCode;
+
+	FileName = "OutputFile" + FileCode;
 
 	cout << endl;
 
@@ -167,6 +171,6 @@ void UI::PrintTimeStep(const Queue<Process*>& BLK_List, const Queue<Process*>& T
 		getchar();
 	}
 	else if (CrntMode == StepByStep)
-		Sleep(1000);
+		Sleep(0.000001);
 	
 }

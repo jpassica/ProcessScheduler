@@ -28,7 +28,7 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 	//Forking
 	if (RunPtr && RunPtr->CanFork())
 	{
-		if (rand() % 100000 < ForkProbability)
+		if (rand() % 1000 < ForkProbability)
 		{
 			pScheduler->Fork(RunPtr);
 		}
@@ -239,5 +239,16 @@ void FCFS_Processor::ClearKillSignalQ()
 	{
 		KillSignalQ.Dequeue(DeleteKillSig);
 		delete DeleteKillSig;
+	}
+}
+
+void FCFS_Processor::RemoveIgnoredKillSignals(int CrntTimeStep)
+{
+	KillSignal* IgnoredKillSig = nullptr;
+
+	while (KillSignalQ.QueueFront()->Time == CrntTimeStep)
+	{
+		KillSignalQ.Dequeue(IgnoredKillSig);
+		delete IgnoredKillSig;
 	}
 }

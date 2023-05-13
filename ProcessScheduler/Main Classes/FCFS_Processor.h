@@ -51,6 +51,9 @@ public:
 
 	//Called at end of program to deallocate any remaining unexecuted kill signals
 	static void ClearKillSignalQ();
+
+	//Removes ignored kill signals at current time step from the queue
+	static void RemoveIgnoredKillSignals(int);
 };
 
 #endif

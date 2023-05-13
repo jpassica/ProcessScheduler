@@ -13,7 +13,7 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 		return;
 	}
 
-	//FHandling IO requests
+	//Handling IO requests
 	if (RunPtr && RunPtr->TimeForIO())
 	{
 		pScheduler->BlockProcess(RunPtr);
@@ -21,10 +21,8 @@ void SJF_Processor::ScheduleAlgo(int CrntTimeStep)
 		CrntState = IDLE;
 	}
 
-	//If there is no running process and the ready queue is empty, there is nothing to do for now
-
 	//If the running process is done executing and is ready to move to TRM
-	if (RunPtr && RunPtr->GetRemainingCPUTime() == 0)
+	if (RunPtr && RunPtr->GetRemainingCPUTime() <= 0)
 	{
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;

@@ -108,5 +108,11 @@
     <Text Include="TestCaseD.txt" />
     <Text Include="OutputFileD.txt" />
     <Text Include="outputfilec.txt" />
+    <Text Include="TestCaseE.txt" />
+    <Text Include="OutputFileE.txt" />
+    <Text Include="TestCaseF.txt" />
+    <Text Include="TestCaseG.txt" />
+    <Text Include="OutputFileF.txt" />
+    <Text Include="OutputFileG.txt" />
   </ItemGroup>
 </Project>

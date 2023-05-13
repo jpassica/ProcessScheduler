@@ -84,8 +84,7 @@ bool Scheduler::ReadInputFile(string FileName)
 	//reading the main parameters
 	IP_Stream >> FCFSCount >> SJFCount >> RRCount >> EDFCount;
 	IP_Stream >> RRtimeSlice;
-	IP_Stream >> HealingTime;
-	IP_Stream >> RTF >> MaxW >> STL >> ForkProb;
+	IP_Stream >> RTF >> MaxW >> STL >> ForkProb >> HealingTime;
 	IP_Stream >> ProcessesCount;
 
 	//setting ProcessorsCount
@@ -535,6 +534,9 @@ void Scheduler::Simulate()
 		{
 			//Calling ScheduleAlgo of each processor   
 			ProcessorsList[i]->ScheduleAlgo(TimeStep);
+
+			if (i == FCFSCount)
+				FCFS_Processor::RemoveIgnoredKillSignals(TimeStep);
 		}
 
 		//Initiating the steal action each STL timesteps
@@ -652,7 +654,7 @@ bool Scheduler::SetMaxIndex(int RangeSelect)
 		return true;
 }
 
-int Scheduler::CalcStealLimit()
+int Scheduler::CalcStealLimit() const
 {
 	int SQF = ProcessorsList[MinIndex]->GetFinishTime();
 	int LQF = ProcessorsList[MaxIndex]->GetFinishTime();

@@ -111,7 +111,7 @@ public:
 	bool SetMaxIndex(int RangeSelect = 0);
 
 	//Calculates and returns the steal limit
-	int CalcStealLimit();
+	int CalcStealLimit() const;
 
 	//Called by FCFS processors when they execute a kill signal
 	void IncrementKillCount();

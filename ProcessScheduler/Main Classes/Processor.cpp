@@ -28,7 +28,7 @@ int Processor::GetID() const
 
 void Processor::IncrementBusyOrIdleTime()
 {
-	if (CrntState == IDLE)
+	if (CrntState == IDLE || CrntState == STOP)
 		IdleTime++;
 	else
 		BusyTime++;
@@ -60,7 +60,7 @@ int Processor::GetFinishTime() const
 
 bool Processor::IsStopped() const
 {
-	return CrntState == STOP;
+	return (CrntState == STOP);
 }
 
 void Processor::ContinueHealing() 
