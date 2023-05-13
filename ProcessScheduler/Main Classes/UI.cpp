@@ -71,21 +71,6 @@ string UI::ReadInputFileName(bool isError) const
 	return FileName;
 }
 
-string UI::ReadOutputFileName() const
-{
-	string FileName, FileCode;
-
-	cout << "Please enter output file name (to be generated): > ";
-
-	cin >> FileCode;
-
-	FileName = "OutputFile" + FileCode;
-
-	cout << endl;
-
-	return FileName;
-}
-
 void UI::PrintTimeStep(const Queue<Process*>& BLK_List, const Queue<Process*>& TRM_List, 
 	Processor** ProcessorsList, int NF, int NS, int NR, int NE, int timeStep) const
 {

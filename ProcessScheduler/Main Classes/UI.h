@@ -26,9 +26,6 @@ public:
 	//Takes the input file name as input from the user
 	string ReadInputFileName(bool isError = 0) const;
 
-	//Takes the output file name as input from the user
-	string ReadOutputFileName() const;
-
 	//Main function for printing info each Time step
 	void PrintTimeStep(const Queue<Process*>&, const Queue<Process*>&, Processor**, int, int, int, int, int) const;
 };	

@@ -169,6 +169,9 @@ void Scheduler::WriteOutputFile(string FileName)
 {
 	//Creating output stream object and opening file for writing
 	ofstream OP_Stream;
+	char FileCode = FileName[FileName.length() - 1];
+	FileName = "OutputFile";
+	FileName +=  FileCode;
 	FileName += ".txt";
 	OP_Stream.open(FileName);
 
@@ -510,14 +513,11 @@ void Scheduler::Simulate()
 {
 	UI_Mode CrntMode;
 
-	//User chooses what to name the output file
+	//User chooses what input file to use
 	string FileName = ProgramUI->ReadInputFileName();
 
-	//User choose what input file to use
+	//Reading the input file
 	if (!ReadInputFile(FileName)) return;
-
-	//Reading input file
-	FileName = ProgramUI->ReadOutputFileName();
 
 	//User chooses what UI mode to run on
 	CrntMode = ProgramUI->InputInterfaceMode();

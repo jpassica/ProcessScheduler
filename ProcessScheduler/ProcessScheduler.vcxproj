@@ -164,7 +164,7 @@
     <Text Include="OutputFileF.txt" />
     <Text Include="OutputFileG.txt" />
     <Text Include="TestCaseC.txt" />
-    <Text Include="TestCaseA.txt" />
+    <Text Include="TestCaseP.txt" />
     <Text Include="TestCaseB.txt" />
     <Text Include="TestCaseD.txt" />
     <Text Include="TestCaseE.txt" />
