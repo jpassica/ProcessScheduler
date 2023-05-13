@@ -25,7 +25,7 @@ void EDF_Processor::ScheduleAlgo(int CrntTimeStep)
 		RunNextProcess(CrntTimeStep);
 
 	//If the running process is done executing and is ready to move to TRM
-	else if (RunPtr && !RunPtr->GetRemainingCPUTime())
+	else if (RunPtr && RunPtr->GetRemainingCPUTime() <= 0)
 	{
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;

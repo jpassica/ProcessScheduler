@@ -15,7 +15,10 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 	//Executing kill signals
 	bool Kill = 1;
 	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->Time == CrntTimeStep && Kill)
-		Kill = ExecuteKillSignal();
+	{
+		Kill = ExecuteKillSignal(); 
+	}
+		
 
 	//Handling IO requests
 	if (RunPtr && RunPtr->TimeForIO())
@@ -246,7 +249,7 @@ void FCFS_Processor::RemoveIgnoredKillSignals(int CrntTimeStep)
 {
 	KillSignal* IgnoredKillSig = nullptr;
 
-	while (KillSignalQ.QueueFront()->Time == CrntTimeStep)
+	while (!KillSignalQ.isEmpty() && KillSignalQ.QueueFront()->Time == CrntTimeStep)
 	{
 		KillSignalQ.Dequeue(IgnoredKillSig);
 		delete IgnoredKillSig;

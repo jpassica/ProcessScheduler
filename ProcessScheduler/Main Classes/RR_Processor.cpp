@@ -31,7 +31,7 @@ void RR_Processor::ScheduleAlgo(int CrntTimeStep)
 	}
 
 	//if the running process is done executing and is ready to move to TRM
-	else if (RunPtr && RunPtr->GetProcessedTime() == RunPtr->GetCPUTime()) 
+	else if (RunPtr && RunPtr->GetProcessedTime() >= RunPtr->GetCPUTime()) 
 	{
 		pScheduler->TerminateProcess(RunPtr);
 		RunPtr = nullptr;
