@@ -3,6 +3,7 @@
 #include "..\Defs.h"
 #include "..\DS Classes\Queue.h"
 
+class Processor;
 class Scheduler;
 
 class Process 
@@ -31,6 +32,8 @@ private:
 	Process* LeftChildPtr;
 	Process* RightChildPtr;
 	Process* ParentPtr;
+
+	Processor* CurrentProcessor;
 
 	//To mark the response Time
 	bool FirstTimeExecution;
@@ -93,6 +96,7 @@ public:
 	int GetTotalIO_D() const;
 	Process* GetLeftChild() const;
 	Process* GetRightChild() const;
+	Processor* GetCurrentProcessor() const;
 	int GetProcessedTime() const;
 	int GetRemainingCPUTime() const;
 	int GetIO_D();

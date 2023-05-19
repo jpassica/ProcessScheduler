@@ -1,4 +1,5 @@
 #include "Process.h"
+#include "Processor.h"
 
 Process::Process(int ID, int AT, int CT, int DL)
 	: PID(ID), ArrivalTime(AT), CPUTime(CT), Deadline(DL)
@@ -13,6 +14,7 @@ Process::Process(int ID, int AT, int CT, int DL)
 	LeftChildPtr = nullptr;
 	RightChildPtr = nullptr;
 	ParentPtr = nullptr;
+	CurrentProcessor = nullptr;
 	FirstTimeExecution = 1;
 	ForkCount = 0;
 }
@@ -105,6 +107,11 @@ Process* Process::GetLeftChild() const
 Process* Process::GetRightChild() const
 {
 	return RightChildPtr;
+}
+
+Processor* Process::GetCurrentProcessor() const
+{
+	return CurrentProcessor;
 }
 
 int Process::GetProcessedTime() const
