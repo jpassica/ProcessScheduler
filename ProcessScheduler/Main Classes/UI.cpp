@@ -58,7 +58,7 @@ string UI::ReadInputFileName(bool isError) const
 	string FileName, FileCode;
 
 	if (isError)
-		cerr << "Error! Are you sure there's a file with that name?\n Please enter a valid input file name: >";
+		cerr << "Error! Are you sure there's a file with this name?\n Please enter a valid input file name: >";
 	else
 		cout << "Please enter input file name: > ";
 
