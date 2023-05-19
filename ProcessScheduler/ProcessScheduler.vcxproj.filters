@@ -101,7 +101,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="TestCaseC.txt" />
-    <Text Include="TestCaseP.txt" />
     <Text Include="OutputFileA.txt" />
     <Text Include="TestCaseB.txt" />
     <Text Include="OutputFileB.txt" />

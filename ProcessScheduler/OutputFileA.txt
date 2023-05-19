@@ -20,8 +20,8 @@ Processes Completed Before Deadline: 100.0%
 
 Processors: 6 [1 FCFS, 2 SJF, 2 RR, 1 EDF]
 Processors Load
-p1 = 14.2%,     p2 = 3.4%,     p3 = 2.6%,     p4 = 2.6%,     p5 = 1.8%,     p6 = 1.3%,     
+p1 = 14.2%,     p2 = 3.4%,     p3 = 2.6%,     p4 = 3.1%,     p5 = 1.3%,     p6 = 1.3%,     
 
 Processors Utiliz
-p1 = 85.9%,     p2 = 20.3%,     p3 = 15.6%,     p4 = 22.7%,     p5 = 10.9%,     p6 = 7.8%,     
-Avg utilization = 27.2%
+p1 = 85.9%,     p2 = 20.3%,     p3 = 15.6%,     p4 = 20.3%,     p5 = 7.8%,     p6 = 7.8%,     
+Avg utilization = 26.3%
