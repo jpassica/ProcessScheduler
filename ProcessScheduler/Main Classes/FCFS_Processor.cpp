@@ -31,7 +31,7 @@ void FCFS_Processor::ScheduleAlgo(int CrntTimeStep)
 	//Forking
 	if (RunPtr && RunPtr->CanFork())
 	{
-		if (rand() % 100000 < ForkProbability)
+		if (rand() % 1000 < ForkProbability)
 		{
 			pScheduler->Fork(RunPtr);
 		}
