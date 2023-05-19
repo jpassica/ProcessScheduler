@@ -69,7 +69,7 @@ public:
 	Scheduler();
 
 	//Reads input file, sets data, allocates processes & processors
-	bool ReadInputFile(string);
+	bool ReadInputFile(string&);
 
 	//Generates output file and writes all statistics
 	void WriteOutputFile(string);

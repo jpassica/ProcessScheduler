@@ -60,7 +60,7 @@ void Scheduler::AllocateProcessors(int NF, int NS, int NR, int NE, int RRtimeSli
 	}
 }
 
-bool Scheduler::ReadInputFile(string FileName)
+bool Scheduler::ReadInputFile(string& FileName)
 {
 	//Creating input stream object and opening file
 	ifstream IP_Stream;
@@ -169,7 +169,7 @@ void Scheduler::WriteOutputFile(string FileName)
 {
 	//Creating output stream object and opening file for writing
 	ofstream OP_Stream;
-	char FileCode = FileName[FileName.length() - 1];
+	char FileCode = FileName[FileName.length() - 5];
 	FileName = "OutputFile";
 	FileName +=  FileCode;
 	FileName += ".txt";
